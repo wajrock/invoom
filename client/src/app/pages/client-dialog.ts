@@ -66,7 +66,7 @@ interface FieldSlot {
       <p hlmDialogDescription>Ces coordonnées sont reprises sur chaque facture émise pour ce client.</p>
     </hlm-dialog-header>
 
-    <form id="client-form" class="-mx-1 grid max-h-[65vh] gap-4 overflow-y-auto px-1 py-1" (ngSubmit)="save()">
+    <form id="client-form" class="-mx-1 grid content-start gap-4 overflow-y-auto overscroll-contain sm:max-h-[65vh] px-1 py-1" (ngSubmit)="save()">
       <div class="grid gap-4 sm:grid-cols-2">
         <div class="grid gap-2">
           <label hlmLabel for="c-country-code">Pays</label>

@@ -42,7 +42,7 @@ type HlmDialogContentContext = {
     }
 
     @if (showCloseButton()) {
-      <button hlmBtn variant="ghost" size="icon-sm" class="absolute end-4 top-4" hlmDialogClose>
+      <button hlmBtn variant="ghost" size="icon-sm" class="absolute end-4 top-4 max-sm:end-2 max-sm:top-3" hlmDialogClose>
         <span class="sr-only">{{ closeLabel() }}</span>
         <ng-icon name="lucideX" />
       </button>
@@ -71,6 +71,9 @@ export class HlmDialogContent {
   constructor() {
     classes(() => [
       'bg-popover text-popover-foreground data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 ring-foreground/10 grid max-w-[calc(100%-2rem)] gap-6 rounded-xl p-6 text-sm ring-1 duration-100 sm:max-w-md relative mx-auto w-[calc(100vw-2rem)] outline-none sm:mx-0',
+      // Mobile : panneau qui monte du bas (bottom sheet), pleine largeur, poignée et zone sûre
+      'max-sm:fixed max-sm:inset-x-0 max-sm:bottom-0 max-sm:w-full max-sm:max-w-none max-sm:max-h-[92dvh] max-sm:grid-rows-[auto_minmax(0,1fr)_auto] max-sm:gap-5 max-sm:rounded-none max-sm:rounded-t-2xl max-sm:px-4 max-sm:pt-7 max-sm:pb-[calc(1rem+env(safe-area-inset-bottom))] max-sm:data-open:zoom-in-100 max-sm:data-closed:zoom-out-100 max-sm:data-open:slide-in-from-bottom max-sm:data-closed:slide-out-to-bottom max-sm:duration-300 max-sm:ease-out',
+      "max-sm:before:bg-muted-foreground/30 max-sm:before:absolute max-sm:before:top-2.5 max-sm:before:left-1/2 max-sm:before:h-1 max-sm:before:w-10 max-sm:before:-translate-x-1/2 max-sm:before:rounded-full max-sm:before:content-['']",
       this._dynamicComponentClass,
     ]);
   }

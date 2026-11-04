@@ -20,12 +20,12 @@ import { ServiceDialog, type ServiceDialogContext } from './service-dialog';
   imports: [FormsModule, NgIcon, EurPipe, HlmButtonImports, HlmCardImports, HlmDropdownMenuImports, HlmInputImports, HlmSkeletonImports, HlmTableImports],
   providers: [provideIcons({ lucidePlus, lucidePencil, lucideTrash2, lucideEllipsis, lucideSearch })],
   template: `
-    <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div class="page-head">
       <div>
-        <h1 class="text-2xl font-semibold tracking-tight">Prestations</h1>
+        <h1>Prestations</h1>
         <p class="text-muted-foreground text-sm">Lignes de facture réutilisables, avec leur prix et leur traduction</p>
       </div>
-      <button hlmBtn (click)="edit()"><ng-icon name="lucidePlus" /> Nouvelle prestation</button>
+      <button hlmBtn class="fab" (click)="edit()" aria-label="Nouvelle prestation"><ng-icon name="lucidePlus" /><span class="fab-label">Nouvelle prestation</span></button>
     </div>
 
     @if (services(); as list) {
@@ -35,11 +35,44 @@ import { ServiceDialog, type ServiceDialogContext } from './service-dialog';
           <button hlmBtn variant="outline" (click)="edit()"><ng-icon name="lucidePlus" /> Ajouter la première</button>
         </section>
       } @else {
-        <div class="relative mb-4 max-w-sm">
+        <div class="relative mb-4 sm:max-w-sm">
           <ng-icon name="lucideSearch" class="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2" />
           <input hlmInput class="pl-8" placeholder="Rechercher une prestation" aria-label="Rechercher" [ngModel]="query()" (ngModelChange)="query.set($event)" />
         </div>
-        <div hlmTableContainer class="overflow-hidden rounded-xl border">
+        <!-- Mobile : liste -->
+        <ul class="bg-card divide-y overflow-hidden rounded-xl border sm:hidden">
+          @for (s of filtered(); track s.id) {
+            <li class="tap-row flex items-center gap-3 py-3 pr-1 pl-4" (click)="edit(s)">
+              <div class="min-w-0 flex-1">
+                <p class="truncate font-medium">{{ s.label }}</p>
+                <p class="text-muted-foreground truncate text-xs">{{ clientName(s.clientId) }}{{ s.labelEn ? ' · ' + s.labelEn : '' }}</p>
+              </div>
+              <div class="shrink-0 text-right">
+                <p class="text-sm font-medium tabular-nums">{{ s.unitPrice | eur }}</p>
+                @if (s.unit) {
+                  <p class="text-muted-foreground text-xs">/ {{ s.unit }}</p>
+                }
+              </div>
+              <button
+                hlmBtn
+                variant="ghost"
+                size="icon"
+                class="text-muted-foreground shrink-0"
+                [hlmDropdownMenuTrigger]="menu"
+                [hlmDropdownMenuTriggerData]="{ $implicit: s }"
+                align="end"
+                aria-label="Actions"
+                (click)="$event.stopPropagation()"
+              >
+                <ng-icon name="lucideEllipsis" />
+              </button>
+            </li>
+          } @empty {
+            <li class="text-muted-foreground px-4 py-8 text-center text-sm">Aucune prestation ne correspond à la recherche.</li>
+          }
+        </ul>
+
+        <div hlmTableContainer class="hidden overflow-hidden rounded-xl border sm:block">
           <table hlmTable class="[&_td]:px-3 [&_td]:py-3 [&_th]:px-3 [&_tr>*:first-child]:pl-5 [&_tr>*:last-child]:pr-4">
             <thead hlmTHead class="bg-muted/40">
               <tr hlmTr>
@@ -60,7 +93,7 @@ import { ServiceDialog, type ServiceDialogContext } from './service-dialog';
                       <p class="text-muted-foreground truncate text-xs">{{ s.detail }}</p>
                     }
                   </td>
-                  <td hlmTd class="hidden whitespace-nowrap sm:table-cell" [class.text-muted-foreground]="!s.clientId">{{ clientName(s.clientId) }}</td>
+                  <td hlmTd class="hidden whitespace-nowrap sm:table-cell" [class.text-muted-foreground]="!s.clientId">{{ s.clientId ? clientName(s.clientId) : 'Tous' }}</td>
                   <td hlmTd class="text-muted-foreground hidden max-w-60 truncate lg:table-cell">{{ s.labelEn || '—' }}</td>
                   <td hlmTd class="text-muted-foreground hidden sm:table-cell">{{ s.unit || '—' }}</td>
                   <td hlmTd class="text-right font-medium whitespace-nowrap tabular-nums">{{ s.unitPrice | eur }}</td>
@@ -136,7 +169,7 @@ export class ServicesPage {
   }
 
   protected clientName(id: string | null) {
-    if (!id) return 'Tous';
+    if (!id) return 'Tous les clients';
     return this.clients().find((c) => c.id === id)?.name ?? 'Client supprimé';
   }
 

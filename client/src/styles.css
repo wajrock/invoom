@@ -103,3 +103,100 @@
     color: var(--popover-foreground);
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Expérience application sur mobile
+   --------------------------------------------------------------------------- */
+
+:root {
+  /* Hauteur de la barre d'onglets mobile (0 dès que la barre latérale prend le relais) */
+  --tabbar-h: calc(3.5rem + env(safe-area-inset-bottom));
+}
+@media (width >= 48rem) {
+  :root {
+    --tabbar-h: 0px;
+  }
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    touch-action: manipulation;
+  }
+  body {
+    overscroll-behavior-y: none;
+  }
+}
+
+@media (width < 40rem) {
+  /* Cartes plus compactes et action d'en-tête sous le titre */
+  [data-slot='card'] {
+    --card-spacing: 1rem !important;
+  }
+  [data-slot='card-header']:has([data-slot='card-action']) {
+    grid-template-columns: 1fr;
+  }
+  [data-slot='card-header'] > [data-slot='card-action'] {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+    margin-top: 0.5rem;
+  }
+
+  /* Pied des panneaux : boutons côte à côte, aperçus au-dessus */
+  [data-slot='dialog-footer'] {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  [data-slot='dialog-footer'] > * {
+    flex: 1 1 0;
+  }
+  [data-slot='dialog-footer'] > div {
+    flex-basis: 100%;
+  }
+}
+
+/* Cibles tactiles confortables et pas de zoom iOS sur les champs (16 px) */
+@media (width < 40rem) {
+  [data-slot='input'],
+  .select-native {
+    height: 2.75rem;
+    font-size: 1rem;
+  }
+  [data-slot='textarea'] {
+    font-size: 1rem;
+  }
+  [data-slot='dialog-footer'] > [data-slot='button'],
+  [data-slot='dialog-footer'] > div > [data-slot='button'] {
+    height: 2.75rem;
+    font-size: 0.9375rem;
+  }
+}
+
+/* En-tête de page : grand titre façon application sur mobile */
+@utility page-head {
+  @apply mb-5 flex flex-wrap items-center justify-between gap-3 md:mb-6 md:items-end md:gap-4;
+  & h1 {
+    @apply text-[1.875rem] leading-tight font-bold tracking-tight md:text-2xl md:font-semibold;
+  }
+  & h1 + p {
+    @apply max-md:hidden;
+  }
+}
+
+/* Action principale : bouton flottant rond au-dessus de la barre d'onglets sur mobile */
+@utility fab {
+  @apply max-md:fixed! max-md:right-4! max-md:bottom-[calc(var(--tabbar-h)+1rem)]! max-md:z-30! max-md:size-12! max-md:rounded-full! max-md:p-0! max-md:shadow-md! max-md:shadow-black/15! max-md:active:scale-95!;
+  & .fab-label {
+    @apply max-md:sr-only;
+  }
+  & ng-icon {
+    @apply max-md:text-[1.25rem]!;
+  }
+}
+
+/* Liste façon iOS : lignes tactiles avec retour visuel */
+@utility tap-row {
+  @apply active:bg-muted/70 cursor-pointer transition-colors;
+}

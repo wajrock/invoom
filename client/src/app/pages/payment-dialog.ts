@@ -63,7 +63,7 @@ const CURRENCIES = ['EUR', 'USD', 'GBP', 'CHF', 'CAD'];
       </p>
     }
 
-    <form id="payment-form" class="-mx-1 grid max-h-[65vh] gap-4 overflow-y-auto px-1 py-1" (ngSubmit)="save()">
+    <form id="payment-form" class="-mx-1 grid content-start gap-4 overflow-y-auto overscroll-contain sm:max-h-[65vh] px-1 py-1" (ngSubmit)="save()">
       <div class="grid gap-4 sm:grid-cols-2">
         <div class="grid gap-2 sm:col-span-2">
           <label hlmLabel for="p-client">Client</label>

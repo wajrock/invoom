@@ -20,9 +20,9 @@ const MULTILINE = new Set(['address']);
   imports: [FormsModule, NgIcon, HlmButtonImports, HlmCardImports, HlmInputImports, HlmLabelImports, HlmSkeletonImports, HlmTextareaImports],
   providers: [provideIcons({ lucideCopy, lucidePencil, lucidePlus, lucideTrash2, lucideLoader2 })],
   template: `
-    <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div class="page-head">
       <div>
-        <h1 class="text-2xl font-semibold tracking-tight">Entreprise</h1>
+        <h1>Entreprise</h1>
         <p class="text-muted-foreground text-sm">Informations à portée de main pour tes factures et démarches</p>
       </div>
       @if (fields()) {

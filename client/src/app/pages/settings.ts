@@ -118,9 +118,9 @@ function parsePeriod(f: PeriodForm): RatePeriod | string {
   ],
   providers: [provideIcons({ lucideLoader2, lucideRotateCcw, lucidePlus, lucideTrash2, lucideChevronDown, lucideHistory })],
   template: `
-    <div class="mb-6">
-      <h1 class="text-2xl font-semibold tracking-tight">Paramètres fiscaux</h1>
-      <p class="text-muted-foreground text-sm">
+    <div class="page-head block!">
+      <h1>Paramètres fiscaux</h1>
+      <p class="text-muted-foreground mt-1 text-sm max-md:block!">
         Utilisés pour estimer les cotisations et générer les échéances. Vérifie les taux chaque année sur
         <a class="underline underline-offset-2" href="https://www.autoentrepreneur.urssaf.fr" target="_blank" rel="noopener">autoentrepreneur.urssaf.fr</a>.
       </p>
@@ -279,7 +279,7 @@ function parsePeriod(f: PeriodForm): RatePeriod | string {
           </div>
         </section>
 
-        <div class="bg-background/80 sticky bottom-0 -mx-4 flex justify-end gap-2 border-t px-4 py-3 backdrop-blur md:mx-0 md:rounded-xl md:border">
+        <div class="bg-background/85 sticky bottom-(--tabbar-h) z-20 -mx-4 flex justify-end gap-2 border-t px-4 py-3 backdrop-blur-xl max-sm:*:flex-1 md:mx-0 md:rounded-xl md:border">
           <button hlmBtn type="button" variant="outline" (click)="reset()">Annuler les modifications</button>
           <button hlmBtn type="submit" [disabled]="saving()">
             @if (saving()) {

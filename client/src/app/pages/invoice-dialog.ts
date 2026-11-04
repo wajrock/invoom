@@ -128,7 +128,7 @@ const emptyLine = (): LineForm => ({
     </hlm-dialog-header>
 
     @if (ready()) {
-      <form id="invoice-form" class="-mx-1 grid max-h-[68vh] gap-6 overflow-y-auto px-1 py-1" (ngSubmit)="save()">
+      <form id="invoice-form" class="-mx-1 grid content-start gap-6 overflow-y-auto overscroll-contain sm:max-h-[68vh] px-1 py-1" (ngSubmit)="save()">
         @if (vatMismatch(); as regime) {
           <div class="flex flex-wrap items-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
             <ng-icon name="lucideTriangleAlert" class="shrink-0 text-amber-600" />
@@ -163,8 +163,8 @@ const emptyLine = (): LineForm => ({
         </section>
 
         <!-- En-tête de facture -->
-        <section class="grid gap-4 sm:grid-cols-3">
-          <div class="grid gap-2">
+        <section class="grid grid-cols-2 gap-4 sm:grid-cols-3">
+          <div class="col-span-2 grid gap-2 sm:col-span-1">
             <label hlmLabel for="i-number">N° de facture</label>
             <input hlmInput id="i-number" name="number" required [(ngModel)]="form.number" (ngModelChange)="numberTouched = true" />
           </div>
@@ -184,7 +184,7 @@ const emptyLine = (): LineForm => ({
             <label hlmLabel for="i-to">au</label>
             <app-date-input inputId="i-to" name="periodTo" [(ngModel)]="form.periodTo" />
           </div>
-          <div class="grid grid-cols-2 gap-2">
+          <div class="col-span-2 grid grid-cols-2 gap-4 sm:col-span-1 sm:gap-2">
             <div class="grid gap-2">
               <label hlmLabel for="i-currency">Devise</label>
               <select class="select-native" id="i-currency" name="currency" [(ngModel)]="form.currency">
@@ -296,7 +296,7 @@ const emptyLine = (): LineForm => ({
     }
 
     <hlm-dialog-footer class="flex-wrap">
-      <div class="flex gap-2 sm:mr-auto">
+      <div class="flex gap-2 max-sm:*:flex-1 sm:mr-auto">
         <button hlmBtn type="button" variant="ghost" size="sm" [disabled]="!ready() || busy()" (click)="preview('fr')"><ng-icon name="lucideEye" /> Aperçu FR</button>
         @if (form.english) {
           <button hlmBtn type="button" variant="ghost" size="sm" [disabled]="!ready() || busy()" (click)="preview('en')"><ng-icon name="lucideEye" /> Aperçu EN</button>

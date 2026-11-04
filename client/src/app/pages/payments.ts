@@ -58,20 +58,22 @@ type StatusFilter = 'all' | 'paid' | 'pending';
     }),
   ],
   template: `
-    <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div class="page-head">
       <div>
-        <h1 class="text-2xl font-semibold tracking-tight">Paiements</h1>
+        <h1>Paiements</h1>
         <p class="text-muted-foreground text-sm">Factures émises et encaissements</p>
       </div>
       <div class="flex gap-2">
-        <button hlmBtn variant="outline" title="Paiement sans facture générée ici : facture externe, acompte, historique…" (click)="open()"><ng-icon name="lucidePlus" /> Encaissement manuel</button>
-        <button hlmBtn (click)="openInvoice()"><ng-icon name="lucideFilePlus" /> Nouvelle facture</button>
+        <button hlmBtn variant="outline" class="max-md:size-9 max-md:p-0" title="Paiement sans facture générée ici : facture externe, acompte, historique…" aria-label="Encaissement manuel" (click)="open()">
+          <ng-icon name="lucidePlus" /><span class="max-md:sr-only">Encaissement manuel</span>
+        </button>
+        <button hlmBtn class="fab" aria-label="Nouvelle facture" (click)="openInvoice()"><ng-icon name="lucideFilePlus" /><span class="fab-label">Nouvelle facture</span></button>
       </div>
     </div>
 
     <!-- Filtres -->
-    <div class="mb-4 flex flex-wrap items-center gap-2">
-      <div class="relative min-w-48 flex-1">
+    <div class="mb-4 flex flex-wrap items-center gap-2 max-sm:[&>select]:flex-1">
+      <div class="relative min-w-48 flex-1 max-sm:basis-full">
         <ng-icon name="lucideSearch" class="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2" />
         <input hlmInput class="pl-8" placeholder="Rechercher un client, un objet, un n°…" aria-label="Rechercher" [ngModel]="query()" (ngModelChange)="query.set($event)" />
       </div>
@@ -89,12 +91,12 @@ type StatusFilter = 'all' | 'paid' | 'pending';
     </div>
 
     @if (payments(); as list) {
-      <div class="mb-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
-        <div class="rounded-xl border p-4">
+      <div class="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+        <div class="bg-card rounded-xl border p-3 sm:p-4">
           <p class="text-muted-foreground text-xs">Encaissé</p>
           <p class="text-lg font-semibold tabular-nums">{{ totals().paid | eur }}</p>
         </div>
-        <div class="rounded-xl border p-4">
+        <div class="bg-card rounded-xl border p-3 sm:p-4">
           <p class="text-muted-foreground text-xs">En attente</p>
           <p class="text-lg font-semibold tabular-nums">{{ totals().pending | eur }}</p>
         </div>
@@ -115,51 +117,103 @@ type StatusFilter = 'all' | 'paid' | 'pending';
       } @else if (filtered().length === 0) {
         <p class="text-muted-foreground py-10 text-center text-sm">Aucun résultat pour ces filtres.</p>
       } @else {
-        <!-- Mobile : cartes -->
-        <ul class="divide-y rounded-xl border sm:hidden">
-          @for (p of filtered(); track p.id) {
-            <li class="flex items-start gap-3 p-3" (click)="open(p)">
-              <div class="min-w-0 flex-1">
-                <p class="truncate font-medium">{{ p.client }}</p>
-                <p class="text-muted-foreground truncate text-xs">
-                  {{ p.issuedOn | frDate: 'short' }}{{ p.invoiceNumber ? ' · ' + p.invoiceNumber : '' }}{{ p.label ? ' · ' + p.label : '' }}
+        <!-- Mobile : liste groupée par mois, actions dans une feuille -->
+        <div class="grid gap-5 sm:hidden">
+          @for (g of groups(); track g.key) {
+            <section>
+              <h2 class="text-muted-foreground mb-1.5 px-1 text-xs font-medium tracking-wide uppercase">{{ g.label }}</h2>
+              <ul class="bg-card divide-y overflow-hidden rounded-xl border">
+                @for (p of g.items; track p.id) {
+                  <li>
+                    <button type="button" class="tap-row flex w-full items-center gap-3 px-3.5 py-3 text-left" (click)="sheet.set(p)">
+                      <span
+                        class="grid size-9 shrink-0 place-items-center rounded-full"
+                        [class]="p.paidOn ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' : 'bg-amber-500/15 text-amber-600 dark:text-amber-400'"
+                      >
+                        <ng-icon [name]="p.paidOn ? 'lucideCircleCheck' : 'lucideClock'" class="text-base" />
+                      </span>
+                      <span class="min-w-0 flex-1">
+                        <span class="block truncate text-[15px] font-medium">{{ p.client }}</span>
+                        <span class="text-muted-foreground block truncate text-xs">
+                          {{ p.invoiceNumber ? 'N° ' + p.invoiceNumber : p.label || 'Sans facture' }} · {{ p.issuedOn | frDate: 'short' }}
+                        </span>
+                      </span>
+                      <span class="shrink-0 text-right">
+                        <span class="block text-[15px] font-semibold tabular-nums">{{ p.amount | eur }}</span>
+                        <span class="block text-xs" [class]="p.paidOn ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'">
+                          {{ p.paidOn ? 'Payée le ' + (p.paidOn | frDate: 'short') : 'En attente' }}
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                }
+              </ul>
+            </section>
+          }
+        </div>
+
+        <!-- Feuille d'actions (mobile) -->
+        @if (sheet(); as p) {
+          <div class="animate-in fade-in-0 fixed inset-0 z-50 bg-black/40 duration-200 sm:hidden" (click)="sheet.set(null)"></div>
+          <div
+            role="dialog"
+            aria-modal="true"
+            [attr.aria-label]="'Paiement ' + p.client"
+            class="bg-background animate-in slide-in-from-bottom fixed inset-x-0 bottom-0 z-50 rounded-t-2xl px-4 pt-2 pb-[calc(1rem+env(safe-area-inset-bottom))] duration-300 ease-out sm:hidden"
+          >
+            <div class="bg-muted-foreground/30 mx-auto mb-4 h-1 w-10 rounded-full"></div>
+            <div class="mb-4 flex items-start justify-between gap-3 px-1">
+              <div class="min-w-0">
+                <p class="truncate text-lg font-semibold">{{ p.client }}</p>
+                <p class="text-muted-foreground truncate text-sm">
+                  {{ p.invoiceNumber ? 'Facture ' + p.invoiceNumber : 'Sans facture' }} · {{ p.issuedOn | frDate: 'short' }}
                 </p>
-                <div class="mt-1.5 flex flex-wrap items-center gap-1">
-                  @if (p.paidOn) {
-                    <span hlmBadge class="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><ng-icon name="lucideCircleCheck" /> Payée</span>
-                    <span class="text-muted-foreground text-xs">le {{ p.paidOn | frDate: 'short' }}</span>
-                  } @else {
-                    <span hlmBadge class="bg-amber-500/15 text-amber-700 dark:text-amber-400"><ng-icon name="lucideClock" /> En attente</span>
-                  }
-                  @for (f of p.files; track f.id) {
-                    <a hlmBadge variant="outline" [href]="api.fileUrl(f.id)" target="_blank" rel="noopener" (click)="$event.stopPropagation()">
-                      <ng-icon name="lucideFileText" /> {{ lang(f.lang) }}
-                    </a>
-                  }
-                </div>
               </div>
               <div class="shrink-0 text-right">
-                <p class="font-medium tabular-nums">{{ p.amount | eur }}</p>
+                <p class="text-lg font-semibold tabular-nums">{{ p.amount | eur }}</p>
                 @if (p.originalAmount !== null && p.originalCurrency !== 'EUR') {
                   <p class="text-muted-foreground text-xs tabular-nums">{{ money(p.originalAmount, p.originalCurrency) }}</p>
                 }
-                <button
-                  hlmBtn
-                  variant="ghost"
-                  size="icon-sm"
-                  class="mt-1 -mr-1"
-                  [hlmDropdownMenuTrigger]="menu"
-                  [hlmDropdownMenuTriggerData]="{ $implicit: p }"
-                  align="end"
-                  aria-label="Actions"
-                  (click)="$event.stopPropagation()"
-                >
-                  <ng-icon name="lucideEllipsis" />
-                </button>
               </div>
-            </li>
-          }
-        </ul>
+            </div>
+
+            @if (p.files.length) {
+              <div class="mb-3 grid gap-2" [class.grid-cols-2]="p.files.length > 1">
+                @for (f of p.files; track f.id) {
+                  <a hlmBtn variant="outline" class="h-11" [href]="api.fileUrl(f.id)" target="_blank" rel="noopener">
+                    <ng-icon name="lucideFileText" /> PDF {{ lang(f.lang) }}
+                  </a>
+                }
+              </div>
+            }
+
+            <ul class="bg-card divide-y overflow-hidden rounded-xl border">
+              @if (!p.paidOn) {
+                <li>
+                  <button type="button" class="tap-row flex w-full items-center gap-3 px-4 py-3.5 text-left font-medium" (click)="sheetAction(p, 'paid')">
+                    <ng-icon name="lucideCircleCheck" class="text-emerald-600 dark:text-emerald-400" /> Encaissé aujourd'hui
+                  </button>
+                </li>
+              }
+              <li>
+                <button type="button" class="tap-row flex w-full items-center gap-3 px-4 py-3.5 text-left font-medium" (click)="sheetAction(p, 'invoice')">
+                  <ng-icon name="lucideFilePlus" /> {{ p.invoice ? 'Modifier la facture' : 'Générer la facture' }}
+                </button>
+              </li>
+              <li>
+                <button type="button" class="tap-row flex w-full items-center gap-3 px-4 py-3.5 text-left font-medium" (click)="sheetAction(p, 'edit')">
+                  <ng-icon name="lucidePencil" /> Modifier le paiement
+                </button>
+              </li>
+              <li>
+                <button type="button" class="tap-row text-destructive flex w-full items-center gap-3 px-4 py-3.5 text-left font-medium" (click)="sheetAction(p, 'delete')">
+                  <ng-icon name="lucideTrash2" /> Supprimer
+                </button>
+              </li>
+            </ul>
+            <button hlmBtn variant="secondary" class="mt-3 h-11 w-full text-[15px]" (click)="sheet.set(null)">Fermer</button>
+          </div>
+        }
 
         <div hlmTableContainer class="hidden overflow-hidden rounded-xl border sm:block">
           <table
@@ -301,8 +355,32 @@ export class PaymentsPage {
     return { paid, pending };
   });
 
+  /** Paiement dont la feuille d'actions mobile est ouverte */
+  protected readonly sheet = signal<Payment | null>(null);
+
+  /** Liste mobile groupée par mois d'émission */
+  protected readonly groups = computed(() => {
+    const map = new Map<string, Payment[]>();
+    for (const p of this.filtered()) {
+      const key = p.issuedOn.slice(0, 7);
+      map.set(key, [...(map.get(key) ?? []), p]);
+    }
+    return [...map.entries()].map(([key, items]) => {
+      const [y, m] = key.split('-').map(Number);
+      return { key, items, label: new Date(y, m - 1, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) };
+    });
+  });
+
   constructor() {
     void this.load();
+  }
+
+  protected sheetAction(p: Payment, action: 'paid' | 'invoice' | 'edit' | 'delete') {
+    this.sheet.set(null);
+    if (action === 'paid') void this.markPaid(p);
+    else if (action === 'invoice') this.openInvoice(p);
+    else if (action === 'edit') this.open(p);
+    else void this.remove(p);
   }
 
   async load() {

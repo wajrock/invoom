@@ -33,7 +33,7 @@ export interface ServiceDialogContext {
       <p hlmDialogDescription>Ajoutée en un clic dans tes factures ; seule la quantité reste à saisir.</p>
     </hlm-dialog-header>
 
-    <form id="service-form" class="-mx-1 grid max-h-[65vh] gap-4 overflow-y-auto px-1 py-1" (ngSubmit)="save()">
+    <form id="service-form" class="-mx-1 grid content-start gap-4 overflow-y-auto overscroll-contain sm:max-h-[65vh] px-1 py-1" (ngSubmit)="save()">
       <div class="grid gap-4 sm:grid-cols-6">
         <div class="grid gap-2 sm:col-span-6">
           <label hlmLabel for="s-client">Client</label>

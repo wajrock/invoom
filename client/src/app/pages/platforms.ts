@@ -152,12 +152,12 @@ export class PlatformDialog {
     }),
   ],
   template: `
-    <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div class="page-head">
       <div>
-        <h1 class="text-2xl font-semibold tracking-tight">Plateformes</h1>
+        <h1>Plateformes</h1>
         <p class="text-muted-foreground text-sm">Accès rapide aux sites administratifs et outils</p>
       </div>
-      <button hlmBtn (click)="open()"><ng-icon name="lucidePlus" /> Ajouter</button>
+      <button hlmBtn class="fab" (click)="open()" aria-label="Ajouter une plateforme"><ng-icon name="lucidePlus" /><span class="fab-label">Ajouter</span></button>
     </div>
 
     @if (groups(); as gs) {

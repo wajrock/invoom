@@ -27,12 +27,12 @@ interface ClientStats {
   imports: [FormsModule, NgIcon, EurPipe, FrDatePipe, HlmButtonImports, HlmCardImports, HlmDropdownMenuImports, HlmInputImports, HlmSkeletonImports, HlmTableImports],
   providers: [provideIcons({ lucidePlus, lucidePencil, lucideTrash2, lucideEllipsis, lucideFilePlus, lucideImport, lucideSearch })],
   template: `
-    <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div class="page-head">
       <div>
-        <h1 class="text-2xl font-semibold tracking-tight">Clients</h1>
+        <h1>Clients</h1>
         <p class="text-muted-foreground text-sm">Coordonnées réutilisées à chaque facture</p>
       </div>
-      <button hlmBtn (click)="edit()"><ng-icon name="lucidePlus" /> Nouveau client</button>
+      <button hlmBtn class="fab" (click)="edit()" aria-label="Nouveau client"><ng-icon name="lucidePlus" /><span class="fab-label">Nouveau client</span></button>
     </div>
 
     @if (clients(); as list) {
@@ -54,11 +54,43 @@ interface ClientStats {
           <button hlmBtn variant="outline" (click)="edit()"><ng-icon name="lucidePlus" /> Ajouter le premier</button>
         </section>
       } @else {
-        <div class="relative mb-4 max-w-sm">
+        <div class="relative mb-4 sm:max-w-sm">
           <ng-icon name="lucideSearch" class="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2" />
           <input hlmInput class="pl-8" placeholder="Rechercher un client" aria-label="Rechercher" [ngModel]="query()" (ngModelChange)="query.set($event)" />
         </div>
-        <div hlmTableContainer class="overflow-hidden rounded-xl border">
+        <!-- Mobile : liste -->
+        <ul class="bg-card divide-y overflow-hidden rounded-xl border sm:hidden">
+          @for (c of filtered(); track c.id) {
+            @let s = stats().get(c.id);
+            <li class="tap-row flex items-center gap-3 py-3 pr-1 pl-4" (click)="edit(c)">
+              <span class="bg-muted text-muted-foreground grid size-10 shrink-0 place-items-center rounded-full text-sm font-semibold">{{ initials(c.name) }}</span>
+              <div class="min-w-0 flex-1">
+                <p class="truncate font-medium">{{ c.name }}</p>
+                <p class="text-muted-foreground truncate text-xs">
+                  {{ s?.count ?? 0 }} facture{{ (s?.count ?? 0) > 1 ? 's' : '' }}{{ s?.last ? ' · ' + (s!.last | frDate: 'short') : '' }}
+                </p>
+              </div>
+              <span class="shrink-0 text-sm font-medium tabular-nums">{{ s ? (s.total | eur) : '—' }}</span>
+              <button
+                hlmBtn
+                variant="ghost"
+                size="icon"
+                class="text-muted-foreground shrink-0"
+                [hlmDropdownMenuTrigger]="menu"
+                [hlmDropdownMenuTriggerData]="{ $implicit: c }"
+                align="end"
+                aria-label="Actions"
+                (click)="$event.stopPropagation()"
+              >
+                <ng-icon name="lucideEllipsis" />
+              </button>
+            </li>
+          } @empty {
+            <li class="text-muted-foreground px-4 py-8 text-center text-sm">Aucun client ne correspond à la recherche.</li>
+          }
+        </ul>
+
+        <div hlmTableContainer class="hidden overflow-hidden rounded-xl border sm:block">
           <table hlmTable class="[&_td]:px-3 [&_td]:py-3 [&_th]:px-3 [&_tr>*:first-child]:pl-5 [&_tr>*:last-child]:pr-4">
             <thead hlmTHead class="bg-muted/40">
               <tr hlmTr>
@@ -227,5 +259,10 @@ export class ClientsPage {
     } catch (err) {
       toast.error(errorMessage(err));
     }
+  }
+
+  protected initials(name: string) {
+    const words = name.trim().split(/\s+/).filter(Boolean);
+    return ((words[0]?.[0] ?? '') + (words[1]?.[0] ?? '')).toUpperCase() || '?';
   }
 }

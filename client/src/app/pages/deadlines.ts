@@ -162,16 +162,16 @@ function groupByMonth(list: Deadline[]): Group[] {
   ],
   providers: [provideIcons({ lucidePlus, lucidePencil, lucideTrash2, lucideCircle, lucideCircleCheck, lucideSearch, lucideCalendarPlus })],
   template: `
-    <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div class="page-head">
       <div>
-        <h1 class="text-2xl font-semibold tracking-tight">Échéances</h1>
+        <h1>Échéances</h1>
         <p class="text-muted-foreground text-sm">Déclarations et paiements URSSAF, CFE, impôt et rappels personnels</p>
       </div>
-      <button hlmBtn (click)="open()"><ng-icon name="lucidePlus" /> Ajouter</button>
+      <button hlmBtn class="fab" (click)="open()" aria-label="Ajouter une échéance"><ng-icon name="lucidePlus" /><span class="fab-label">Ajouter</span></button>
     </div>
 
     <!-- Onglets -->
-    <div role="tablist" class="bg-muted text-muted-foreground mb-4 inline-flex h-9 items-center rounded-lg p-[3px]">
+    <div role="tablist" class="bg-muted text-muted-foreground mb-4 inline-flex h-9 items-center rounded-lg p-[3px] max-sm:flex max-sm:[&>button]:flex-1 max-sm:[&>button]:justify-center">
       @for (t of tabs; track t.value) {
         <button
           role="tab"
@@ -195,7 +195,7 @@ function groupByMonth(list: Deadline[]): Group[] {
         @if (overdue().length) {
           <section class="mb-6">
             <h2 class="text-destructive mb-2 text-xs font-medium tracking-wide uppercase">En retard</h2>
-            <ul class="border-destructive/40 divide-y rounded-xl border">
+            <ul class="bg-card border-destructive/40 divide-y rounded-xl border">
               @for (d of overdue(); track d.id) {
                 <ng-container *ngTemplateOutlet="row; context: { $implicit: d }" />
               }
@@ -206,7 +206,7 @@ function groupByMonth(list: Deadline[]): Group[] {
           @for (g of upcomingGroups(); track g.key) {
             <section>
               <h2 class="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase">{{ g.label }}</h2>
-              <ul class="divide-y rounded-xl border">
+              <ul class="bg-card divide-y rounded-xl border">
                 @for (d of g.items; track d.id) {
                   <ng-container *ngTemplateOutlet="row; context: { $implicit: d }" />
                 }
@@ -228,8 +228,8 @@ function groupByMonth(list: Deadline[]): Group[] {
         </div>
       } @else {
         <!-- Passées -->
-        <div class="mb-4 flex flex-wrap items-center gap-2">
-          <div class="relative min-w-48 flex-1">
+        <div class="mb-4 flex flex-wrap items-center gap-2 max-sm:[&>select]:flex-1">
+          <div class="relative min-w-48 flex-1 max-sm:basis-full">
             <ng-icon name="lucideSearch" class="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2" />
             <input hlmInput class="pl-8" placeholder="Rechercher…" aria-label="Rechercher" [ngModel]="query()" (ngModelChange)="query.set($event)" />
           </div>
@@ -258,7 +258,7 @@ function groupByMonth(list: Deadline[]): Group[] {
           @for (g of pastGroups(); track g.key) {
             <section>
               <h2 class="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase">{{ g.label }}</h2>
-              <ul class="divide-y rounded-xl border">
+              <ul class="bg-card divide-y rounded-xl border">
                 @for (d of g.items; track d.id) {
                   <ng-container *ngTemplateOutlet="row; context: { $implicit: d }" />
                 }

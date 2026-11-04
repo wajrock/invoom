@@ -31,9 +31,9 @@ const MONTHS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'aoû
   ],
   providers: [provideIcons({ lucideTrendingUp, lucideTrendingDown, lucideArrowRight, lucideCheck, lucideClock })],
   template: `
-    <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div class="page-head">
       <div>
-        <h1 class="text-2xl font-semibold tracking-tight">Tableau de bord</h1>
+        <h1>Tableau de bord</h1>
         <p class="text-muted-foreground text-sm">Chiffre d'affaires encaissé et charges estimées</p>
       </div>
       <select class="select-native w-auto!" aria-label="Année" [value]="year()" (change)="setYear($any($event.target).value)">
@@ -45,11 +45,11 @@ const MONTHS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'aoû
 
     @if (data(); as d) {
       <!-- Indicateurs -->
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <section hlmCard class="gap-2 py-4">
-          <div hlmCardContent class="px-4">
-            <p class="text-muted-foreground text-sm">CA encaissé {{ d.year }}</p>
-            <p class="mt-1 text-2xl font-semibold tabular-nums">{{ d.summary.ca | eur: true }}</p>
+          <div hlmCardContent class="px-3.5 sm:px-4">
+            <p class="text-muted-foreground text-xs sm:text-sm">CA encaissé {{ d.year }}</p>
+            <p class="mt-1 text-xl font-semibold tabular-nums sm:text-2xl">{{ d.summary.ca | eur: true }}</p>
             @if (growth(); as g) {
               <p class="mt-1 flex items-center gap-1 text-xs" [class]="g.value >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive'">
                 <ng-icon [name]="g.value >= 0 ? 'lucideTrendingUp' : 'lucideTrendingDown'" />
@@ -61,18 +61,18 @@ const MONTHS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'aoû
           </div>
         </section>
         <section hlmCard class="gap-2 py-4">
-          <div hlmCardContent class="px-4">
-            <p class="text-muted-foreground text-sm">URSSAF {{ d.year }}</p>
-            <p class="mt-1 text-2xl font-semibold tabular-nums">{{ d.summary.social | eur: true }}</p>
+          <div hlmCardContent class="px-3.5 sm:px-4">
+            <p class="text-muted-foreground text-xs sm:text-sm">URSSAF {{ d.year }}</p>
+            <p class="mt-1 text-xl font-semibold tabular-nums sm:text-2xl">{{ d.summary.social | eur: true }}</p>
             <p class="text-muted-foreground mt-1 text-xs">
               Cotisations sociales · {{ rateOfCa(d.summary.social) }} du CA
             </p>
           </div>
         </section>
         <section hlmCard class="gap-2 py-4">
-          <div hlmCardContent class="px-4">
-            <p class="text-muted-foreground text-sm">Impôts {{ d.year }}</p>
-            <p class="mt-1 text-2xl font-semibold tabular-nums">{{ taxes().total | eur: true }}</p>
+          <div hlmCardContent class="px-3.5 sm:px-4">
+            <p class="text-muted-foreground text-xs sm:text-sm">Impôts {{ d.year }}</p>
+            <p class="mt-1 text-xl font-semibold tabular-nums sm:text-2xl">{{ taxes().total | eur: true }}</p>
             <dl class="mt-1.5 grid gap-0.5 text-xs">
               @for (t of taxes().lines; track t.label) {
                 <div class="flex justify-between gap-2">
@@ -84,9 +84,9 @@ const MONTHS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'aoû
           </div>
         </section>
         <section hlmCard class="gap-2 py-4">
-          <div hlmCardContent class="px-4">
-            <p class="text-muted-foreground text-sm">Net estimé</p>
-            <p class="mt-1 text-2xl font-semibold tabular-nums">{{ d.summary.net | eur: true }}</p>
+          <div hlmCardContent class="px-3.5 sm:px-4">
+            <p class="text-muted-foreground text-xs sm:text-sm">Net estimé</p>
+            <p class="mt-1 text-xl font-semibold tabular-nums sm:text-2xl">{{ d.summary.net | eur: true }}</p>
             <p class="text-muted-foreground mt-1 text-xs">Après cotisations et impôts</p>
           </div>
         </section>
@@ -100,7 +100,7 @@ const MONTHS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'aoû
             <p hlmCardDescription>{{ d.year }} comparé à {{ d.year - 1 }}</p>
           </div>
           <div hlmCardContent>
-            <div echarts [options]="chart()" class="h-72 w-full"></div>
+            <div echarts [options]="chart()" class="h-56 w-full sm:h-72"></div>
           </div>
         </section>
 
@@ -160,8 +160,8 @@ const MONTHS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'aoû
                         <span [class.text-destructive]="isLate(dl)" [class.font-medium]="isLate(dl)">{{ rel(dl.dueOn) }}</span>
                       </p>
                     </div>
-                    <span hlmBadge variant="outline">{{ kindLabel(dl) }}</span>
-                    <span class="w-24 text-right text-sm tabular-nums">{{ dl.amount | eur }}</span>
+                    <span hlmBadge variant="outline" class="max-sm:hidden">{{ kindLabel(dl) }}</span>
+                    <span class="text-right text-sm tabular-nums sm:w-24">{{ dl.amount | eur }}</span>
                     <button hlmBtn variant="ghost" size="icon-sm" (click)="markDone(dl)" aria-label="Marquer comme réglée" title="Marquer comme réglée">
                       <ng-icon name="lucideCheck" />
                     </button>
@@ -198,7 +198,7 @@ const MONTHS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'aoû
     } @else if (error()) {
       <p class="text-destructive text-sm">{{ error() }}</p>
     } @else {
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         @for (i of [1, 2, 3, 4]; track i) {
           <hlm-skeleton class="h-28 rounded-xl" />
         }

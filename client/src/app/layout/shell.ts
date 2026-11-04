@@ -1,20 +1,21 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideBuilding2,
   lucideCalendarClock,
+  lucideChevronRight,
+  lucideEllipsis,
   lucideLayoutDashboard,
   lucideLink,
   lucideLogOut,
-  lucideMenu,
   lucideMoon,
   lucidePackage,
   lucideReceiptEuro,
   lucideSettings,
   lucideSun,
   lucideUsers,
-  lucideX,
 } from '@ng-icons/lucide';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { filter } from 'rxjs';
@@ -24,6 +25,8 @@ import { ThemeService } from '../core/theme';
 interface NavItem {
   path: string;
   label: string;
+  /** Libellé court pour la barre d'onglets mobile */
+  short?: string;
   icon: string;
 }
 
@@ -35,6 +38,8 @@ interface NavItem {
       lucideLayoutDashboard,
       lucideReceiptEuro,
       lucideCalendarClock,
+      lucideChevronRight,
+      lucideEllipsis,
       lucideLink,
       lucideBuilding2,
       lucideSettings,
@@ -42,26 +47,16 @@ interface NavItem {
       lucideMoon,
       lucidePackage,
       lucideSun,
-      lucideMenu,
       lucideUsers,
-      lucideX,
     }),
   ],
   template: `
     <div class="flex min-h-dvh">
-      <!-- Barre latérale -->
-      <aside
-        class="bg-sidebar text-sidebar-foreground border-sidebar-border fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r transition-transform md:translate-x-0"
-        [class.-translate-x-full]="!menuOpen()"
-      >
+      <!-- Barre latérale (tablette paysage / ordinateur) -->
+      <aside class="bg-sidebar text-sidebar-foreground border-sidebar-border fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r md:flex">
         <div class="flex h-14 items-center gap-2 px-4">
-          <div class="bg-primary text-primary-foreground grid size-7 place-items-center rounded-md text-xs font-bold">
-            FH
-          </div>
+          <div class="bg-primary text-primary-foreground grid size-7 place-items-center rounded-md text-xs font-bold">FH</div>
           <span class="font-semibold tracking-tight">Freelance Hub</span>
-          <button hlmBtn variant="ghost" size="icon-sm" class="ml-auto md:hidden" (click)="menuOpen.set(false)" aria-label="Fermer le menu">
-            <ng-icon name="lucideX" />
-          </button>
         </div>
         <nav class="flex flex-1 flex-col gap-0.5 px-2 py-2">
           @for (item of nav; track item.path) {
@@ -81,33 +76,91 @@ interface NavItem {
             <ng-icon name="lucideLogOut" />
             Déconnexion
           </button>
-          <button
-            hlmBtn
-            variant="ghost"
-            size="icon-sm"
-            (click)="theme.toggle()"
-            [attr.aria-label]="theme.theme() === 'dark' ? 'Passer en thème clair' : 'Passer en thème sombre'"
-          >
+          <button hlmBtn variant="ghost" size="icon-sm" (click)="theme.toggle()" [attr.aria-label]="themeLabel()">
             <ng-icon [name]="theme.theme() === 'dark' ? 'lucideSun' : 'lucideMoon'" />
           </button>
         </div>
       </aside>
 
-      @if (menuOpen()) {
-        <div class="fixed inset-0 z-30 bg-black/40 md:hidden" (click)="menuOpen.set(false)"></div>
-      }
-
       <div class="flex min-w-0 flex-1 flex-col md:pl-60">
-        <header class="bg-background/80 sticky top-0 z-20 flex h-14 items-center gap-2 border-b px-4 backdrop-blur md:hidden">
-          <button hlmBtn variant="ghost" size="icon-sm" (click)="menuOpen.set(true)" aria-label="Ouvrir le menu">
-            <ng-icon name="lucideMenu" />
-          </button>
-          <span class="font-semibold">Freelance Hub</span>
-        </header>
-        <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 md:px-8 md:py-8">
+        <main class="mx-auto w-full max-w-6xl flex-1 px-4 pt-[calc(env(safe-area-inset-top)+1.25rem)] pb-[calc(var(--tabbar-h)+5rem)] md:px-8 md:py-8">
           <router-outlet />
         </main>
       </div>
+
+      <!-- Barre d'onglets mobile -->
+      <nav
+        class="bg-background/90 fixed inset-x-0 bottom-0 z-40 border-t pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
+        aria-label="Navigation principale"
+      >
+        <div class="grid h-[3.25rem] grid-cols-5">
+          @for (item of tabs; track item.path) {
+            <a
+              [routerLink]="item.path"
+              routerLinkActive
+              #rla="routerLinkActive"
+              [routerLinkActiveOptions]="{ exact: item.path === '/' }"
+              class="flex flex-col items-center justify-center gap-1 text-[10px] select-none"
+              [class]="rla.isActive ? 'text-foreground font-semibold' : 'text-muted-foreground font-medium'"
+              [attr.aria-current]="rla.isActive ? 'page' : null"
+            >
+              <ng-icon [name]="item.icon" class="text-[1.375rem]" [strokeWidth]="rla.isActive ? 2.25 : 1.75" />
+              {{ item.short ?? item.label }}
+            </a>
+          }
+          <button
+            type="button"
+            class="flex flex-col items-center justify-center gap-1 text-[10px] select-none"
+            [class]="moreActive() || moreOpen() ? 'text-foreground font-semibold' : 'text-muted-foreground font-medium'"
+            (click)="moreOpen.set(true)"
+            aria-haspopup="dialog"
+          >
+            <ng-icon name="lucideEllipsis" class="text-[1.375rem]" [strokeWidth]="moreActive() ? 2.25 : 1.75" />
+            Plus
+          </button>
+        </div>
+      </nav>
+
+      <!-- Feuille « Plus » -->
+      @if (moreOpen()) {
+        <div class="animate-in fade-in-0 fixed inset-0 z-50 bg-black/40 duration-200 md:hidden" (click)="moreOpen.set(false)"></div>
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Plus"
+          class="bg-background animate-in slide-in-from-bottom fixed inset-x-0 bottom-0 z-50 rounded-t-2xl px-4 pt-2 pb-[calc(1rem+env(safe-area-inset-bottom))] duration-300 ease-out md:hidden"
+          (keydown.escape)="moreOpen.set(false)"
+        >
+          <div class="bg-muted-foreground/30 mx-auto mb-3 h-1 w-10 rounded-full"></div>
+          <ul class="bg-card divide-y overflow-hidden rounded-xl border">
+            @for (item of more; track item.path) {
+              <li>
+                <a [routerLink]="item.path" class="active:bg-muted flex items-center gap-3 px-4 py-3.5">
+                  <span class="bg-muted grid size-8 place-items-center rounded-lg"><ng-icon [name]="item.icon" /></span>
+                  <span class="flex-1 font-medium">{{ item.label }}</span>
+                  <ng-icon name="lucideChevronRight" class="text-muted-foreground" />
+                </a>
+              </li>
+            }
+          </ul>
+          <ul class="bg-card mt-3 divide-y overflow-hidden rounded-xl border">
+            <li>
+              <button type="button" class="active:bg-muted flex w-full items-center gap-3 px-4 py-3.5 text-left" (click)="theme.toggle()">
+                <span class="bg-muted grid size-8 place-items-center rounded-lg">
+                  <ng-icon [name]="theme.theme() === 'dark' ? 'lucideSun' : 'lucideMoon'" />
+                </span>
+                <span class="flex-1 font-medium">{{ theme.theme() === 'dark' ? 'Thème clair' : 'Thème sombre' }}</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="text-destructive active:bg-muted flex w-full items-center gap-3 px-4 py-3.5 text-left" (click)="logout()">
+                <span class="bg-destructive/10 grid size-8 place-items-center rounded-lg"><ng-icon name="lucideLogOut" /></span>
+                <span class="flex-1 font-medium">Déconnexion</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+      }
     </div>
   `,
 })
@@ -115,10 +168,12 @@ export class Shell {
   protected readonly theme = inject(ThemeService);
   private readonly auth = inject(Auth);
   private readonly router = inject(Router);
-  protected readonly menuOpen = signal(false);
+
+  protected readonly moreOpen = signal(false);
+  private readonly url = signal(this.router.url);
 
   protected readonly nav: NavItem[] = [
-    { path: '/', label: 'Tableau de bord', icon: 'lucideLayoutDashboard' },
+    { path: '/', label: 'Tableau de bord', short: 'Accueil', icon: 'lucideLayoutDashboard' },
     { path: '/paiements', label: 'Paiements', icon: 'lucideReceiptEuro' },
     { path: '/clients', label: 'Clients', icon: 'lucideUsers' },
     { path: '/prestations', label: 'Prestations', icon: 'lucidePackage' },
@@ -128,11 +183,34 @@ export class Shell {
     { path: '/parametres', label: 'Paramètres', icon: 'lucideSettings' },
   ];
 
+  /** Onglets principaux sur mobile ; le reste passe dans « Plus » */
+  private readonly tabPaths = ['/', '/paiements', '/clients', '/echeances'];
+  protected readonly tabs = this.tabPaths.map((p) => this.nav.find((n) => n.path === p)!);
+  protected readonly more = this.nav.filter((n) => !this.tabPaths.includes(n.path));
+
+  protected readonly moreActive = computed(() => {
+    const path = this.url().split(/[?#]/)[0];
+    return this.more.some((m) => path === m.path || path.startsWith(m.path + '/'));
+  });
+
+  protected readonly themeLabel = computed(() =>
+    this.theme.theme() === 'dark' ? 'Passer en thème clair' : 'Passer en thème sombre',
+  );
+
   constructor() {
-    this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe(() => this.menuOpen.set(false));
+    this.router.events
+      .pipe(
+        filter((e) => e instanceof NavigationEnd),
+        takeUntilDestroyed(inject(DestroyRef)),
+      )
+      .subscribe((e) => {
+        this.moreOpen.set(false);
+        this.url.set(e.urlAfterRedirects);
+      });
   }
 
   async logout() {
+    this.moreOpen.set(false);
     await this.auth.logout();
     await this.router.navigateByUrl('/login');
   }
