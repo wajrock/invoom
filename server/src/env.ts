@@ -1,7 +1,13 @@
 import { z } from 'zod';
 
 const schema = z.object({
-  DATABASE_URL: z.string().min(1),
+  DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/, error: 'DATABASE_URL doit être une URL postgres://…' }),
+  /**
+   * Identifiants qui remplacent ceux de DATABASE_URL (même hôte, même base).
+   * Utile sur Northflank : POSTGRES_URI n'a pas le droit de créer de schéma, l'admin si.
+   */
+  DATABASE_USER: z.string().min(1).optional(),
+  DATABASE_PASSWORD: z.string().min(1).optional(),
   ENCRYPTION_KEY: z
     .string()
     .refine((v) => Buffer.from(v, 'base64').length === 32, 'ENCRYPTION_KEY doit faire 32 octets en base64 (pnpm gen-key)'),
@@ -20,4 +26,14 @@ if (!parsed.success) {
 }
 
 export const env = parsed.data;
+
+/** URL de connexion finale : DATABASE_URL, avec les identifiants DATABASE_USER / DATABASE_PASSWORD s'ils sont fournis. */
+export function resolveDatabaseUrl(base: string, user?: string, password?: string): string {
+  if (!user && !password) return base;
+  const url = new URL(base);
+  if (user) url.username = encodeURIComponent(user);
+  if (password) url.password = encodeURIComponent(password);
+  return url.toString();
+}
+export const databaseUrl = resolveDatabaseUrl(env.DATABASE_URL, env.DATABASE_USER, env.DATABASE_PASSWORD);
 export const isProd = env.NODE_ENV === 'production';

@@ -1,10 +1,10 @@
 import { serve } from '@hono/node-server';
 import { createApp } from './app.ts';
 import { createDb } from './db/client.ts';
-import { env, isProd } from './env.ts';
+import { databaseUrl, env, isProd } from './env.ts';
 import { createCipher } from './lib/crypto.ts';
 
-const { db, sql, migrate } = createDb(env.DATABASE_URL);
+const { db, sql, migrate } = createDb(databaseUrl);
 await migrate();
 
 const app = createApp(
