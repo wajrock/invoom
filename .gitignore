@@ -1,0 +1,10 @@
+node_modules
+dist
+.angular
+.env
+*.log
+.DS_Store
+
+# Factures réelles (IBAN, SIRET…) : jamais dans le dépôt
+/*.pdf
+.nx

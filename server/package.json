@@ -1,0 +1,32 @@
+{
+  "name": "freelance-hub-server",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "node --watch --env-file-if-exists=.env src/index.ts",
+    "start": "node src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test 'src/**/*.test.ts'",
+    "db:generate": "drizzle-kit generate",
+    "hash-code": "node scripts/hash-code.ts",
+    "gen-key": "node -e \"console.log(require('node:crypto').randomBytes(32).toString('base64'))\""
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.1.6",
+    "@node-rs/argon2": "^2.2.2",
+    "drizzle-orm": "^0.45.4",
+    "hono": "^4.13.16",
+    "pdfkit": "^0.17.2",
+    "postgres": "^3.4.9",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/pdfkit": "^0.17.7",
+    "drizzle-kit": "^0.31.11",
+    "typescript": "~6.0.3"
+  }
+}

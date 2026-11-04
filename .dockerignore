@@ -1,0 +1,11 @@
+**/node_modules
+**/dist
+**/.angular
+**/.nx
+**/.env
+**/*.log
+**/.DS_Store
+.git
+*.pdf
+Dockerfile
+docker-compose.yml

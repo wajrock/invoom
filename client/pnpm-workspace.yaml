@@ -1,0 +1,8 @@
+# Scripts d'installation autorisés (pnpm 11 bloque les autres)
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  lmdb: true
+  msgpackr-extract: true
+  # nx n'est pas utilisé pour le build
+  nx: false
