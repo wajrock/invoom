@@ -1,4 +1,4 @@
-import { HlmLabel } from './lib/hlm-label';
+import {HlmLabel} from './lib/hlm-label';
 
 export * from './lib/hlm-label';
 

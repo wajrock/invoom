@@ -1,4 +1,4 @@
-import { HlmToaster } from './lib/hlm-toaster';
+import {HlmToaster} from './lib/hlm-toaster';
 
 export * from './lib/hlm-toaster';
 

@@ -1,4 +1,4 @@
-import { HlmSkeleton } from './lib/hlm-skeleton';
+import {HlmSkeleton} from './lib/hlm-skeleton';
 
 export * from './lib/hlm-skeleton';
 

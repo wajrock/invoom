@@ -1,4 +1,4 @@
-import { HlmSeparator } from './lib/hlm-separator';
+import {HlmSeparator} from './lib/hlm-separator';
 
 export * from './lib/hlm-separator';
 

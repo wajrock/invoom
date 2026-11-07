@@ -1,4 +1,4 @@
-import { HlmTooltip } from './lib/hlm-tooltip';
+import {HlmTooltip} from './lib/hlm-tooltip';
 
 export * from './lib/hlm-tooltip';
 

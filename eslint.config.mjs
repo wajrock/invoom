@@ -31,8 +31,14 @@ export default tseslint.config(
         extends: [...angular.configs.tsRecommended],
         processor: angular.processInlineTemplates,
         rules: {
-            '@angular-eslint/component-selector': ['error', {type: 'element', prefix: ['app', 'hlm'], style: 'kebab-case'}],
-            '@angular-eslint/directive-selector': ['error', {type: 'attribute', prefix: ['app', 'hlm'], style: 'camelCase'}],
+            '@angular-eslint/component-selector': [
+                'error',
+                {type: 'element', prefix: ['app', 'hlm'], style: 'kebab-case'},
+            ],
+            '@angular-eslint/directive-selector': [
+                'error',
+                {type: 'attribute', prefix: ['app', 'hlm'], style: 'camelCase'},
+            ],
         },
     },
     {

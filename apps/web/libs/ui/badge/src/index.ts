@@ -1,4 +1,4 @@
-import { HlmBadge } from './lib/hlm-badge';
+import {HlmBadge} from './lib/hlm-badge';
 
 export * from './lib/hlm-badge';
 
