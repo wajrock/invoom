@@ -6,8 +6,8 @@
         "node": ">=24"
     },
     "scripts": {
-        "dev": "node --watch --env-file-if-exists=.env src/index.ts",
-        "start": "node src/index.ts",
+        "dev": "node --watch --env-file-if-exists=.env src/main.ts",
+        "start": "node src/main.ts",
         "typecheck": "tsc --noEmit",
         "test": "node --test 'src/**/*.test.ts'",
         "db:generate": "drizzle-kit generate",

@@ -1,14 +1,14 @@
 /**
- * Outil d'administration : lien d'accès pour un compte, valable 30 minutes et utilisable une seule fois.
+ * Admin tool: one-time access link for an account, valid for 30 minutes.
  *
  *   node scripts/enroll.ts --email toi@exemple.fr https://ton-domaine
  *
- * - Crée le compte s'il n'existe pas.
- * - S'il n'a pas encore de propriétaire, l'espace historique (données d'avant le multi-utilisateur)
- *   est rattaché à ce compte : c'est ainsi que l'on reprend ses données après la migration.
- * - Affiche un lien qui permet de créer une passkey sur l'appareil qui l'ouvre.
+ * - Creates the account if needed.
+ * - If the legacy workspace (data from before accounts existed) has no owner yet, attaches it to
+ *   this account: this is how the original owner gets their data back after the migration.
+ * - Prints a link that creates a passkey on the device that opens it.
  *
- * Sert aussi de dernier recours si un utilisateur n'a plus ni appareil, ni code, ni accès à sa boîte mail.
+ * Also a last resort for a user with no device, no recovery code and no access to their mailbox.
  */
 import {eq, inArray, sql as dsql} from 'drizzle-orm';
 import {parseArgs} from 'node:util';
@@ -20,9 +20,9 @@ import {
     WORKSPACE_TABLES,
     workspaceMembers,
     workspaces,
-} from '../src/db/schema.ts';
-import {databaseUrl} from '../src/env.ts';
-import {generateEmailToken, hashEmailToken} from '../src/lib/recovery.ts';
+} from '../src/db/schema/index.ts';
+import {databaseUrl} from '../src/config/env.ts';
+import {generateEmailToken, hashEmailToken} from '../src/modules/auth/tokens.ts';
 
 const {values, positionals} = parseArgs({options: {email: {type: 'string'}}, allowPositionals: true});
 const email = values.email?.trim().toLowerCase();
@@ -41,7 +41,7 @@ if (!user) {
     console.log(`Compte créé : ${email}`);
 }
 
-/** Nombre de lignes métier d'un espace (lu dans son propre contexte, la RLS s'appliquant aussi ici). */
+/** Business rows in a workspace, counted inside its own context since row-level security applies here too. */
 async function rowCount(workspaceId: string): Promise<number> {
     return db.transaction(async (tx) => {
         await tx.execute(dsql`select set_config('app.workspace_id', ${workspaceId}, true)`);
@@ -62,8 +62,8 @@ const legacyOwners = await db
     .where(eq(workspaceMembers.workspaceId, LEGACY_WORKSPACE_ID));
 const memberships = await db.select().from(workspaceMembers).where(eq(workspaceMembers.userId, user.id));
 if (legacyOwners.length === 0) {
-    // Le compte a peut-être déjà été créé depuis l'application, avec son propre espace : on ne le
-    // remplace par l'espace historique que s'il est vide (sinon on refuse, pour ne rien perdre).
+    // The account may already exist with its own workspace (signed up in the app): only replace it
+    // with the legacy workspace when it is empty, so nothing is lost.
     const own = memberships.filter((m) => m.workspaceId !== LEGACY_WORKSPACE_ID);
     for (const m of own) {
         const n = await rowCount(m.workspaceId);
@@ -85,7 +85,6 @@ if (legacyOwners.length === 0) {
                 ),
             );
         await tx.insert(workspaceMembers).values({workspaceId: LEGACY_WORKSPACE_ID, userId: user.id, role: 'owner'});
-        // Les sessions ouvertes sur l'ancien espace (vide) sont supprimées avec lui
     });
     if (own.length) console.log('Espace vide créé à l’inscription remplacé.');
     console.log('Espace historique (données existantes) rattaché à ce compte.');

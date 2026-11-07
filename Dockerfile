@@ -26,4 +26,4 @@ EXPOSE 3333
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
     CMD wget -qO- http://127.0.0.1:${PORT}/api/health || exit 1
 # Database migrations run on startup
-CMD ["node", "src/index.ts"]
+CMD ["node", "src/main.ts"]

@@ -4,26 +4,36 @@ import {HTTPException} from 'hono/http-exception';
 import {secureHeaders} from 'hono/secure-headers';
 import {existsSync, readFileSync} from 'node:fs';
 import {join, relative, resolve} from 'node:path';
-import {createAuth, type AuthOptions} from './auth.ts';
+import {createAuth, type AuthOptions} from './modules/auth/auth.module.ts';
 import type {Db} from './db/client.ts';
-import {scopedDeps} from './db/workspace.ts';
-import {clientRoutes} from './routes/clients.ts';
-import {companyRoutes} from './routes/company.ts';
-import {dashboardRoutes} from './routes/dashboard.ts';
-import {deadlineRoutes} from './routes/deadlines.ts';
-import {invoiceRoutes} from './routes/invoices.ts';
-import {fileRoutes, paymentRoutes} from './routes/payments.ts';
-import {platformRoutes} from './routes/platforms.ts';
-import {serviceRoutes} from './routes/services.ts';
-import {settingsRoutes} from './routes/settings.ts';
+import {scopedDeps} from './db/workspace-scope.ts';
+import {clientRoutes} from './modules/clients/clients.routes.ts';
+import {companyRoutes} from './modules/company/company.routes.ts';
+import {dashboardRoutes} from './modules/dashboard/dashboard.routes.ts';
+import {deadlineRoutes} from './modules/deadlines/deadlines.routes.ts';
+import {invoiceRoutes} from './modules/invoices/invoices.routes.ts';
+import {fileRoutes} from './modules/payments/files.routes.ts';
+import {paymentRoutes} from './modules/payments/payments.routes.ts';
+import {platformRoutes} from './modules/platforms/platforms.routes.ts';
+import {serviceRoutes} from './modules/services/services.routes.ts';
+import {settingsRoutes} from './modules/settings/settings.routes.ts';
+
+function isSameOrigin(origin: string | undefined, host: string | undefined): boolean {
+    if (!origin || !host) return false;
+    try {
+        return new URL(origin).host === host;
+    } catch {
+        return false;
+    }
+}
 
 export interface AppOptions extends Omit<AuthOptions, 'db'> {
     staticDir?: string;
 }
 
 /**
- * `db` sert à l'authentification (tables de comptes). Les routes métier reçoivent des dépendances
- * liées à l'espace de la session (transaction + RLS + clé de l'espace), voir db/workspace.ts.
+ * `db` is used by authentication (account tables). Business routes receive dependencies bound to
+ * the session's workspace (transaction, row-level security, workspace key): see db/workspace-scope.ts.
  */
 export function createApp(db: Db, opts: AppOptions) {
     const auth = createAuth({...opts, db});
@@ -49,18 +59,12 @@ export function createApp(db: Db, opts: AppOptions) {
             referrerPolicy: 'no-referrer',
         }),
     );
-    // Refuse toute requête modifiante venant d'une autre origine (en plus du cookie SameSite=Strict)
+    // Reject state-changing requests from another origin (on top of the SameSite=Strict cookie)
     app.use('/api/*', async (c, next) => {
         if (!['GET', 'HEAD', 'OPTIONS'].includes(c.req.method)) {
             const origin = c.req.header('origin') ?? c.req.header('referer');
             const host = c.req.header('x-forwarded-host') ?? c.req.header('host');
-            let sameOrigin = false;
-            try {
-                sameOrigin = !!origin && !!host && new URL(origin).host === host;
-            } catch {
-                sameOrigin = false;
-            }
-            if (!sameOrigin) return c.json({error: 'Origine refusée'}, 403);
+            if (!isSameOrigin(origin, host)) return c.json({error: 'Origine refusée'}, 403);
         }
         await next();
     });

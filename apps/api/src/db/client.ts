@@ -2,7 +2,7 @@ import {drizzle} from 'drizzle-orm/postgres-js';
 import {migrate} from 'drizzle-orm/postgres-js/migrator';
 import postgres from 'postgres';
 import {fileURLToPath} from 'node:url';
-import * as schema from './schema.ts';
+import * as schema from './schema/index.ts';
 
 export function createDb(url: string) {
     const sql = postgres(url, {max: 5, onnotice: () => {}});
