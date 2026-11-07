@@ -51,6 +51,11 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/company').then((m) => m.CompanyPage),
       },
       {
+        path: 'securite',
+        title: 'Sécurité · Freelance Hub',
+        loadComponent: () => import('./pages/security').then((m) => m.SecurityPage),
+      },
+      {
         path: 'parametres',
         title: 'Paramètres · Freelance Hub',
         loadComponent: () => import('./pages/settings').then((m) => m.SettingsPage),

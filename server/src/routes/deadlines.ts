@@ -103,7 +103,7 @@ export const deadlineRoutes = (deps: Deps) => {
         await db
           .insert(deadlines)
           .values({ autoKey: id, dueOn: '1970-01-01', doneAt, data: cipher.encryptJson({}) })
-          .onConflictDoUpdate({ target: deadlines.autoKey, set: { doneAt } });
+          .onConflictDoUpdate({ target: [deadlines.workspaceId, deadlines.autoKey], set: { doneAt } });
       } else {
         const res = await db
           .update(deadlines)

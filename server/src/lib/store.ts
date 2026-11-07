@@ -6,6 +6,7 @@ import { DEFAULT_INVOICE_SETTINGS } from './invoice.ts';
 import type { Client, InvoiceSettings, PaymentData } from './types.ts';
 
 export async function getSetting<T>({ db, cipher }: Deps, key: string, fallback: () => T): Promise<T> {
+  // Filtrage par espace assuré par la RLS
   const [row] = await db.select().from(settings).where(eq(settings.key, key));
   return row ? cipher.decryptJson<T>(row.data) : fallback();
 }
@@ -16,7 +17,7 @@ export async function putSetting({ db, cipher }: Deps, key: string, value: unkno
     .insert(settings)
     .values({ key, data })
     .onConflictDoUpdate({
-      target: settings.key,
+      target: [settings.workspaceId, settings.key],
       set: { data, updatedAt: new Date() },
     });
 }

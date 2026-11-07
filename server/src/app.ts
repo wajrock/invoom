@@ -5,7 +5,8 @@ import { secureHeaders } from 'hono/secure-headers';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { createAuth, type AuthOptions } from './auth.ts';
-import type { Deps } from './deps.ts';
+import type { Db } from './db/client.ts';
+import { scopedDeps } from './db/workspace.ts';
 import { clientRoutes } from './routes/clients.ts';
 import { companyRoutes } from './routes/company.ts';
 import { dashboardRoutes } from './routes/dashboard.ts';
@@ -20,8 +21,13 @@ export interface AppOptions extends Omit<AuthOptions, 'db'> {
   staticDir?: string;
 }
 
-export function createApp(deps: Deps, opts: AppOptions) {
-  const auth = createAuth({ ...opts, db: deps.db });
+/**
+ * `db` sert à l'authentification (tables de comptes). Les routes métier reçoivent des dépendances
+ * liées à l'espace de la session (transaction + RLS + clé de l'espace), voir db/workspace.ts.
+ */
+export function createApp(db: Db, opts: AppOptions) {
+  const auth = createAuth({ ...opts, db });
+  const deps = scopedDeps;
   const app = new Hono();
 
   app.use(

@@ -14,6 +14,7 @@ import {
   lucidePackage,
   lucideReceiptEuro,
   lucideSettings,
+  lucideShieldCheck,
   lucideSun,
   lucideUsers,
 } from '@ng-icons/lucide';
@@ -43,6 +44,7 @@ interface NavItem {
       lucideLink,
       lucideBuilding2,
       lucideSettings,
+      lucideShieldCheck,
       lucideLogOut,
       lucideMoon,
       lucidePackage,
@@ -181,6 +183,7 @@ export class Shell {
     { path: '/plateformes', label: 'Plateformes', icon: 'lucideLink' },
     { path: '/entreprise', label: 'Entreprise', icon: 'lucideBuilding2' },
     { path: '/parametres', label: 'Paramètres', icon: 'lucideSettings' },
+    { path: '/securite', label: 'Sécurité', icon: 'lucideShieldCheck' },
   ];
 
   /** Onglets principaux sur mobile ; le reste passe dans « Plus » */

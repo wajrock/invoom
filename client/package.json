@@ -21,6 +21,7 @@
     "@angular/router": "^22.1.0",
     "@ng-icons/core": "^36.1.0",
     "@ng-icons/lucide": "^36.1.0",
+    "@simplewebauthn/browser": "^14.0.0",
     "@spartan-ng/brain": "^1.9.0",
     "@tailwindcss/postcss": "^4.3.3",
     "class-variance-authority": "^0.7.1",

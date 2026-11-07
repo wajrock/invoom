@@ -35,6 +35,9 @@ importers:
       '@ng-icons/lucide':
         specifier: ^36.1.0
         version: 36.1.0(@ng-icons/core@36.1.0(@angular-devkit/schematics@22.2.5(chokidar@5.0.0))(@angular/common@22.2.4(@angular/core@22.2.4(@angular/compiler@22.2.4)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.4(@angular/compiler@22.2.4)(rxjs@7.8.2))(@schematics/angular@22.2.5(chokidar@5.0.0))(rxjs@7.8.2))
+      '@simplewebauthn/browser':
+        specifier: ^14.0.0
+        version: 14.0.0
       '@spartan-ng/brain':
         specifier: ^1.9.0
         version: 1.9.0(5bfee411677e1676b2c61d6b9ecda98b)
@@ -2143,6 +2146,9 @@ packages:
   '@schematics/angular@22.2.5':
     resolution: {integrity: sha512-wP4pzkm1lwrC1UxaGqq6/4sEAHeBNsg/vyyKy4y94C6B0YzDQbMnvPBFvVsv1sD7ORhiQe5n2DBr8gzgr6mAYg==}
     engines: {node: ^22.22.3 || ^24.15.0 || >=26.0.0, npm: ^6.11.0 || ^7.5.6 || >=8.0.0, yarn: '>= 1.13.0'}
+
+  '@simplewebauthn/browser@14.0.0':
+    resolution: {integrity: sha512-1odWVqeEBTl7lJ9zMKLEsmTlnyrDO5iRcTvfMKKk1WThUnp/i8JJdffdj2icP+tty159s4PgwE3BiMoEW9NFow==}
 
   '@spartan-ng/brain@1.9.0':
     resolution: {integrity: sha512-vPULFnCRk0B4RD3gB2ks5hA/AOfXX5J4vD5wrsxHyAElhkwmY6vvyVL/3BcJ7w3LszhUVUsag8ORPqtvRCEJ0w==}
@@ -6256,6 +6262,8 @@ snapshots:
       typescript: 6.0.3
     transitivePeerDependencies:
       - chokidar
+
+  '@simplewebauthn/browser@14.0.0': {}
 
   '@spartan-ng/brain@1.9.0(5bfee411677e1676b2c61d6b9ecda98b)':
     dependencies:

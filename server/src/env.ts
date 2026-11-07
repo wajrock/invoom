@@ -11,7 +11,9 @@ const schema = z.object({
   ENCRYPTION_KEY: z
     .string()
     .refine((v) => Buffer.from(v, 'base64').length === 32, 'ENCRYPTION_KEY doit faire 32 octets en base64 (pnpm gen-key)'),
-  ACCESS_CODE_HASH: z.string().startsWith('$argon2', "ACCESS_CODE_HASH doit être une empreinte argon2 (pnpm hash-code)"),
+  /** Envoi des e-mails (inscription, récupération) : smtps://utilisateur:motdepasse@smtp.fournisseur.com:465 */
+  SMTP_URL: z.string().url().optional(),
+  MAIL_FROM: z.string().default('Freelance Hub <no-reply@localhost>'),
   PORT: z.coerce.number().default(3333),
   TRUST_PROXY: z.enum(['true', 'false']).default('false').transform((v) => v === 'true'),
   STATIC_DIR: z.string().default('../client/dist/client/browser'),

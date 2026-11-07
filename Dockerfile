@@ -26,6 +26,7 @@ WORKDIR /app/server
 COPY --from=server-deps /app/server/node_modules ./node_modules
 COPY server/package.json ./
 COPY server/src ./src
+COPY server/scripts ./scripts
 COPY server/drizzle ./drizzle
 COPY server/assets ./assets
 COPY --from=client /app/client/dist/client/browser /app/client/dist/client/browser
