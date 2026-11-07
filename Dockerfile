@@ -12,7 +12,7 @@ COPY apps/api/package.json apps/api/
 RUN pnpm install --frozen-lockfile
 COPY apps ./apps
 RUN pnpm --filter @invoom/web build \
-    && pnpm --filter @invoom/api deploy --prod /out/api
+    && pnpm --filter @invoom/api deploy --legacy --prod /out/api
 
 FROM node:24-alpine
 ENV NODE_ENV=production \

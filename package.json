@@ -2,7 +2,6 @@
     "name": "invoom",
     "private": true,
     "description": "Open-source back office for freelancers: invoices, clients, payments and tax deadlines.",
-    "license": "AGPL-3.0-only",
     "packageManager": "pnpm@11.21.0",
     "engines": {
         "node": ">=24"

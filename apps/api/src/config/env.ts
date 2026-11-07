@@ -16,7 +16,7 @@ const schema = z.object({
         ),
     /** Sign-up and recovery emails, e.g. smtps://user:password@smtp.provider.com:465 */
     SMTP_URL: z.string().url().optional(),
-    MAIL_FROM: z.string().default('Freelance Hub <no-reply@localhost>'),
+    MAIL_FROM: z.string().default('Invoom <no-reply@localhost>'),
     PORT: z.coerce.number().default(3333),
     TRUST_PROXY: z
         .enum(['true', 'false'])
