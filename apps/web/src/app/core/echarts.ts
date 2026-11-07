@@ -1,5 +1,5 @@
-// Import minimal d'ECharts : seuls les modules utilisés sont embarqués.
-// ngx-echarts attend un module exposant init() : on réexporte echarts/core.
+// Tree-shaken ECharts: only the modules we use are bundled.
+// ngx-echarts expects a module exposing init(), hence the echarts/core re-export.
 import {BarChart, LineChart} from 'echarts/charts';
 import {GridComponent, LegendComponent, TooltipComponent} from 'echarts/components';
 import {use} from 'echarts/core';

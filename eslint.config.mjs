@@ -11,7 +11,7 @@ export default tseslint.config(
         extends: [js.configs.recommended, ...tseslint.configs.recommended],
         rules: {
             eqeqeq: ['error', 'always'],
-            'no-console': ['warn', {allow: ['warn', 'error']}],
+            'no-console': ['warn', {allow: ['info', 'warn', 'error']}],
             'prefer-const': 'error',
             '@typescript-eslint/consistent-type-imports': ['error', {fixStyle: 'inline-type-imports'}],
             '@typescript-eslint/no-unused-vars': ['error', {argsIgnorePattern: '^_', varsIgnorePattern: '^_'}],
@@ -40,6 +40,11 @@ export default tseslint.config(
                 {type: 'attribute', prefix: ['app', 'hlm'], style: 'camelCase'},
             ],
         },
+    },
+    {
+        // Vendored spartan-ng helm primitives alias their inputs on purpose (e.g. `class` → userClass)
+        files: ['apps/web/libs/ui/**/*.ts'],
+        rules: {'@angular-eslint/no-input-rename': 'off'},
     },
     {
         files: ['apps/web/**/*.html'],

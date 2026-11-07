@@ -1,0 +1,58 @@
+<span hlmLabel>Factures (PDF ou image, 10 Mo max)</span>
+<div class="grid gap-2 sm:grid-cols-2">
+    @for (lang of slotLangs; track lang) {
+        <div
+            class="hover:border-ring flex min-h-16 flex-col justify-center gap-1 rounded-lg border border-dashed p-3 text-sm transition-colors"
+            [class.border-ring]="dragOver() === lang"
+            (dragover)="$event.preventDefault(); dragOver.set(lang)"
+            (dragleave)="dragOver.set(null)"
+            (drop)="onDrop($event, lang)"
+        >
+            <span class="text-muted-foreground text-xs font-medium">Facture {{ langLabels[lang] }}</span>
+            @for (f of filesFor(lang); track f.id) {
+                <div class="flex items-center gap-2">
+                    <ng-icon name="lucideFileText" class="text-muted-foreground shrink-0" />
+                    <a
+                        class="min-w-0 flex-1 truncate hover:underline"
+                        [href]="api.fileUrl(f.id)"
+                        target="_blank"
+                        rel="noopener"
+                        >{{ f.name }}</a
+                    >
+                    <button
+                        hlmBtn
+                        type="button"
+                        variant="ghost"
+                        size="icon-xs"
+                        (click)="removeFile(f)"
+                        aria-label="Supprimer le fichier"
+                    >
+                        <ng-icon name="lucideTrash2" />
+                    </button>
+                </div>
+            }
+            @for (p of pendingFor(lang); track p.file) {
+                <div class="flex items-center gap-2">
+                    <ng-icon name="lucidePaperclip" class="text-muted-foreground shrink-0" />
+                    <span class="min-w-0 flex-1 truncate">{{ p.file.name }}</span>
+                    <span class="text-muted-foreground text-xs">{{ size(p.file.size) }}</span>
+                    <button
+                        hlmBtn
+                        type="button"
+                        variant="ghost"
+                        size="icon-xs"
+                        (click)="unqueue(p)"
+                        aria-label="Retirer le fichier"
+                    >
+                        <ng-icon name="lucideTrash2" />
+                    </button>
+                </div>
+            }
+            <label class="text-muted-foreground hover:text-foreground flex cursor-pointer items-center gap-1.5 text-xs">
+                <ng-icon name="lucideUpload" />
+                Ajouter ou glisser un fichier
+                <input type="file" class="sr-only" [accept]="accept" (change)="onPick($event, lang)" />
+            </label>
+        </div>
+    }
+</div>

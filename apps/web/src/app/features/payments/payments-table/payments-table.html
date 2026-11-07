@@ -1,0 +1,112 @@
+<div hlmTableContainer class="hidden overflow-hidden rounded-xl border sm:block">
+    <table hlmTable class="[&_td]:px-3 [&_td]:py-3 [&_th]:px-3 [&_tr>*:first-child]:pl-5 [&_tr>*:last-child]:pr-4">
+        <thead hlmTHead class="bg-muted/40">
+            <tr hlmTr>
+                <th hlmTh>Date</th>
+                <th hlmTh>Client</th>
+                <th hlmTh class="hidden md:table-cell">N°</th>
+                <th hlmTh class="text-right">Montant</th>
+                <th hlmTh>Statut</th>
+                <th hlmTh class="hidden lg:table-cell">Encaissement</th>
+                <th hlmTh>Factures</th>
+                <th hlmTh class="w-10"><span class="sr-only">Actions</span></th>
+            </tr>
+        </thead>
+        <tbody hlmTBody>
+            @for (p of payments(); track p.id) {
+                <tr
+                    hlmTr
+                    class="cursor-pointer"
+                    tabindex="0"
+                    (click)="emit(p, 'edit')"
+                    (keydown.enter)="$event.target === $event.currentTarget && emit(p, 'edit')"
+                >
+                    <td hlmTd class="whitespace-nowrap">{{ p.issuedOn | frDate: 'short' }}</td>
+                    <td hlmTd class="max-w-64">
+                        <p class="truncate font-medium">{{ p.client }}</p>
+                        @if (p.label) {
+                            <p class="text-muted-foreground truncate text-xs">{{ p.label }}</p>
+                        }
+                    </td>
+                    <td hlmTd class="text-muted-foreground hidden md:table-cell">
+                        {{ p.invoiceNumber || '—' }}
+                    </td>
+                    <td hlmTd class="text-right whitespace-nowrap tabular-nums">
+                        <span class="font-medium">{{ p.amount | eur }}</span>
+                        @if (p.originalAmount !== null && p.originalCurrency !== 'EUR') {
+                            <p class="text-muted-foreground text-xs">
+                                {{ p.originalAmount | money: p.originalCurrency }}
+                            </p>
+                        }
+                    </td>
+                    <td hlmTd>
+                        @if (p.paidOn) {
+                            <span hlmBadge class="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                                ><ng-icon name="lucideCircleCheck" /> Payée</span
+                            >
+                        } @else {
+                            <span hlmBadge class="bg-amber-500/15 text-amber-700 dark:text-amber-400"
+                                ><ng-icon name="lucideClock" /> En attente</span
+                            >
+                        }
+                    </td>
+                    <td hlmTd class="text-muted-foreground hidden whitespace-nowrap lg:table-cell">
+                        {{ p.paidOn ? (p.paidOn | frDate: 'short') : '—' }}
+                    </td>
+                    <td hlmTd>
+                        <div class="flex gap-1">
+                            @for (f of p.files; track f.id) {
+                                <a
+                                    hlmBadge
+                                    variant="outline"
+                                    [href]="api.fileUrl(f.id)"
+                                    target="_blank"
+                                    rel="noopener"
+                                    [title]="f.name"
+                                    (click)="$event.stopPropagation()"
+                                >
+                                    <ng-icon name="lucideFileText" /> {{ langLabels[f.lang] }}
+                                </a>
+                            } @empty {
+                                <span class="text-muted-foreground text-xs">—</span>
+                            }
+                        </div>
+                    </td>
+                    <td hlmTd>
+                        <button
+                            hlmBtn
+                            variant="ghost"
+                            size="icon-sm"
+                            [hlmDropdownMenuTrigger]="menu"
+                            [hlmDropdownMenuTriggerData]="{$implicit: p}"
+                            aria-label="Actions"
+                            (click)="$event.stopPropagation()"
+                        >
+                            <ng-icon name="lucideEllipsis" />
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<ng-template #menu let-p>
+    <hlm-dropdown-menu class="w-48">
+        @if (!p.paidOn) {
+            <button hlmDropdownMenuItem (click)="emit(p, 'paid')">
+                <ng-icon name="lucideCircleCheck" /> Encaissé aujourd'hui
+            </button>
+        }
+        <button hlmDropdownMenuItem (click)="emit(p, 'invoice')">
+            <ng-icon name="lucideFilePlus" /> {{ p.invoice ? 'Modifier la facture' : 'Générer la facture' }}
+        </button>
+        <button hlmDropdownMenuItem (click)="emit(p, 'edit')">
+            <ng-icon name="lucidePencil" /> Modifier le paiement
+        </button>
+        <hlm-dropdown-menu-separator />
+        <button hlmDropdownMenuItem variant="destructive" (click)="emit(p, 'delete')">
+            <ng-icon name="lucideTrash2" /> Supprimer
+        </button>
+    </hlm-dropdown-menu>
+</ng-template>

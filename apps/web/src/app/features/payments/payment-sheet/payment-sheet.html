@@ -1,0 +1,74 @@
+@let p = payment();
+<app-bottom-sheet hiddenFrom="sm" [label]="'Paiement ' + p.client" (closed)="closed.emit()">
+    <div class="mt-1 mb-4 flex items-start justify-between gap-3 px-1">
+        <div class="min-w-0">
+            <p class="truncate text-lg font-semibold">{{ p.client }}</p>
+            <p class="text-muted-foreground truncate text-sm">
+                {{ p.invoiceNumber ? 'Facture ' + p.invoiceNumber : 'Sans facture' }} ·
+                {{ p.issuedOn | frDate: 'short' }}
+            </p>
+        </div>
+        <div class="shrink-0 text-right">
+            <p class="text-lg font-semibold tabular-nums">{{ p.amount | eur }}</p>
+            @if (p.originalAmount !== null && p.originalCurrency !== 'EUR') {
+                <p class="text-muted-foreground text-xs tabular-nums">
+                    {{ p.originalAmount | money: p.originalCurrency }}
+                </p>
+            }
+        </div>
+    </div>
+
+    @if (p.files.length) {
+        <div class="mb-3 grid gap-2" [class.grid-cols-2]="p.files.length > 1">
+            @for (f of p.files; track f.id) {
+                <a hlmBtn variant="outline" class="h-11" [href]="api.fileUrl(f.id)" target="_blank" rel="noopener">
+                    <ng-icon name="lucideFileText" /> PDF {{ langLabels[f.lang] }}
+                </a>
+            }
+        </div>
+    }
+
+    <ul class="bg-card divide-y overflow-hidden rounded-xl border">
+        @if (!p.paidOn) {
+            <li>
+                <button
+                    type="button"
+                    class="tap-row flex w-full items-center gap-3 px-4 py-3.5 text-left font-medium"
+                    (click)="action.emit('paid')"
+                >
+                    <ng-icon name="lucideCircleCheck" class="text-emerald-600 dark:text-emerald-400" />
+                    Encaissé aujourd'hui
+                </button>
+            </li>
+        }
+        <li>
+            <button
+                type="button"
+                class="tap-row flex w-full items-center gap-3 px-4 py-3.5 text-left font-medium"
+                (click)="action.emit('invoice')"
+            >
+                <ng-icon name="lucideFilePlus" />
+                {{ p.invoice ? 'Modifier la facture' : 'Générer la facture' }}
+            </button>
+        </li>
+        <li>
+            <button
+                type="button"
+                class="tap-row flex w-full items-center gap-3 px-4 py-3.5 text-left font-medium"
+                (click)="action.emit('edit')"
+            >
+                <ng-icon name="lucidePencil" /> Modifier le paiement
+            </button>
+        </li>
+        <li>
+            <button
+                type="button"
+                class="tap-row text-destructive flex w-full items-center gap-3 px-4 py-3.5 text-left font-medium"
+                (click)="action.emit('delete')"
+            >
+                <ng-icon name="lucideTrash2" /> Supprimer
+            </button>
+        </li>
+    </ul>
+    <button hlmBtn variant="secondary" class="mt-3 h-11 w-full text-[15px]" (click)="closed.emit()">Fermer</button>
+</app-bottom-sheet>

@@ -1,0 +1,41 @@
+<app-bottom-sheet label="Plus" (closed)="closed.emit()">
+    <ul class="bg-card divide-y overflow-hidden rounded-xl border">
+        @for (item of items; track item.path) {
+            <li>
+                <a [routerLink]="item.path" class="active:bg-muted flex items-center gap-3 px-4 py-3.5">
+                    <span class="bg-muted grid size-8 place-items-center rounded-lg"
+                        ><ng-icon [name]="item.icon"
+                    /></span>
+                    <span class="flex-1 font-medium">{{ item.label }}</span>
+                    <ng-icon name="lucideChevronRight" class="text-muted-foreground" />
+                </a>
+            </li>
+        }
+    </ul>
+    <ul class="bg-card mt-3 divide-y overflow-hidden rounded-xl border">
+        <li>
+            <button
+                type="button"
+                class="active:bg-muted flex w-full items-center gap-3 px-4 py-3.5 text-left"
+                (click)="theme.toggle()"
+            >
+                <span class="bg-muted grid size-8 place-items-center rounded-lg">
+                    <ng-icon [name]="theme.theme() === 'dark' ? 'lucideSun' : 'lucideMoon'" />
+                </span>
+                <span class="flex-1 font-medium">{{ theme.theme() === 'dark' ? 'Thème clair' : 'Thème sombre' }}</span>
+            </button>
+        </li>
+        <li>
+            <button
+                type="button"
+                class="text-destructive active:bg-muted flex w-full items-center gap-3 px-4 py-3.5 text-left"
+                (click)="logout.emit()"
+            >
+                <span class="bg-destructive/10 grid size-8 place-items-center rounded-lg"
+                    ><ng-icon name="lucideLogOut"
+                /></span>
+                <span class="flex-1 font-medium">Déconnexion</span>
+            </button>
+        </li>
+    </ul>
+</app-bottom-sheet>

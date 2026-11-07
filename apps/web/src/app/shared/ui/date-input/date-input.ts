@@ -11,7 +11,7 @@ function isoToFr(iso: string | null | undefined): string {
     return `${d}/${m}/${y}`;
 }
 
-/** "01/10/2026" → "2026-10-01" (null si la date n'existe pas) */
+/** "01/10/2026" → "2026-10-01" (null when the date does not exist) */
 function frToIso(fr: string): string | null {
     const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(fr);
     if (!m) return null;
@@ -22,7 +22,7 @@ function frToIso(fr: string): string | null {
     return valid && Number(y) >= 1900 ? `${y}-${mo}-${d}` : null;
 }
 
-/** Garde les chiffres et insère les « / » : "0110202" → "01/10/202" */
+/** Keeps digits and inserts slashes: "0110202" → "01/10/202" */
 function mask(raw: string): string {
     const digits = raw.replace(/\D/g, '').slice(0, 8);
     const parts = [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4, 8)].filter(Boolean);
@@ -30,9 +30,9 @@ function mask(raw: string): string {
 }
 
 /**
- * Champ date toujours affiché en jj/mm/aaaa, quelle que soit la langue du navigateur
- * (les <input type="date"> natifs suivent la langue du système).
- * La valeur échangée avec ngModel reste au format ISO (YYYY-MM-DD), ou '' si vide.
+ * Date field always displayed as jj/mm/aaaa whatever the browser language
+ * (native <input type="date"> follows the OS locale).
+ * The ngModel value stays ISO (YYYY-MM-DD), or '' when empty.
  */
 @Component({
     selector: 'app-date-input',
@@ -42,45 +42,7 @@ function mask(raw: string): string {
         {provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => DateInput), multi: true},
     ],
     host: {class: 'relative block'},
-    template: `
-        <input
-            #textInput
-            hlmInput
-            type="text"
-            inputmode="numeric"
-            autocomplete="off"
-            placeholder="jj/mm/aaaa"
-            maxlength="10"
-            class="pr-9"
-            [id]="inputId() ?? undefined"
-            [attr.aria-label]="ariaLabel()"
-            [forceInvalid]="invalid()"
-            [disabled]="disabled()"
-            [value]="text()"
-            (input)="onInput($event)"
-            (blur)="onBlur()"
-        />
-        <button
-            type="button"
-            class="text-muted-foreground hover:text-foreground absolute top-1/2 right-1 grid size-7 -translate-y-1/2 place-items-center rounded-md"
-            aria-label="Ouvrir le calendrier"
-            tabindex="-1"
-            [disabled]="disabled()"
-            (click)="openPicker()"
-        >
-            <ng-icon name="lucideCalendar" />
-        </button>
-        <!-- Sélecteur natif invisible, utilisé uniquement pour le calendrier -->
-        <input
-            #picker
-            type="date"
-            tabindex="-1"
-            aria-hidden="true"
-            class="pointer-events-none absolute right-0 bottom-0 size-px opacity-0"
-            [value]="value()"
-            (change)="onPick($event)"
-        />
-    `,
+    templateUrl: './date-input.html',
 })
 export class DateInput implements ControlValueAccessor {
     readonly inputId = input<string | null>(null);
@@ -108,14 +70,13 @@ export class DateInput implements ControlValueAccessor {
             return;
         }
         const iso = frToIso(masked);
-        // Le modèle n'est mis à jour qu'avec une date complète et valide
         this.invalid.set(masked.length === 10 && !iso);
         if (iso) this.commit(iso);
     }
 
     onBlur() {
         this.onTouched();
-        // Saisie incomplète ou invalide : on revient à la dernière date valide
+        // Incomplete or invalid input: restore the last valid date
         if (this.text() && !frToIso(this.text())) {
             this.text.set(isoToFr(this.value()));
             this.textEl().nativeElement.value = this.text();

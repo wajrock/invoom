@@ -6,7 +6,7 @@ import {provideRouter, withComponentInputBinding, withViewTransitions} from '@an
 import {provideSpartanHlm} from '@spartan-ng/helm/utils';
 import {provideEchartsCore} from 'ngx-echarts';
 import {routes} from './app.routes';
-import {authInterceptor} from './core/auth';
+import {authInterceptor} from './core/auth/auth.interceptor';
 
 registerLocaleData(localeFr);
 

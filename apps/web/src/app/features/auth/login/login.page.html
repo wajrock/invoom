@@ -1,0 +1,35 @@
+<div class="bg-muted/40 grid min-h-dvh content-center justify-items-center gap-6 p-4">
+    <app-logo class="h-7" />
+    <section hlmCard class="w-full max-w-sm">
+        <div hlmCardHeader>
+            <div class="bg-primary text-primary-foreground mb-2 grid size-10 place-items-center rounded-lg">
+                <ng-icon [name]="icon()" class="text-lg" />
+            </div>
+            <h1 hlmCardTitle class="text-xl">{{ title() }}</h1>
+            <p hlmCardDescription>{{ subtitle() }}</p>
+        </div>
+
+        <div hlmCardContent class="grid gap-4">
+            @switch (flow.step()) {
+                @case ('signin') {
+                    <app-sign-in-step />
+                }
+                @case ('signup') {
+                    <app-sign-up-step />
+                }
+                @case ('lost') {
+                    <app-lost-access-step />
+                }
+                @case ('sent') {
+                    <app-email-sent-step />
+                }
+                @case ('link') {
+                    <app-email-link-step />
+                }
+                @case ('codes') {
+                    <app-recovery-codes [codes]="flow.codes()" (done)="flow.enter()" />
+                }
+            }
+        </div>
+    </section>
+</div>

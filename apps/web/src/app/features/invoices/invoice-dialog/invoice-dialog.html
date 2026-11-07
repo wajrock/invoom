@@ -1,0 +1,95 @@
+<hlm-dialog-header>
+    <h3 hlmDialogTitle>{{ stored ? 'Modifier la facture' : 'Nouvelle facture' }}</h3>
+    <p hlmDialogDescription>
+        Une seule saisie : la facture française est toujours générée, l'anglaise en option. Les PDF sont rattachés au
+        paiement.
+    </p>
+</hlm-dialog-header>
+
+@if (editor.ready()) {
+    <form
+        id="invoice-form"
+        class="-mx-1 grid content-start gap-6 overflow-y-auto overscroll-contain sm:max-h-[68vh] px-1 py-1"
+        (ngSubmit)="save()"
+    >
+        @if (editor.vatMismatch(); as regime) {
+            <app-warning-banner>
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="flex-1"
+                        >La mention TVA ne correspond pas à ce client : attendu « {{ regimeLabels[regime] }} ».</span
+                    >
+                    <button hlmBtn type="button" variant="outline" size="sm" (click)="editor.fixVat()">Corriger</button>
+                </div>
+            </app-warning-banner>
+        }
+        @if (editor.missingCompany().length) {
+            <app-warning-banner>
+                Fiche Entreprise incomplète ({{ editor.missingCompany().join(', ') }}) : ces informations n'apparaîtront
+                pas sur la facture.
+            </app-warning-banner>
+        }
+
+        <app-invoice-header />
+
+        <div class="flex items-center gap-3">
+            <hlm-switch inputId="i-english" [checked]="form.english" (checkedChange)="form.english = $event" />
+            <label hlmLabel for="i-english">Générer aussi la version anglaise</label>
+        </div>
+
+        <app-invoice-lines />
+
+        @if (form.currency !== 'EUR') {
+            <div class="grid gap-2 sm:max-w-xs">
+                <label hlmLabel for="i-eur">Montant en euros (pour le CA)</label>
+                <input
+                    hlmInput
+                    id="i-eur"
+                    name="eurAmount"
+                    inputmode="decimal"
+                    placeholder="0,00"
+                    [(ngModel)]="form.eurAmount"
+                />
+                <p class="text-muted-foreground text-xs">
+                    Estimation à corriger dans le paiement une fois l'encaissement reçu.
+                </p>
+            </div>
+        }
+
+        <app-invoice-terms />
+    </form>
+} @else {
+    <hlm-skeleton class="block h-96 rounded-lg" />
+}
+
+<app-dialog-footer
+    formId="invoice-form"
+    [saving]="busy()"
+    [disabled]="!editor.ready()"
+    [submitLabel]="stored ? 'Régénérer' : 'Générer la facture'"
+    (dismiss)="ref.close(false)"
+>
+    <div class="flex gap-2 max-sm:*:flex-1 sm:mr-auto">
+        <button
+            hlmBtn
+            type="button"
+            variant="ghost"
+            size="sm"
+            [disabled]="!editor.ready() || busy()"
+            (click)="preview('fr')"
+        >
+            <ng-icon name="lucideEye" /> Aperçu FR
+        </button>
+        @if (form.english) {
+            <button
+                hlmBtn
+                type="button"
+                variant="ghost"
+                size="sm"
+                [disabled]="!editor.ready() || busy()"
+                (click)="preview('en')"
+            >
+                <ng-icon name="lucideEye" /> Aperçu EN
+            </button>
+        }
+    </div>
+</app-dialog-footer>

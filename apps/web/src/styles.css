@@ -4,7 +4,6 @@
 @import 'tailwindcss/utilities.css';
 
 @import '@spartan-ng/brain/hlm-tailwind-preset.css';
-/* You can add global styles to this file, and also import other style files */
 
 :root {
     color-scheme: light;
@@ -92,7 +91,7 @@
     }
 }
 
-/* Select natif aligné sur le style des champs hlmInput */
+/* Native <select> styled like hlmInput fields */
 @utility select-native {
     @apply border-input focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 h-9 w-full min-w-0 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs outline-none focus-visible:ring-3 disabled:opacity-50 md:text-sm;
 }
@@ -105,11 +104,11 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Expérience application sur mobile
+   App-like experience on mobile
    --------------------------------------------------------------------------- */
 
 :root {
-    /* Hauteur de la barre d'onglets mobile (0 dès que la barre latérale prend le relais) */
+    /* Mobile tab bar height (0 once the sidebar takes over) */
     --tabbar-h: calc(3.5rem + env(safe-area-inset-bottom));
 }
 @media (width >= 48rem) {
@@ -130,7 +129,7 @@
 }
 
 @media (width < 40rem) {
-    /* Cartes plus compactes et action d'en-tête sous le titre */
+    /* Tighter cards, header action below the title */
     [data-slot='card'] {
         --card-spacing: 1rem !important;
     }
@@ -144,7 +143,7 @@
         margin-top: 0.5rem;
     }
 
-    /* Pied des panneaux : boutons côte à côte, aperçus au-dessus */
+    /* Dialog footer: buttons side by side, preview buttons above */
     [data-slot='dialog-footer'] {
         flex-direction: row;
         flex-wrap: wrap;
@@ -157,7 +156,7 @@
     }
 }
 
-/* Cibles tactiles confortables et pas de zoom iOS sur les champs (16 px) */
+/* Comfortable touch targets; 16px fields prevent iOS zoom on focus */
 @media (width < 40rem) {
     [data-slot='input'],
     .select-native {
@@ -174,7 +173,7 @@
     }
 }
 
-/* En-tête de page : grand titre façon application sur mobile */
+/* Page header: large app-style title on mobile */
 @utility page-head {
     @apply mb-5 flex flex-wrap items-center justify-between gap-3 md:mb-6 md:items-end md:gap-4;
     & h1 {
@@ -185,7 +184,7 @@
     }
 }
 
-/* Action principale : bouton flottant rond au-dessus de la barre d'onglets sur mobile */
+/* Primary action: round floating button above the mobile tab bar */
 @utility fab {
     @apply max-md:fixed! max-md:right-4! max-md:bottom-[calc(var(--tabbar-h)+1rem)]! max-md:z-30! max-md:size-12! max-md:rounded-full! max-md:p-0! max-md:shadow-md! max-md:shadow-black/15! max-md:active:scale-95!;
     & .fab-label {
@@ -196,7 +195,7 @@
     }
 }
 
-/* Liste façon iOS : lignes tactiles avec retour visuel */
+/* iOS-style list rows with tap feedback */
 @utility tap-row {
     @apply active:bg-muted/70 cursor-pointer transition-colors;
 }

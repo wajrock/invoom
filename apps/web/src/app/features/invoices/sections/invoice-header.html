@@ -1,0 +1,82 @@
+<section class="grid gap-2">
+    <label hlmLabel for="i-client">Client</label>
+    <div class="flex gap-2">
+        <select
+            class="select-native flex-1"
+            id="i-client"
+            name="clientId"
+            required
+            [ngModel]="form.clientId"
+            (ngModelChange)="editor.selectClient($event)"
+        >
+            <option value="" disabled>Choisir un client…</option>
+            @for (c of editor.clients(); track c.id) {
+                <option [value]="c.id">{{ c.name }}</option>
+            }
+        </select>
+        <button hlmBtn type="button" variant="outline" (click)="newClient()">
+            <ng-icon name="lucideUserPlus" /> Nouveau
+        </button>
+    </div>
+    @if (editor.clientMissing()) {
+        <p class="text-muted-foreground text-xs">
+            Ce client a été supprimé du carnet : les coordonnées figées lors de l'émission seront réutilisées.
+        </p>
+    }
+</section>
+
+<section class="grid grid-cols-2 gap-4 sm:grid-cols-3">
+    <div class="col-span-2 grid gap-2 sm:col-span-1">
+        <label hlmLabel for="i-number">N° de facture</label>
+        <input
+            hlmInput
+            id="i-number"
+            name="number"
+            required
+            [(ngModel)]="form.number"
+            (ngModelChange)="editor.numberTouched = true"
+        />
+    </div>
+    <div class="grid gap-2">
+        <label hlmLabel for="i-issued">Date d'émission</label>
+        <app-date-input
+            inputId="i-issued"
+            name="issuedOn"
+            required
+            [ngModel]="form.issuedOn"
+            (ngModelChange)="editor.setIssuedOn($event)"
+        />
+    </div>
+    <div class="grid gap-2">
+        <label hlmLabel for="i-due">Échéance</label>
+        <app-date-input
+            inputId="i-due"
+            name="dueOn"
+            required
+            [(ngModel)]="form.dueOn"
+            (ngModelChange)="editor.dueTouched = true"
+        />
+    </div>
+    <div class="grid gap-2">
+        <label hlmLabel for="i-from">Prestation du</label>
+        <app-date-input inputId="i-from" name="periodFrom" [(ngModel)]="form.periodFrom" />
+    </div>
+    <div class="grid gap-2">
+        <label hlmLabel for="i-to">au</label>
+        <app-date-input inputId="i-to" name="periodTo" [(ngModel)]="form.periodTo" />
+    </div>
+    <div class="col-span-2 grid grid-cols-2 gap-4 sm:col-span-1 sm:gap-2">
+        <div class="grid gap-2">
+            <label hlmLabel for="i-currency">Devise</label>
+            <select class="select-native" id="i-currency" name="currency" [(ngModel)]="form.currency">
+                @for (c of currencies; track c) {
+                    <option [value]="c">{{ c }}</option>
+                }
+            </select>
+        </div>
+        <div class="grid gap-2">
+            <label hlmLabel for="i-vat">TVA %</label>
+            <input hlmInput id="i-vat" name="vatRate" inputmode="decimal" [(ngModel)]="form.vatRate" />
+        </div>
+    </div>
+</section>

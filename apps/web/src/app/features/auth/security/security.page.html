@@ -1,0 +1,114 @@
+<app-page-header heading="Sécurité" [subtitle]="email() ?? 'Connexion par passkey et codes de récupération'" />
+
+@if (recovered() !== null) {
+    <app-warning-banner class="mb-6">
+        <p class="font-medium">
+            Connexion avec un code de récupération ({{ recovered() }} restant{{ recovered()! > 1 ? 's' : '' }}).
+        </p>
+        <p class="text-muted-foreground">Enregistre une passkey sur cet appareil pour te reconnecter normalement.</p>
+    </app-warning-banner>
+}
+
+@if (state(); as s) {
+    <div class="grid gap-6">
+        <section hlmCard>
+            <div hlmCardHeader>
+                <h2 hlmCardTitle>Appareils</h2>
+                <p hlmCardDescription>
+                    Chaque appareil enregistré peut se connecter avec Face ID, Touch ID ou son code de verrouillage.
+                </p>
+            </div>
+            <div hlmCardContent class="grid gap-4">
+                <ul class="divide-y rounded-lg border">
+                    @for (p of s.passkeys; track p.id) {
+                        <li class="flex items-center gap-3 py-3 pr-2 pl-4">
+                            <ng-icon name="lucideScanFace" class="text-muted-foreground shrink-0 text-lg" />
+                            <div class="min-w-0 flex-1">
+                                <p class="truncate font-medium">{{ p.name }}</p>
+                                <p class="text-muted-foreground text-xs">
+                                    Ajoutée le {{ p.createdAt | frDate: 'short' }} ·
+                                    {{
+                                        p.lastUsedAt
+                                            ? 'utilisée le ' + (p.lastUsedAt | frDate: 'short')
+                                            : 'jamais utilisée'
+                                    }}
+                                </p>
+                            </div>
+                            <button
+                                hlmBtn
+                                variant="ghost"
+                                size="icon"
+                                class="text-muted-foreground shrink-0"
+                                [disabled]="s.passkeys.length <= 1 || busy()"
+                                [title]="
+                                    s.passkeys.length <= 1
+                                        ? 'Ajoute un autre appareil avant de supprimer le dernier'
+                                        : 'Supprimer'
+                                "
+                                aria-label="Supprimer cette passkey"
+                                (click)="remove(p)"
+                            >
+                                <ng-icon name="lucideTrash2" />
+                            </button>
+                        </li>
+                    }
+                </ul>
+                <form class="flex flex-wrap items-end gap-2" (ngSubmit)="add()">
+                    <div class="grid min-w-48 flex-1 gap-2">
+                        <label hlmLabel for="device">Ajouter cet appareil</label>
+                        <input hlmInput id="device" name="device" maxlength="60" required [(ngModel)]="deviceName" />
+                    </div>
+                    <button hlmBtn type="submit" class="max-sm:w-full" [disabled]="busy() || !deviceName.trim()">
+                        @if (busy()) {
+                            <app-spinner />
+                        } @else {
+                            <ng-icon name="lucidePlus" />
+                        }
+                        Créer une passkey
+                    </button>
+                </form>
+                <p class="text-muted-foreground text-xs">
+                    Sur iPhone et Mac, les passkeys sont synchronisées par le trousseau iCloud : une seule suffit
+                    souvent pour tous tes appareils Apple.
+                </p>
+            </div>
+        </section>
+
+        <section hlmCard>
+            <div hlmCardHeader>
+                <h2 hlmCardTitle>Codes de récupération</h2>
+                <p hlmCardDescription>
+                    Pour te connecter si tu perds tous tes appareils. Chaque code ne sert qu'une fois.
+                </p>
+            </div>
+            <div hlmCardContent class="grid gap-4">
+                @if (codes(); as list) {
+                    <app-recovery-codes [codes]="list" (done)="codes.set(null)" />
+                } @else {
+                    @let remaining = s.recoveryCodesRemaining;
+                    <p class="text-sm">
+                        <span class="font-medium" [class.text-destructive]="remaining <= 2">
+                            {{ remaining }} code{{ remaining > 1 ? 's' : '' }} disponible{{ remaining > 1 ? 's' : '' }}
+                        </span>
+                        @if (remaining <= 2) {
+                            <span class="text-muted-foreground"> — pense à en générer de nouveaux.</span>
+                        }
+                    </p>
+                    <button
+                        hlmBtn
+                        variant="outline"
+                        class="justify-self-start max-sm:w-full"
+                        [disabled]="busy()"
+                        (click)="regenerate()"
+                    >
+                        <ng-icon name="lucideRotateCcw" /> Générer de nouveaux codes
+                    </button>
+                }
+            </div>
+        </section>
+    </div>
+} @else if (error()) {
+    <p class="text-destructive text-sm">{{ error() }}</p>
+} @else {
+    <hlm-skeleton class="block h-64 rounded-xl" />
+}

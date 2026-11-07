@@ -1,0 +1,148 @@
+<hlm-dialog-header>
+    <h3 hlmDialogTitle>{{ existing ? 'Modifier le client' : 'Nouveau client' }}</h3>
+    <p hlmDialogDescription>Ces coordonnées sont reprises sur chaque facture émise pour ce client.</p>
+</hlm-dialog-header>
+
+<form
+    id="client-form"
+    class="-mx-1 grid content-start gap-4 overflow-y-auto overscroll-contain sm:max-h-[65vh] px-1 py-1"
+    (ngSubmit)="save()"
+>
+    <div class="grid gap-4 sm:grid-cols-2">
+        <div class="grid gap-2">
+            <label hlmLabel for="c-country-code">Pays</label>
+            <select
+                class="select-native"
+                id="c-country-code"
+                name="countryCode"
+                [ngModel]="code()"
+                (ngModelChange)="setCountry($event)"
+            >
+                @for (c of countries; track c.code) {
+                    <option [value]="c.code">{{ c.label }}</option>
+                }
+            </select>
+        </div>
+        <div class="grid gap-2">
+            <label hlmLabel for="c-currency">Devise par défaut</label>
+            <select class="select-native" id="c-currency" name="currency" [(ngModel)]="form.currency">
+                @for (c of currencies; track c) {
+                    <option [value]="c">{{ c }}</option>
+                }
+            </select>
+        </div>
+        <div class="grid gap-2 sm:col-span-2">
+            <label hlmLabel for="c-name">Raison sociale / nom</label>
+            <input hlmInput id="c-name" name="name" required [(ngModel)]="form.name" />
+        </div>
+        <div class="grid gap-2 sm:col-span-2">
+            <label hlmLabel for="c-address">Adresse</label>
+            <textarea
+                hlmTextarea
+                id="c-address"
+                name="address"
+                rows="3"
+                placeholder="Rue&#10;Code postal Ville&#10;Pays (pour un client étranger)"
+                [(ngModel)]="form.address"
+            ></textarea>
+            <p class="text-muted-foreground text-xs">
+                Imprimée telle quelle sur la facture : indique le pays pour un client étranger.
+            </p>
+        </div>
+        @if (profile().code === 'OTHER') {
+            <div class="grid gap-2 sm:col-span-2">
+                <label hlmLabel for="c-country"
+                    >Pays <span class="text-muted-foreground font-normal">(pour ta liste de clients)</span></label
+                >
+                <input hlmInput id="c-country" name="country" placeholder="Espagne" [(ngModel)]="form.country" />
+            </div>
+        }
+
+        @for (s of slots(); track s.key) {
+            <div class="grid content-start gap-2">
+                <label hlmLabel [for]="'c-f-' + s.key">
+                    {{ s.def.label }}
+                    @if (s.def.expected && !values[s.key]?.trim()) {
+                        <span class="text-xs font-normal text-amber-600">recommandé</span>
+                    }
+                </label>
+                <input
+                    hlmInput
+                    [id]="'c-f-' + s.key"
+                    [name]="'f-' + s.key"
+                    [placeholder]="s.def.placeholder"
+                    [forceInvalid]="!!error(s)"
+                    [(ngModel)]="values[s.key]"
+                />
+                @if (error(s); as err) {
+                    <p class="text-destructive text-xs">{{ err }}</p>
+                } @else if (s.def.hint) {
+                    <p class="text-muted-foreground text-xs">{{ s.def.hint }}</p>
+                }
+            </div>
+        }
+
+        <div class="grid content-start gap-2">
+            <label hlmLabel for="c-email">E-mail de facturation</label>
+            <input hlmInput id="c-email" name="email" type="email" [(ngModel)]="form.email" />
+        </div>
+    </div>
+
+    <div class="grid gap-2">
+        <span hlmLabel>Autres mentions sur la facture</span>
+        <p class="text-muted-foreground -mt-1 text-xs">
+            Demandées par le client (n° de commande, référence interne…), imprimées dans le bloc client.
+        </p>
+        @for (e of extras; track $index) {
+            <div class="flex gap-2">
+                <input
+                    hlmInput
+                    class="w-40"
+                    [name]="'extra-label-' + $index"
+                    placeholder="Libellé"
+                    aria-label="Libellé"
+                    [(ngModel)]="e.label"
+                />
+                <input
+                    hlmInput
+                    class="flex-1"
+                    [name]="'extra-value-' + $index"
+                    aria-label="Valeur"
+                    [(ngModel)]="e.value"
+                />
+                <button
+                    hlmBtn
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    (click)="removeExtra(e)"
+                    aria-label="Supprimer la mention"
+                >
+                    <ng-icon name="lucideTrash2" />
+                </button>
+            </div>
+        }
+        <div class="flex flex-wrap gap-2">
+            <button hlmBtn type="button" variant="outline" size="sm" (click)="addExtra()">
+                <ng-icon name="lucidePlus" /> Ajouter une mention
+            </button>
+            @if (!hasExtra(orderNumber)) {
+                <button hlmBtn type="button" variant="ghost" size="sm" (click)="addExtra(orderNumber)">
+                    + {{ orderNumber }}
+                </button>
+            }
+        </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+        <hlm-switch inputId="c-english" [checked]="form.english" (checkedChange)="form.english = $event" />
+        <label hlmLabel for="c-english">Générer aussi la facture en anglais par défaut</label>
+    </div>
+
+    <div class="grid gap-2">
+        <label hlmLabel for="c-notes">Notes internes</label>
+        <textarea hlmTextarea id="c-notes" name="notes" rows="2" [(ngModel)]="form.notes"></textarea>
+    </div>
+</form>
+
+<app-dialog-footer formId="client-form" [saving]="saving()" (dismiss)="ref.close(undefined)" />

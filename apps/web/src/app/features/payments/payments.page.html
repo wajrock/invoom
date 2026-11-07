@@ -1,0 +1,62 @@
+<app-page-header heading="Paiements" subtitle="Factures émises et encaissements">
+    <div class="flex gap-2">
+        <button
+            hlmBtn
+            variant="outline"
+            class="max-md:size-9 max-md:p-0"
+            [title]="manualHint"
+            aria-label="Encaissement manuel"
+            (click)="open()"
+        >
+            <ng-icon name="lucidePlus" /><span class="max-md:sr-only">Encaissement manuel</span>
+        </button>
+        <button hlmBtn class="fab" aria-label="Nouvelle facture" (click)="openInvoice()">
+            <ng-icon name="lucideFilePlus" /><span class="fab-label">Nouvelle facture</span>
+        </button>
+    </div>
+</app-page-header>
+
+<app-filter-bar placeholder="Rechercher un client, un objet, un n°…" [(query)]="query">
+    <select class="select-native w-auto!" aria-label="Année" [ngModel]="year()" (ngModelChange)="year.set($event)">
+        <option value="all">Toutes les années</option>
+        @for (y of years(); track y) {
+            <option [value]="'' + y">{{ y }}</option>
+        }
+    </select>
+    <select class="select-native w-auto!" aria-label="Statut" [ngModel]="status()" (ngModelChange)="status.set($event)">
+        <option value="all">Tous</option>
+        <option value="paid">Encaissés</option>
+        <option value="pending">En attente</option>
+    </select>
+</app-filter-bar>
+
+@if (payments(); as list) {
+    <div class="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+        <app-kpi-tile variant="compact" label="Encaissé" [value]="totals().paid | eur" />
+        <app-kpi-tile variant="compact" label="En attente" [value]="totals().pending | eur" />
+        <app-kpi-tile variant="compact" class="hidden sm:block" label="Factures" [value]="'' + filtered().length" />
+    </div>
+
+    @if (list.length === 0) {
+        <app-empty-state message="Aucun paiement enregistré.">
+            <div class="flex flex-wrap justify-center gap-2">
+                <button hlmBtn (click)="openInvoice()"><ng-icon name="lucideFilePlus" /> Créer une facture</button>
+                <button hlmBtn variant="outline" [title]="manualHint" (click)="open()">
+                    <ng-icon name="lucidePlus" /> Encaissement manuel
+                </button>
+            </div>
+        </app-empty-state>
+    } @else if (filtered().length === 0) {
+        <p class="text-muted-foreground py-10 text-center text-sm">Aucun résultat pour ces filtres.</p>
+    } @else {
+        <app-payment-list class="sm:hidden" [payments]="filtered()" (pick)="sheet.set($event)" />
+        @if (sheet(); as p) {
+            <app-payment-sheet [payment]="p" (action)="run(p, $event)" (closed)="sheet.set(null)" />
+        }
+        <app-payments-table [payments]="filtered()" (action)="run($event.payment, $event.action)" />
+    }
+} @else if (error()) {
+    <p class="text-destructive text-sm">{{ error() }}</p>
+} @else {
+    <hlm-skeleton class="block h-64 rounded-xl" />
+}

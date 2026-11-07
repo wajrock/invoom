@@ -1,0 +1,118 @@
+<div class="page-head block!">
+    <h1>Paramètres fiscaux</h1>
+    <p class="text-muted-foreground mt-1 text-sm max-md:block!">
+        Utilisés pour estimer les cotisations et générer les échéances. Vérifie les taux chaque année sur
+        <a
+            class="underline underline-offset-2"
+            href="https://www.autoentrepreneur.urssaf.fr"
+            target="_blank"
+            rel="noopener"
+            >autoentrepreneur.urssaf.fr</a
+        >.
+    </p>
+</div>
+
+@if (form(); as f) {
+    <form class="grid gap-6" (ngSubmit)="save()">
+        <section hlmCard>
+            <div hlmCardHeader>
+                <h2 hlmCardTitle>Activité</h2>
+            </div>
+            <div hlmCardContent class="grid gap-4 sm:grid-cols-2">
+                <div class="grid gap-2">
+                    <label hlmLabel for="s-activity">Type d’activité</label>
+                    <select class="select-native" id="s-activity" name="activity" [(ngModel)]="f.activity">
+                        @for (d of defaults(); track d.activity) {
+                            <option [value]="d.activity">{{ d.label }}</option>
+                        }
+                    </select>
+                </div>
+                <div class="grid gap-2">
+                    <label hlmLabel for="s-start">Début d’activité</label>
+                    <app-date-input inputId="s-start" name="activityStart" required [(ngModel)]="f.activityStart" />
+                </div>
+                <div class="flex items-start gap-3">
+                    <hlm-switch
+                        inputId="s-cfe-ex"
+                        [checked]="f.cfeExemptFirstYear"
+                        (checkedChange)="f.cfeExemptFirstYear = $event"
+                    />
+                    <label hlmLabel for="s-cfe-ex">CFE exonérée l’année de création</label>
+                </div>
+            </div>
+        </section>
+
+        <section hlmCard>
+            <div hlmCardHeader>
+                <h2 hlmCardTitle class="flex items-center gap-2">
+                    <ng-icon name="lucideHistory" /> Historique des taux
+                </h2>
+                <p hlmCardDescription>
+                    Chaque encaissement est calculé avec la période en vigueur à sa date d’encaissement : un nouveau
+                    taux ne modifie jamais les montants passés. Les paramètres annuels (impôt, CFE, seuils, fréquence)
+                    sont ceux en vigueur au 31 décembre.
+                </p>
+                <div hlmCardAction>
+                    <button hlmBtn type="button" size="sm" (click)="addPeriod()">
+                        <ng-icon name="lucidePlus" /> Changement de taux
+                    </button>
+                </div>
+            </div>
+            <div hlmCardContent class="grid gap-3">
+                @for (p of sortedPeriods(); track p.key; let last = $last) {
+                    <div class="rounded-lg border">
+                        <button
+                            type="button"
+                            class="hover:bg-muted/50 flex w-full items-center gap-3 rounded-lg p-3 text-left"
+                            (click)="toggleOpen(p)"
+                            [attr.aria-expanded]="openKey() === p.key"
+                        >
+                            <div class="min-w-0 flex-1">
+                                <p class="flex flex-wrap items-center gap-2 font-medium">
+                                    {{ periodTitle(p, last) }}
+                                    @if (p.key === currentKey()) {
+                                        <span hlmBadge variant="secondary">En vigueur</span>
+                                    } @else if (isFuture(p)) {
+                                        <span hlmBadge variant="outline">À venir</span>
+                                    }
+                                </p>
+                                <p class="text-muted-foreground mt-0.5 text-xs">{{ periodSummary(p) }}</p>
+                            </div>
+                            <ng-icon
+                                name="lucideChevronDown"
+                                class="text-muted-foreground shrink-0 transition-transform"
+                                [class.rotate-180]="openKey() === p.key"
+                            />
+                        </button>
+
+                        @if (openKey() === p.key) {
+                            <app-rate-period-editor
+                                [period]="p"
+                                [oldest]="last"
+                                [removable]="f.periods.length > 1"
+                                (applyDefaults)="applyDefaults(p)"
+                                (remove)="removePeriod(p)"
+                            />
+                        }
+                    </div>
+                }
+            </div>
+        </section>
+
+        <div
+            class="bg-background/85 sticky bottom-(--tabbar-h) z-20 -mx-4 flex justify-end gap-2 border-t px-4 py-3 backdrop-blur-xl max-sm:*:flex-1 md:mx-0 md:rounded-xl md:border"
+        >
+            <button hlmBtn type="button" variant="outline" (click)="reset()">Annuler les modifications</button>
+            <button hlmBtn type="submit" [disabled]="saving()">
+                @if (saving()) {
+                    <app-spinner />
+                }
+                Enregistrer
+            </button>
+        </div>
+    </form>
+} @else if (error()) {
+    <p class="text-destructive text-sm">{{ error() }}</p>
+} @else {
+    <hlm-skeleton class="block h-96 rounded-xl" />
+}

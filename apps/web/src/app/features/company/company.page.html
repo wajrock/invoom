@@ -1,0 +1,145 @@
+<app-page-header heading="Entreprise" subtitle="Informations à portée de main pour tes factures et démarches">
+    @if (fields()) {
+        <div class="flex gap-2">
+            @if (editing()) {
+                <button hlmBtn variant="outline" (click)="cancel()">Annuler</button>
+                <button hlmBtn (click)="save()" [disabled]="saving()">
+                    @if (saving()) {
+                        <app-spinner />
+                    }
+                    Enregistrer
+                </button>
+            } @else {
+                <button hlmBtn variant="outline" (click)="copyAll()"><ng-icon name="lucideCopy" /> Tout copier</button>
+                <button hlmBtn (click)="edit()"><ng-icon name="lucidePencil" /> Modifier</button>
+            }
+        </div>
+    }
+</app-page-header>
+
+@if (fields()) {
+    @if (editing()) {
+        <div class="grid gap-6">
+            @for (g of groups(); track g.name) {
+                <section hlmCard>
+                    <div hlmCardHeader>
+                        <h2 hlmCardTitle>{{ g.name }}</h2>
+                    </div>
+                    <div hlmCardContent class="grid gap-4">
+                        @for (f of g.fields; track f.id) {
+                            <div class="grid gap-2 sm:grid-cols-[14rem_1fr_auto] sm:items-start">
+                                <input
+                                    hlmInput
+                                    [(ngModel)]="f.label"
+                                    [attr.name]="'label-' + f.id"
+                                    aria-label="Libellé"
+                                    class="font-medium"
+                                />
+                                @if (multiline(f)) {
+                                    <textarea
+                                        hlmTextarea
+                                        [(ngModel)]="f.value"
+                                        [attr.name]="'value-' + f.id"
+                                        rows="3"
+                                        [attr.aria-label]="f.label"
+                                    ></textarea>
+                                } @else {
+                                    <input
+                                        hlmInput
+                                        [(ngModel)]="f.value"
+                                        [attr.name]="'value-' + f.id"
+                                        [attr.aria-label]="f.label"
+                                    />
+                                }
+                                <button
+                                    hlmBtn
+                                    variant="ghost"
+                                    size="icon"
+                                    (click)="removeField(f)"
+                                    aria-label="Supprimer le champ"
+                                >
+                                    <ng-icon name="lucideTrash2" />
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </section>
+            }
+            <section hlmCard>
+                <div hlmCardHeader>
+                    <h2 hlmCardTitle>Ajouter un champ</h2>
+                </div>
+                <form
+                    hlmCardContent
+                    class="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
+                    (ngSubmit)="addField()"
+                >
+                    <div class="grid gap-2">
+                        <label hlmLabel for="nf-group">Groupe</label>
+                        <input hlmInput id="nf-group" name="group" list="nf-groups" [(ngModel)]="newField.group" />
+                        <datalist id="nf-groups">
+                            @for (g of groups(); track g.name) {
+                                <option [value]="g.name"></option>
+                            }
+                        </datalist>
+                    </div>
+                    <div class="grid gap-2">
+                        <label hlmLabel for="nf-label">Libellé</label>
+                        <input
+                            hlmInput
+                            id="nf-label"
+                            name="label"
+                            [(ngModel)]="newField.label"
+                            placeholder="RCS, assurance RC Pro…"
+                        />
+                    </div>
+                    <button hlmBtn variant="outline" type="submit"><ng-icon name="lucidePlus" /> Ajouter</button>
+                </form>
+            </section>
+        </div>
+    } @else {
+        <div class="grid gap-6 lg:grid-cols-2">
+            @for (g of groups(); track g.name) {
+                <section hlmCard>
+                    <div hlmCardHeader>
+                        <h2 hlmCardTitle>{{ g.name }}</h2>
+                    </div>
+                    <dl hlmCardContent class="grid gap-1">
+                        @for (f of g.fields; track f.id) {
+                            <div class="group hover:bg-muted/60 -mx-2 flex items-start gap-3 rounded-md px-2 py-1.5">
+                                <dt class="text-muted-foreground w-28 shrink-0 pt-0.5 text-sm sm:w-40">
+                                    {{ f.label }}
+                                </dt>
+                                <dd
+                                    class="min-w-0 flex-1 text-sm break-words whitespace-pre-line"
+                                    [class.text-muted-foreground]="!f.value"
+                                >
+                                    {{ f.value || '—' }}
+                                </dd>
+                                @if (f.value) {
+                                    <button
+                                        hlmBtn
+                                        variant="ghost"
+                                        size="icon-xs"
+                                        class="pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 focus-visible:opacity-100"
+                                        (click)="copy(f)"
+                                        [attr.aria-label]="'Copier ' + f.label"
+                                    >
+                                        <ng-icon name="lucideCopy" />
+                                    </button>
+                                }
+                            </div>
+                        }
+                    </dl>
+                </section>
+            }
+        </div>
+    }
+} @else if (error()) {
+    <p class="text-destructive text-sm">{{ error() }}</p>
+} @else {
+    <div class="grid gap-6 lg:grid-cols-2">
+        <hlm-skeleton class="h-64 rounded-xl" />
+        <hlm-skeleton class="h-64 rounded-xl" />
+    </div>
+}

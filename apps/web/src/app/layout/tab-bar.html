@@ -1,0 +1,31 @@
+<nav
+    class="bg-background/90 fixed inset-x-0 bottom-0 z-40 border-t pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
+    aria-label="Navigation principale"
+>
+    <div class="grid h-[3.25rem] grid-cols-5">
+        @for (item of tabs; track item.path) {
+            <a
+                [routerLink]="item.path"
+                routerLinkActive
+                #rla="routerLinkActive"
+                [routerLinkActiveOptions]="{exact: item.path === '/'}"
+                class="flex flex-col items-center justify-center gap-1 text-[10px] select-none"
+                [class]="rla.isActive ? 'text-foreground font-semibold' : 'text-muted-foreground font-medium'"
+                [attr.aria-current]="rla.isActive ? 'page' : null"
+            >
+                <ng-icon [name]="item.icon" class="text-[1.375rem]" [strokeWidth]="rla.isActive ? 2.25 : 1.75" />
+                {{ item.short ?? item.label }}
+            </a>
+        }
+        <button
+            type="button"
+            class="flex flex-col items-center justify-center gap-1 text-[10px] select-none"
+            [class]="moreActive() || moreOpen() ? 'text-foreground font-semibold' : 'text-muted-foreground font-medium'"
+            (click)="openMore.emit()"
+            aria-haspopup="dialog"
+        >
+            <ng-icon name="lucideEllipsis" class="text-[1.375rem]" [strokeWidth]="moreActive() ? 2.25 : 1.75" />
+            Plus
+        </button>
+    </div>
+</nav>

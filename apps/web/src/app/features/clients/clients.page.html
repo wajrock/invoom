@@ -1,0 +1,150 @@
+<app-page-header heading="Clients" subtitle="Coordonnées réutilisées à chaque facture">
+    <button hlmBtn class="fab" (click)="edit()" aria-label="Nouveau client">
+        <ng-icon name="lucidePlus" /><span class="fab-label">Nouveau client</span>
+    </button>
+</app-page-header>
+
+@if (clients(); as list) {
+    @if (orphans().length) {
+        <div class="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-dashed p-4 text-sm">
+            <span class="flex-1">
+                {{ orphans().length }} client(s) de tes paiements ne sont pas encore dans le carnet :
+                <span class="text-muted-foreground">{{ orphans().join(', ') }}</span>
+            </span>
+            <button hlmBtn variant="outline" size="sm" [disabled]="importing()" (click)="importOrphans()">
+                <ng-icon name="lucideImport" /> Importer
+            </button>
+        </div>
+    }
+
+    @if (list.length === 0) {
+        <app-empty-state message="Aucun client enregistré.">
+            <button hlmBtn variant="outline" (click)="edit()"><ng-icon name="lucidePlus" /> Ajouter le premier</button>
+        </app-empty-state>
+    } @else {
+        <app-search-input class="mb-4 sm:max-w-sm" placeholder="Rechercher un client" [(value)]="query" />
+
+        <ul class="bg-card divide-y overflow-hidden rounded-xl border sm:hidden">
+            @for (c of filtered(); track c.id) {
+                @let s = stats().get(c.id);
+                <li>
+                    <app-list-row (activate)="edit(c)">
+                        <span
+                            class="bg-muted text-muted-foreground grid size-10 shrink-0 place-items-center rounded-full text-sm font-semibold"
+                            >{{ initials(c.name) }}</span
+                        >
+                        <span class="min-w-0 flex-1">
+                            <span class="block truncate font-medium">{{ c.name }}</span>
+                            <span class="text-muted-foreground block truncate text-xs">
+                                {{ s?.count ?? 0 }} facture{{ (s?.count ?? 0) > 1 ? 's' : ''
+                                }}{{ s?.last ? ' · ' + (s!.last | frDate: 'short') : '' }}
+                            </span>
+                        </span>
+                        <span class="shrink-0 text-sm font-medium tabular-nums">{{ s ? (s.total | eur) : '—' }}</span>
+                        <button
+                            listRowAction
+                            hlmBtn
+                            variant="ghost"
+                            size="icon"
+                            class="text-muted-foreground shrink-0"
+                            [hlmDropdownMenuTrigger]="menu"
+                            [hlmDropdownMenuTriggerData]="{$implicit: c}"
+                            align="end"
+                            aria-label="Actions"
+                        >
+                            <ng-icon name="lucideEllipsis" />
+                        </button>
+                    </app-list-row>
+                </li>
+            } @empty {
+                <li class="text-muted-foreground px-4 py-8 text-center text-sm">
+                    Aucun client ne correspond à la recherche.
+                </li>
+            }
+        </ul>
+
+        <div hlmTableContainer class="hidden overflow-hidden rounded-xl border sm:block">
+            <table
+                hlmTable
+                class="[&_td]:px-3 [&_td]:py-3 [&_th]:px-3 [&_tr>*:first-child]:pl-5 [&_tr>*:last-child]:pr-4"
+            >
+                <thead hlmTHead class="bg-muted/40">
+                    <tr hlmTr>
+                        <th hlmTh>Client</th>
+                        <th hlmTh class="hidden md:table-cell">Pays</th>
+                        <th hlmTh class="hidden lg:table-cell">N° TVA</th>
+                        <th hlmTh class="text-right">Factures</th>
+                        <th hlmTh class="text-right">Facturé</th>
+                        <th hlmTh class="hidden md:table-cell">Dernière</th>
+                        <th hlmTh class="w-10"><span class="sr-only">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody hlmTBody>
+                    @for (c of filtered(); track c.id) {
+                        @let s = stats().get(c.id);
+                        <tr
+                            hlmTr
+                            class="cursor-pointer"
+                            tabindex="0"
+                            (click)="edit(c)"
+                            (keydown.enter)="$event.target === $event.currentTarget && edit(c)"
+                        >
+                            <td hlmTd class="max-w-64">
+                                <p class="truncate font-medium">{{ c.name }}</p>
+                                @if (c.email) {
+                                    <p class="text-muted-foreground truncate text-xs">{{ c.email }}</p>
+                                }
+                            </td>
+                            <td hlmTd class="hidden whitespace-nowrap md:table-cell">{{ c.country || '—' }}</td>
+                            <td hlmTd class="text-muted-foreground hidden font-mono text-xs lg:table-cell">
+                                {{ c.vatNumber || '—' }}
+                            </td>
+                            <td hlmTd class="text-right tabular-nums">{{ s?.count ?? 0 }}</td>
+                            <td hlmTd class="text-right font-medium whitespace-nowrap tabular-nums">
+                                {{ s ? (s.total | eur) : '—' }}
+                            </td>
+                            <td hlmTd class="text-muted-foreground hidden whitespace-nowrap md:table-cell">
+                                {{ s?.last ? (s!.last | frDate: 'short') : '—' }}
+                            </td>
+                            <td hlmTd>
+                                <button
+                                    hlmBtn
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    [hlmDropdownMenuTrigger]="menu"
+                                    [hlmDropdownMenuTriggerData]="{$implicit: c}"
+                                    align="end"
+                                    aria-label="Actions"
+                                    (click)="$event.stopPropagation()"
+                                >
+                                    <ng-icon name="lucideEllipsis" />
+                                </button>
+                            </td>
+                        </tr>
+                    } @empty {
+                        <tr hlmTr>
+                            <td hlmTd colspan="7" class="text-muted-foreground py-8 text-center">
+                                Aucun client ne correspond à la recherche.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+} @else if (error()) {
+    <p class="text-destructive text-sm">{{ error() }}</p>
+} @else {
+    <hlm-skeleton class="block h-64 rounded-xl" />
+}
+
+<ng-template #menu let-c>
+    <hlm-dropdown-menu class="w-48">
+        <button hlmDropdownMenuItem (click)="invoice(c)"><ng-icon name="lucideFilePlus" /> Nouvelle facture</button>
+        <button hlmDropdownMenuItem (click)="edit(c)"><ng-icon name="lucidePencil" /> Modifier</button>
+        <hlm-dropdown-menu-separator />
+        <button hlmDropdownMenuItem variant="destructive" (click)="remove(c)">
+            <ng-icon name="lucideTrash2" /> Supprimer
+        </button>
+    </hlm-dropdown-menu>
+</ng-template>

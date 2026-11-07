@@ -1,0 +1,129 @@
+<app-page-header heading="Échéances" subtitle="Déclarations et paiements URSSAF, CFE, impôt et rappels personnels">
+    <button hlmBtn class="fab" (click)="open()" aria-label="Ajouter une échéance">
+        <ng-icon name="lucidePlus" /><span class="fab-label">Ajouter</span>
+    </button>
+</app-page-header>
+
+<div
+    role="tablist"
+    class="bg-muted text-muted-foreground mb-4 inline-flex h-9 items-center rounded-lg p-[3px] max-sm:flex max-sm:[&>button]:flex-1 max-sm:[&>button]:justify-center"
+>
+    @for (t of tabs; track t.value) {
+        <button
+            role="tab"
+            type="button"
+            class="inline-flex h-full items-center gap-1.5 rounded-md px-3 text-sm font-medium transition-colors"
+            [class]="tab() === t.value ? 'bg-background text-foreground shadow-sm' : 'hover:text-foreground'"
+            [attr.aria-selected]="tab() === t.value"
+            (click)="tab.set(t.value)"
+        >
+            {{ t.label }}
+            @if (t.value === 'upcoming' && upcomingCount() > 0) {
+                <span class="bg-primary text-primary-foreground rounded-full px-1.5 text-xs tabular-nums">{{
+                    upcomingCount()
+                }}</span>
+            }
+        </button>
+    }
+</div>
+
+@if (deadlines()) {
+    @if (tab() === 'upcoming') {
+        @if (overdue().length) {
+            <section class="mb-6">
+                <h2 class="text-destructive mb-2 text-xs font-medium tracking-wide uppercase">En retard</h2>
+                <ul class="bg-card border-destructive/40 divide-y rounded-xl border">
+                    @for (d of overdue(); track d.id) {
+                        <li>
+                            <app-deadline-row
+                                [deadline]="d"
+                                (toggleDone)="toggle(d)"
+                                (edit)="open(d)"
+                                (remove)="remove(d)"
+                            />
+                        </li>
+                    }
+                </ul>
+            </section>
+        }
+        <div class="grid gap-6">
+            @for (g of upcomingGroups(); track g.key) {
+                <ng-container *ngTemplateOutlet="group; context: {$implicit: g}" />
+            } @empty {
+                @if (!overdue().length) {
+                    <app-empty-state [message]="'Rien à faire d’ici le ' + (horizon() | frDate) + ' 🎉'" />
+                }
+            }
+        </div>
+        <div class="mt-6 flex items-center justify-center gap-3">
+            <span class="text-muted-foreground text-xs">Jusqu’au {{ horizon() | frDate }}</span>
+            <button hlmBtn variant="outline" size="sm" (click)="extend()" [disabled]="loading()">
+                <ng-icon name="lucideCalendarPlus" /> Voir plus loin
+            </button>
+        </div>
+    } @else {
+        <app-filter-bar placeholder="Rechercher…" [(query)]="query">
+            <select
+                class="select-native w-auto!"
+                aria-label="Année"
+                [ngModel]="year()"
+                (ngModelChange)="year.set($event)"
+            >
+                <option value="all">Toutes les années</option>
+                @for (y of pastYears(); track y) {
+                    <option [value]="y">{{ y }}</option>
+                }
+            </select>
+            <select
+                class="select-native w-auto!"
+                aria-label="Type"
+                [ngModel]="kind()"
+                (ngModelChange)="kind.set($event)"
+            >
+                <option value="all">Tous les types</option>
+                @for (k of kinds; track k.value) {
+                    <option [value]="k.value">{{ k.label }}</option>
+                }
+            </select>
+            <select
+                class="select-native w-auto!"
+                aria-label="Statut"
+                [ngModel]="status()"
+                (ngModelChange)="status.set($event)"
+            >
+                <option value="all">Tous les statuts</option>
+                <option value="done">Réglées</option>
+                <option value="todo">Non réglées</option>
+            </select>
+        </app-filter-bar>
+        <p class="text-muted-foreground mb-3 text-xs">
+            {{ pastFiltered().length }} échéance{{ pastFiltered().length > 1 ? 's' : '' }} · {{ pastTotal() | eur }}
+        </p>
+        <div class="grid gap-6">
+            @for (g of pastGroups(); track g.key) {
+                <ng-container *ngTemplateOutlet="group; context: {$implicit: g}" />
+            } @empty {
+                <app-empty-state
+                    [message]="'Aucune échéance dans l’historique' + (hasFilters() ? ' pour ces filtres' : '') + '.'"
+                />
+            }
+        </div>
+    }
+} @else if (error()) {
+    <p class="text-destructive text-sm">{{ error() }}</p>
+} @else {
+    <hlm-skeleton class="block h-64 rounded-xl" />
+}
+
+<ng-template #group let-g>
+    <section>
+        <h2 class="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase">{{ g.label }}</h2>
+        <ul class="bg-card divide-y rounded-xl border">
+            @for (d of g.items; track d.id) {
+                <li>
+                    <app-deadline-row [deadline]="d" (toggleDone)="toggle(d)" (edit)="open(d)" (remove)="remove(d)" />
+                </li>
+            }
+        </ul>
+    </section>
+</ng-template>

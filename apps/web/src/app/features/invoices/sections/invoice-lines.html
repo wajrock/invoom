@@ -1,0 +1,134 @@
+<span hlmLabel>Prestations</span>
+@for (l of editor.lines(); track l.key) {
+    <div class="grid gap-2 rounded-lg border p-3">
+        <div class="grid grid-cols-6 gap-2 sm:grid-cols-12">
+            <input
+                hlmInput
+                class="col-span-6 sm:col-span-5"
+                [name]="'label-' + l.key"
+                placeholder="Désignation"
+                aria-label="Désignation"
+                required
+                [(ngModel)]="l.label"
+            />
+            <input
+                hlmInput
+                class="col-span-2 sm:col-span-1"
+                [name]="'qty-' + l.key"
+                inputmode="decimal"
+                placeholder="Qté"
+                aria-label="Quantité"
+                [(ngModel)]="l.quantity"
+            />
+            <input
+                hlmInput
+                class="col-span-2 sm:col-span-2"
+                [name]="'unit-' + l.key"
+                placeholder="Unité (option.)"
+                title="Optionnel : jour, semaine, forfait…"
+                aria-label="Unité (optionnelle)"
+                [(ngModel)]="l.unit"
+            />
+            <input
+                hlmInput
+                class="col-span-2 sm:col-span-2"
+                [name]="'price-' + l.key"
+                inputmode="decimal"
+                placeholder="Prix u. HT"
+                aria-label="Prix unitaire HT"
+                [(ngModel)]="l.unitPrice"
+            />
+            <div class="col-span-5 flex items-center justify-end text-sm font-medium tabular-nums sm:col-span-1">
+                {{ lineTotal(l) }}
+            </div>
+            <button
+                hlmBtn
+                type="button"
+                variant="ghost"
+                size="icon"
+                class="col-span-1 justify-self-end"
+                [disabled]="editor.lines().length === 1"
+                (click)="editor.removeLine(l)"
+                aria-label="Supprimer la ligne"
+            >
+                <ng-icon name="lucideTrash2" />
+            </button>
+        </div>
+        <div class="flex gap-2">
+            <input
+                hlmInput
+                class="flex-1"
+                [name]="'detail-' + l.key"
+                placeholder="Détail (optionnel) : période, livrables…"
+                aria-label="Détail"
+                [(ngModel)]="l.detail"
+            />
+            <button
+                hlmBtn
+                type="button"
+                variant="ghost"
+                size="icon"
+                title="Enregistrer comme prestation réutilisable"
+                aria-label="Enregistrer comme prestation"
+                (click)="saveAsService(l)"
+            >
+                <ng-icon name="lucideBookmarkPlus" />
+            </button>
+        </div>
+        @if (form.english) {
+            <div class="bg-muted/40 -mx-3 -mb-3 grid gap-2 rounded-b-lg border-t px-3 py-3">
+                <span class="text-muted-foreground text-xs font-medium"
+                    >Version anglaise (vide = identique au français)</span
+                >
+                <div class="grid grid-cols-6 gap-2 sm:grid-cols-12">
+                    <input
+                        hlmInput
+                        class="col-span-4 sm:col-span-9"
+                        [name]="'labelEn-' + l.key"
+                        [placeholder]="l.label || 'Description'"
+                        aria-label="Désignation (EN)"
+                        [(ngModel)]="l.labelEn"
+                    />
+                    <input
+                        hlmInput
+                        class="col-span-2 sm:col-span-3"
+                        [name]="'unitEn-' + l.key"
+                        [placeholder]="l.unit || 'Unit (optional)'"
+                        aria-label="Unité EN (optionnelle)"
+                        [(ngModel)]="l.unitEn"
+                    />
+                </div>
+                <input
+                    hlmInput
+                    [name]="'detailEn-' + l.key"
+                    [placeholder]="l.detail || 'Details (optional)'"
+                    aria-label="Détail (EN)"
+                    [(ngModel)]="l.detailEn"
+                />
+            </div>
+        }
+    </div>
+}
+<div class="flex flex-wrap items-start justify-between gap-4">
+    <div class="flex flex-wrap gap-2">
+        <button hlmBtn type="button" variant="outline" size="sm" (click)="editor.addLine()">
+            <ng-icon name="lucidePlus" /> Ajouter une ligne
+        </button>
+        @if (editor.servicesFor().length) {
+            <select
+                class="select-native h-8! w-auto! text-sm"
+                name="pick-service"
+                aria-label="Ajouter une prestation enregistrée"
+                [ngModel]="''"
+                (ngModelChange)="pickService($event, picker)"
+                #picker
+            >
+                <option value="" disabled>+ Prestation enregistrée…</option>
+                @for (sv of editor.servicesFor(); track sv.id) {
+                    <option [value]="sv.id">{{ sv.label }} — {{ price(sv.unitPrice) }}</option>
+                }
+            </select>
+        }
+    </div>
+    <app-invoice-totals />
+</div>

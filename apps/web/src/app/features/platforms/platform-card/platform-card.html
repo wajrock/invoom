@@ -1,0 +1,53 @@
+@let p = platform();
+<a [href]="p.url" target="_blank" rel="noopener noreferrer" class="flex items-start gap-3 p-4 pr-12">
+    <span class="bg-muted grid size-9 shrink-0 place-items-center overflow-hidden rounded-lg">
+        @if (!broken() && host()) {
+            <img
+                [src]="favicon()"
+                alt=""
+                width="20"
+                height="20"
+                loading="lazy"
+                referrerpolicy="no-referrer"
+                (error)="broken.set(true)"
+            />
+        } @else {
+            <ng-icon name="lucideGlobe" class="text-muted-foreground" />
+        }
+    </span>
+    <span class="min-w-0">
+        <span class="flex items-center gap-1.5 font-medium">
+            <span class="truncate">{{ p.name }}</span>
+            <ng-icon
+                name="lucideExternalLink"
+                class="text-muted-foreground shrink-0 text-xs opacity-0 transition-opacity group-hover:opacity-100"
+            />
+        </span>
+        <span class="text-muted-foreground block truncate text-xs">{{ host() }}</span>
+        @if (p.description) {
+            <span class="text-muted-foreground mt-1 line-clamp-2 block text-sm">{{ p.description }}</span>
+        }
+    </span>
+</a>
+@if (p.login) {
+    <button
+        class="bg-muted/50 hover:bg-muted flex items-center gap-2 border-t px-4 py-2 text-left text-xs transition-colors"
+        (click)="copy(p.login)"
+        title="Copier l’identifiant"
+    >
+        <ng-icon name="lucideCopy" class="text-muted-foreground shrink-0" />
+        <span class="truncate font-mono">{{ p.login }}</span>
+    </button>
+}
+<button
+    hlmBtn
+    variant="ghost"
+    size="icon-sm"
+    class="absolute top-3 right-3"
+    [hlmDropdownMenuTrigger]="menu()"
+    [hlmDropdownMenuTriggerData]="{$implicit: p}"
+    align="end"
+    aria-label="Actions"
+>
+    <ng-icon name="lucideEllipsis" />
+</button>

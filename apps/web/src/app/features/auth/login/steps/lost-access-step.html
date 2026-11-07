@@ -1,0 +1,40 @@
+<form class="grid gap-3" (ngSubmit)="useCode()">
+    <label hlmLabel for="code">Avec un code de récupération</label>
+    <input
+        hlmInput
+        id="code"
+        name="code"
+        autocomplete="one-time-code"
+        autocapitalize="characters"
+        spellcheck="false"
+        placeholder="XXXX-XXXX-XXXX-XXXX"
+        class="font-mono uppercase"
+        [ngModel]="code()"
+        (ngModelChange)="code.set($event)"
+        [disabled]="flow.loading()"
+    />
+    <button hlmBtn type="submit" variant="outline" class="w-full" [disabled]="flow.loading() || !code().trim()">
+        Se connecter avec ce code
+    </button>
+</form>
+<div class="text-muted-foreground flex items-center gap-3 text-xs">
+    <span class="bg-border h-px flex-1"></span>ou<span class="bg-border h-px flex-1"></span>
+</div>
+<form class="grid gap-3" (ngSubmit)="flow.sendRecover()">
+    <label hlmLabel for="lost-email">Par e-mail</label>
+    <input
+        hlmInput
+        id="lost-email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        [ngModel]="flow.email()"
+        (ngModelChange)="flow.email.set($event)"
+        [disabled]="flow.loading()"
+    />
+    <button hlmBtn type="submit" variant="outline" class="w-full" [disabled]="flow.loading() || !flow.email().trim()">
+        <ng-icon name="lucideMail" /> Recevoir un lien d'accès
+    </button>
+</form>
+<app-step-error />
+<app-back-button label="Retour" />

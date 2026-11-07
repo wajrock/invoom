@@ -1,7 +1,7 @@
 import {Component, inject, signal} from '@angular/core';
 import {RouterOutlet} from '@angular/router';
 import {HlmToasterImports} from '@spartan-ng/helm/sonner';
-import {ThemeService} from './core/theme';
+import {ThemeService} from './core/theme.service';
 
 @Component({
     selector: 'app-root',
@@ -14,7 +14,7 @@ import {ThemeService} from './core/theme';
 export class App {
     protected readonly theme = inject(ThemeService);
 
-    /** Sur mobile, les notifications arrivent en haut pour ne pas masquer la barre d'onglets */
+    /** On mobile, toasts appear at the top so they don't cover the tab bar */
     private readonly query = matchMedia('(width < 48rem)');
     protected readonly mobile = signal(this.query.matches);
 

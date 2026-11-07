@@ -1,0 +1,49 @@
+@for (g of groups(); track g.key) {
+    <section>
+        <h2 class="text-muted-foreground mb-1.5 px-1 text-xs font-medium tracking-wide uppercase">
+            {{ g.label }}
+        </h2>
+        <ul class="bg-card divide-y overflow-hidden rounded-xl border">
+            @for (p of g.items; track p.id) {
+                <li>
+                    <button
+                        type="button"
+                        class="tap-row flex w-full items-center gap-3 px-3.5 py-3 text-left"
+                        (click)="pick.emit(p)"
+                    >
+                        <span
+                            class="grid size-9 shrink-0 place-items-center rounded-full"
+                            [class]="
+                                p.paidOn
+                                    ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                                    : 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                            "
+                        >
+                            <ng-icon [name]="p.paidOn ? 'lucideCircleCheck' : 'lucideClock'" class="text-base" />
+                        </span>
+                        <span class="min-w-0 flex-1">
+                            <span class="block truncate text-[15px] font-medium">{{ p.client }}</span>
+                            <span class="text-muted-foreground block truncate text-xs">
+                                {{ p.invoiceNumber ? 'N° ' + p.invoiceNumber : p.label || 'Sans facture' }}
+                                · {{ p.issuedOn | frDate: 'short' }}
+                            </span>
+                        </span>
+                        <span class="shrink-0 text-right">
+                            <span class="block text-[15px] font-semibold tabular-nums">{{ p.amount | eur }}</span>
+                            <span
+                                class="block text-xs"
+                                [class]="
+                                    p.paidOn
+                                        ? 'text-emerald-600 dark:text-emerald-400'
+                                        : 'text-amber-600 dark:text-amber-400'
+                                "
+                            >
+                                {{ p.paidOn ? 'Payée le ' + (p.paidOn | frDate: 'short') : 'En attente' }}
+                            </span>
+                        </span>
+                    </button>
+                </li>
+            }
+        </ul>
+    </section>
+}

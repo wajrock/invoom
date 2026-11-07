@@ -1,0 +1,48 @@
+<app-page-header heading="Plateformes" subtitle="Accès rapide aux sites administratifs et outils">
+    <button hlmBtn class="fab" (click)="open()" aria-label="Ajouter une plateforme">
+        <ng-icon name="lucidePlus" /><span class="fab-label">Ajouter</span>
+    </button>
+</app-page-header>
+
+@if (groups(); as gs) {
+    <div class="grid gap-8">
+        @for (g of gs; track g.category) {
+            <section>
+                <h2 class="text-muted-foreground mb-3 text-xs font-medium tracking-wide uppercase">
+                    {{ g.category }}
+                </h2>
+                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    @for (p of g.items; track p.id) {
+                        <app-platform-card [platform]="p" [menu]="menu" />
+                    }
+                </div>
+            </section>
+        } @empty {
+            <app-empty-state message="Aucune plateforme." />
+        }
+    </div>
+} @else if (error()) {
+    <p class="text-destructive text-sm">{{ error() }}</p>
+} @else {
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+            <hlm-skeleton class="h-24 rounded-xl" />
+        }
+    </div>
+}
+
+<ng-template #menu let-p>
+    <hlm-dropdown-menu class="w-44">
+        <button hlmDropdownMenuItem (click)="open(p)"><ng-icon name="lucidePencil" /> Modifier</button>
+        <button hlmDropdownMenuItem [disabled]="isFirst(p)" (click)="move(p, -1)">
+            <ng-icon name="lucideArrowUp" /> Monter
+        </button>
+        <button hlmDropdownMenuItem [disabled]="isLast(p)" (click)="move(p, 1)">
+            <ng-icon name="lucideArrowDown" /> Descendre
+        </button>
+        <hlm-dropdown-menu-separator />
+        <button hlmDropdownMenuItem variant="destructive" (click)="remove(p)">
+            <ng-icon name="lucideTrash2" /> Supprimer
+        </button>
+    </hlm-dropdown-menu>
+</ng-template>

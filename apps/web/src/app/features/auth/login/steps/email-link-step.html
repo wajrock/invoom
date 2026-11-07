@@ -1,0 +1,37 @@
+@if (flow.link(); as l) {
+    <form class="grid gap-4" (ngSubmit)="flow.createPasskey()">
+        <p class="bg-muted rounded-lg px-3 py-2 text-sm">{{ l.email }}</p>
+        <div class="grid gap-2">
+            <label hlmLabel for="device">Nom de cet appareil</label>
+            <input
+                hlmInput
+                id="device"
+                name="device"
+                required
+                maxlength="60"
+                [ngModel]="flow.deviceName()"
+                (ngModelChange)="flow.deviceName.set($event)"
+                [disabled]="flow.loading()"
+            />
+        </div>
+        <app-step-error />
+        <button
+            hlmBtn
+            type="submit"
+            class="h-11 w-full text-[15px]"
+            [disabled]="flow.loading() || !flow.deviceName().trim()"
+        >
+            @if (flow.loading()) {
+                <app-spinner />
+            } @else {
+                <ng-icon name="lucideScanFace" />
+            }
+            Créer la passkey
+        </button>
+    </form>
+} @else if (flow.error()) {
+    <app-step-error />
+    <button hlmBtn variant="outline" (click)="flow.goTo('lost')">Demander un nouveau lien</button>
+} @else {
+    <p class="text-muted-foreground flex items-center gap-2 text-sm"><app-spinner /> Vérification du lien…</p>
+}

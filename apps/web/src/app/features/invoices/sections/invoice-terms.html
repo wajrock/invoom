@@ -1,0 +1,23 @@
+<details class="group rounded-lg border">
+    <summary class="cursor-pointer px-3 py-2 text-sm font-medium select-none">Conditions et mentions légales</summary>
+    <div class="grid gap-3 border-t p-3">
+        <div class="grid gap-2">
+            <label hlmLabel for="i-terms-fr">Facture française</label>
+            <textarea hlmTextarea id="i-terms-fr" name="termsFr" rows="5" [(ngModel)]="form.termsFr"></textarea>
+        </div>
+        @if (form.english) {
+            <div class="grid gap-2">
+                <label hlmLabel for="i-terms-en">Facture anglaise</label>
+                <textarea hlmTextarea id="i-terms-en" name="termsEn" rows="5" [(ngModel)]="form.termsEn"></textarea>
+            </div>
+        }
+        <div class="flex items-center gap-3">
+            <hlm-switch
+                inputId="i-defaults"
+                [checked]="editor.saveDefaults()"
+                (checkedChange)="editor.saveDefaults.set($event)"
+            />
+            <label hlmLabel for="i-defaults">Utiliser ces mentions et ce délai de paiement par défaut</label>
+        </div>
+    </div>
+</details>

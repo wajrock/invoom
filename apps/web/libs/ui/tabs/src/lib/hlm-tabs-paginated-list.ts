@@ -43,6 +43,7 @@ import {listVariants} from './hlm-tabs-list';
             <ng-icon name="lucideChevronLeft" />
         </button>
 
+        <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -- keydown bubbles from the focusable tabs -->
         <div #tabListContainer class="z-[1] flex grow overflow-hidden" (keydown)="_handleKeydown($event)">
             <div
                 class="relative grow transition-transform"

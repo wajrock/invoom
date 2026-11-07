@@ -1,13 +1,13 @@
 import type {Routes} from '@angular/router';
-import {authGuard, guestGuard} from './core/auth';
+import {authGuard, guestGuard} from './core/auth/auth.guards';
 import {Shell} from './layout/shell';
 
 export const routes: Routes = [
     {
         path: 'login',
         canActivate: [guestGuard],
-        title: 'Connexion · Freelance Hub',
-        loadComponent: () => import('./pages/login').then((m) => m.LoginPage),
+        title: 'Connexion · Invoom',
+        loadComponent: () => import('./features/auth/login/login.page').then((m) => m.LoginPage),
     },
     {
         path: '',
@@ -17,48 +17,48 @@ export const routes: Routes = [
             {
                 path: '',
                 pathMatch: 'full',
-                title: 'Tableau de bord · Freelance Hub',
-                loadComponent: () => import('./pages/dashboard').then((m) => m.DashboardPage),
+                title: 'Tableau de bord · Invoom',
+                loadComponent: () => import('./features/dashboard/dashboard.page').then((m) => m.DashboardPage),
             },
             {
                 path: 'paiements',
-                title: 'Paiements · Freelance Hub',
-                loadComponent: () => import('./pages/payments').then((m) => m.PaymentsPage),
+                title: 'Paiements · Invoom',
+                loadComponent: () => import('./features/payments/payments.page').then((m) => m.PaymentsPage),
             },
             {
                 path: 'clients',
-                title: 'Clients · Freelance Hub',
-                loadComponent: () => import('./pages/clients').then((m) => m.ClientsPage),
+                title: 'Clients · Invoom',
+                loadComponent: () => import('./features/clients/clients.page').then((m) => m.ClientsPage),
             },
             {
                 path: 'prestations',
-                title: 'Prestations · Freelance Hub',
-                loadComponent: () => import('./pages/services').then((m) => m.ServicesPage),
+                title: 'Prestations · Invoom',
+                loadComponent: () => import('./features/services/services.page').then((m) => m.ServicesPage),
             },
             {
                 path: 'echeances',
-                title: 'Échéances · Freelance Hub',
-                loadComponent: () => import('./pages/deadlines').then((m) => m.DeadlinesPage),
+                title: 'Échéances · Invoom',
+                loadComponent: () => import('./features/deadlines/deadlines.page').then((m) => m.DeadlinesPage),
             },
             {
                 path: 'plateformes',
-                title: 'Plateformes · Freelance Hub',
-                loadComponent: () => import('./pages/platforms').then((m) => m.PlatformsPage),
+                title: 'Plateformes · Invoom',
+                loadComponent: () => import('./features/platforms/platforms.page').then((m) => m.PlatformsPage),
             },
             {
                 path: 'entreprise',
-                title: 'Entreprise · Freelance Hub',
-                loadComponent: () => import('./pages/company').then((m) => m.CompanyPage),
+                title: 'Entreprise · Invoom',
+                loadComponent: () => import('./features/company/company.page').then((m) => m.CompanyPage),
             },
             {
                 path: 'securite',
-                title: 'Sécurité · Freelance Hub',
-                loadComponent: () => import('./pages/security').then((m) => m.SecurityPage),
+                title: 'Sécurité · Invoom',
+                loadComponent: () => import('./features/auth/security/security.page').then((m) => m.SecurityPage),
             },
             {
                 path: 'parametres',
-                title: 'Paramètres · Freelance Hub',
-                loadComponent: () => import('./pages/settings').then((m) => m.SettingsPage),
+                title: 'Paramètres · Invoom',
+                loadComponent: () => import('./features/settings/tax-settings.page').then((m) => m.TaxSettingsPage),
             },
         ],
     },

@@ -1,0 +1,137 @@
+<app-page-header heading="Prestations" subtitle="Lignes de facture réutilisables, avec leur prix et leur traduction">
+    <button hlmBtn class="fab" (click)="edit()" aria-label="Nouvelle prestation">
+        <ng-icon name="lucidePlus" /><span class="fab-label">Nouvelle prestation</span>
+    </button>
+</app-page-header>
+
+@if (services(); as list) {
+    @if (list.length === 0) {
+        <app-empty-state message="Aucune prestation enregistrée.">
+            <button hlmBtn variant="outline" (click)="edit()"><ng-icon name="lucidePlus" /> Ajouter la première</button>
+        </app-empty-state>
+    } @else {
+        <app-search-input class="mb-4 sm:max-w-sm" placeholder="Rechercher une prestation" [(value)]="query" />
+
+        <ul class="bg-card divide-y overflow-hidden rounded-xl border sm:hidden">
+            @for (s of filtered(); track s.id) {
+                <li>
+                    <app-list-row (activate)="edit(s)">
+                        <span class="min-w-0 flex-1">
+                            <span class="block truncate font-medium">{{ s.label }}</span>
+                            <span class="text-muted-foreground block truncate text-xs">
+                                {{ clientName(s.clientId) }}{{ s.labelEn ? ' · ' + s.labelEn : '' }}
+                            </span>
+                        </span>
+                        <span class="shrink-0 text-right">
+                            <span class="block text-sm font-medium tabular-nums">{{ s.unitPrice | eur }}</span>
+                            @if (s.unit) {
+                                <span class="text-muted-foreground block text-xs">/ {{ s.unit }}</span>
+                            }
+                        </span>
+                        <button
+                            listRowAction
+                            hlmBtn
+                            variant="ghost"
+                            size="icon"
+                            class="text-muted-foreground shrink-0"
+                            [hlmDropdownMenuTrigger]="menu"
+                            [hlmDropdownMenuTriggerData]="{$implicit: s}"
+                            align="end"
+                            aria-label="Actions"
+                        >
+                            <ng-icon name="lucideEllipsis" />
+                        </button>
+                    </app-list-row>
+                </li>
+            } @empty {
+                <li class="text-muted-foreground px-4 py-8 text-center text-sm">
+                    Aucune prestation ne correspond à la recherche.
+                </li>
+            }
+        </ul>
+
+        <div hlmTableContainer class="hidden overflow-hidden rounded-xl border sm:block">
+            <table
+                hlmTable
+                class="[&_td]:px-3 [&_td]:py-3 [&_th]:px-3 [&_tr>*:first-child]:pl-5 [&_tr>*:last-child]:pr-4"
+            >
+                <thead hlmTHead class="bg-muted/40">
+                    <tr hlmTr>
+                        <th hlmTh>Désignation</th>
+                        <th hlmTh class="hidden sm:table-cell">Client</th>
+                        <th hlmTh class="hidden lg:table-cell">Version anglaise</th>
+                        <th hlmTh class="hidden sm:table-cell">Unité</th>
+                        <th hlmTh class="text-right">Prix u. HT</th>
+                        <th hlmTh class="w-10"><span class="sr-only">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody hlmTBody>
+                    @for (s of filtered(); track s.id) {
+                        <tr
+                            hlmTr
+                            class="cursor-pointer"
+                            tabindex="0"
+                            (click)="edit(s)"
+                            (keydown.enter)="$event.target === $event.currentTarget && edit(s)"
+                        >
+                            <td hlmTd class="max-w-72">
+                                <p class="truncate font-medium">{{ s.label }}</p>
+                                @if (s.detail) {
+                                    <p class="text-muted-foreground truncate text-xs">{{ s.detail }}</p>
+                                }
+                            </td>
+                            <td
+                                hlmTd
+                                class="hidden whitespace-nowrap sm:table-cell"
+                                [class.text-muted-foreground]="!s.clientId"
+                            >
+                                {{ s.clientId ? clientName(s.clientId) : 'Tous' }}
+                            </td>
+                            <td hlmTd class="text-muted-foreground hidden max-w-60 truncate lg:table-cell">
+                                {{ s.labelEn || '—' }}
+                            </td>
+                            <td hlmTd class="text-muted-foreground hidden sm:table-cell">{{ s.unit || '—' }}</td>
+                            <td hlmTd class="text-right font-medium whitespace-nowrap tabular-nums">
+                                {{ s.unitPrice | eur }}
+                            </td>
+                            <td hlmTd>
+                                <button
+                                    hlmBtn
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    [hlmDropdownMenuTrigger]="menu"
+                                    [hlmDropdownMenuTriggerData]="{$implicit: s}"
+                                    align="end"
+                                    aria-label="Actions"
+                                    (click)="$event.stopPropagation()"
+                                >
+                                    <ng-icon name="lucideEllipsis" />
+                                </button>
+                            </td>
+                        </tr>
+                    } @empty {
+                        <tr hlmTr>
+                            <td hlmTd colspan="6" class="text-muted-foreground py-8 text-center">
+                                Aucune prestation ne correspond à la recherche.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+} @else if (error()) {
+    <p class="text-destructive text-sm">{{ error() }}</p>
+} @else {
+    <hlm-skeleton class="block h-48 rounded-xl" />
+}
+
+<ng-template #menu let-s>
+    <hlm-dropdown-menu class="w-44">
+        <button hlmDropdownMenuItem (click)="edit(s)"><ng-icon name="lucidePencil" /> Modifier</button>
+        <hlm-dropdown-menu-separator />
+        <button hlmDropdownMenuItem variant="destructive" (click)="remove(s)">
+            <ng-icon name="lucideTrash2" /> Supprimer
+        </button>
+    </hlm-dropdown-menu>
+</ng-template>

@@ -1,6 +1,7 @@
 import {effect, Injectable, signal} from '@angular/core';
 
 type Theme = 'light' | 'dark';
+// Pre-rename storage key, kept so existing users keep their saved theme
 const KEY = 'fh-theme';
 
 function initialTheme(): Theme {
@@ -8,7 +9,7 @@ function initialTheme(): Theme {
         const saved = localStorage.getItem(KEY);
         if (saved === 'light' || saved === 'dark') return saved;
     } catch {
-        /* stockage indisponible */
+        // Storage unavailable (private mode, blocked cookies).
     }
     return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
@@ -24,7 +25,7 @@ export class ThemeService {
             try {
                 localStorage.setItem(KEY, t);
             } catch {
-                /* stockage indisponible */
+                // Storage unavailable: the theme just won't persist.
             }
         });
     }

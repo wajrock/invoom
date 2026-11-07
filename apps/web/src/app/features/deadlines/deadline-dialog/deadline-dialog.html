@@ -1,0 +1,40 @@
+<hlm-dialog-header>
+    <h3 hlmDialogTitle>{{ existing ? 'Modifier l’échéance' : 'Nouvelle échéance' }}</h3>
+    <p hlmDialogDescription>Rappel personnalisé (les échéances URSSAF, CFE et impôt sont générées automatiquement).</p>
+</hlm-dialog-header>
+<form id="deadline-form" class="grid gap-4" (ngSubmit)="save()">
+    <div class="grid gap-2">
+        <label hlmLabel for="d-title">Intitulé</label>
+        <input hlmInput id="d-title" name="title" required [(ngModel)]="form.title" />
+    </div>
+    <div class="grid gap-4 sm:grid-cols-3">
+        <div class="grid gap-2">
+            <label hlmLabel for="d-due">Date</label>
+            <app-date-input inputId="d-due" name="dueOn" required [(ngModel)]="form.dueOn" />
+        </div>
+        <div class="grid gap-2">
+            <label hlmLabel for="d-kind">Type</label>
+            <select class="select-native" id="d-kind" name="kind" [(ngModel)]="form.kind">
+                @for (k of kinds; track k.value) {
+                    <option [value]="k.value">{{ k.label }}</option>
+                }
+            </select>
+        </div>
+        <div class="grid gap-2">
+            <label hlmLabel for="d-amount">Montant (€)</label>
+            <input
+                hlmInput
+                id="d-amount"
+                name="amount"
+                inputmode="decimal"
+                placeholder="optionnel"
+                [(ngModel)]="form.amount"
+            />
+        </div>
+    </div>
+    <div class="grid gap-2">
+        <label hlmLabel for="d-note">Note</label>
+        <textarea hlmTextarea id="d-note" name="note" rows="3" [(ngModel)]="form.note"></textarea>
+    </div>
+</form>
+<app-dialog-footer formId="deadline-form" [saving]="saving()" (dismiss)="ref.close(false)" />

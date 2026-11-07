@@ -1,0 +1,135 @@
+@let p = period();
+<div class="flex flex-wrap items-end gap-3">
+    <div class="grid gap-2" [class.hidden]="oldest()">
+        <label hlmLabel [for]="'from-' + p.key">À partir du</label>
+        <app-date-input
+            [inputId]="'from-' + p.key"
+            class="w-44"
+            required
+            [ngModelOptions]="{standalone: true}"
+            [(ngModel)]="p.from"
+        />
+    </div>
+    <div class="ml-auto flex gap-2">
+        <button hlmBtn type="button" variant="outline" size="sm" (click)="applyDefaults.emit()">
+            <ng-icon name="lucideRotateCcw" /> Taux par défaut
+        </button>
+        @if (removable()) {
+            <button hlmBtn type="button" variant="destructive" size="sm" (click)="remove.emit()">
+                <ng-icon name="lucideTrash2" /> Supprimer
+            </button>
+        }
+    </div>
+</div>
+
+<div>
+    <p class="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase">Taux sur le CA encaissé</p>
+    <div class="grid gap-3 sm:grid-cols-2">
+        <div class="grid gap-1.5">
+            <label hlmLabel [for]="'social-' + p.key">Taux de cotisations URSSAF (%)</label>
+            <input
+                hlmInput
+                [id]="'social-' + p.key"
+                inputmode="decimal"
+                [ngModelOptions]="{standalone: true}"
+                [(ngModel)]="p.social"
+            />
+            <p class="text-muted-foreground text-xs">
+                Appliqué tel quel au CA encaissé. Indique le taux réellement prélevé (celui de ton espace URSSAF, ACRE
+                incluse).
+            </p>
+        </div>
+    </div>
+</div>
+
+<div>
+    <p class="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase">Impôt sur le revenu</p>
+    <div class="grid gap-3 sm:grid-cols-2 sm:items-end">
+        <div class="flex items-center gap-3">
+            <hlm-switch
+                [inputId]="'vl-on-' + p.key"
+                [checked]="p.versementLiberatoire"
+                (checkedChange)="p.versementLiberatoire = $event"
+            />
+            <label hlmLabel [for]="'vl-on-' + p.key">Versement libératoire</label>
+        </div>
+        @if (p.versementLiberatoire) {
+            <div class="grid gap-1.5">
+                <label hlmLabel [for]="'vl-' + p.key">Taux du versement libératoire (%)</label>
+                <input
+                    hlmInput
+                    [id]="'vl-' + p.key"
+                    inputmode="decimal"
+                    [ngModelOptions]="{standalone: true}"
+                    [(ngModel)]="p.vl"
+                />
+            </div>
+        } @else {
+            <div class="grid gap-1.5">
+                <label hlmLabel [for]="'tmi-' + p.key">Taux marginal d’imposition (%)</label>
+                <input
+                    hlmInput
+                    [id]="'tmi-' + p.key"
+                    inputmode="decimal"
+                    [ngModelOptions]="{standalone: true}"
+                    [(ngModel)]="p.incomeTaxRate"
+                />
+            </div>
+        }
+    </div>
+</div>
+
+<div>
+    <p class="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase">Paramètres annuels</p>
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="grid gap-1.5">
+            <label hlmLabel [for]="'freq-' + p.key">Déclaration URSSAF</label>
+            <select
+                class="select-native"
+                [id]="'freq-' + p.key"
+                [ngModelOptions]="{standalone: true}"
+                [(ngModel)]="p.declarationFrequency"
+            >
+                <option value="quarterly">Trimestrielle</option>
+                <option value="monthly">Mensuelle</option>
+            </select>
+        </div>
+        <div class="grid gap-1.5">
+            <label hlmLabel [for]="'cfe-' + p.key">CFE annuelle (€)</label>
+            <input
+                hlmInput
+                [id]="'cfe-' + p.key"
+                inputmode="decimal"
+                [ngModelOptions]="{standalone: true}"
+                [(ngModel)]="p.cfeAmount"
+            />
+        </div>
+        <div class="grid gap-1.5">
+            <label hlmLabel [for]="'ceil-' + p.key">Plafond micro (€)</label>
+            <input
+                hlmInput
+                [id]="'ceil-' + p.key"
+                inputmode="decimal"
+                [ngModelOptions]="{standalone: true}"
+                [(ngModel)]="p.caCeiling"
+            />
+        </div>
+        <div class="grid gap-1.5">
+            <label hlmLabel [for]="'tva-' + p.key">Franchise de TVA (€)</label>
+            <input
+                hlmInput
+                [id]="'tva-' + p.key"
+                inputmode="decimal"
+                [ngModelOptions]="{standalone: true}"
+                [(ngModel)]="p.tvaThreshold"
+            />
+        </div>
+    </div>
+</div>
+
+@if (!oldest()) {
+    <p class="text-muted-foreground text-xs">
+        ⚠️ Modifier cette période recalcule les encaissements qu’elle couvre. Pour un changement de taux, ajoute plutôt
+        une nouvelle période.
+    </p>
+}

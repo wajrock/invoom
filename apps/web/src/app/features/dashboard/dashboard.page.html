@@ -1,0 +1,184 @@
+<app-page-header heading="Tableau de bord" subtitle="Chiffre d'affaires encaissé et charges estimées">
+    <select
+        class="select-native w-auto!"
+        aria-label="Année"
+        [value]="year()"
+        (change)="setYear($any($event.target).value)"
+    >
+        @for (y of yearOptions(); track y) {
+            <option [value]="y" [selected]="y === year()">{{ y }}</option>
+        }
+    </select>
+</app-page-header>
+
+@if (data(); as d) {
+    <div class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <app-kpi-tile [label]="'CA encaissé ' + d.year" [value]="d.summary.ca | eur: true">
+            @if (growth(); as g) {
+                <p
+                    class="mt-1 flex items-center gap-1 text-xs"
+                    [class]="g.value >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive'"
+                >
+                    <ng-icon [name]="g.value >= 0 ? 'lucideTrendingUp' : 'lucideTrendingDown'" />
+                    {{ g.label }} vs {{ g.period }}
+                </p>
+            } @else {
+                <p class="text-muted-foreground mt-1 text-xs">{{ d.previous.ca | eur: true }} en {{ d.year - 1 }}</p>
+            }
+        </app-kpi-tile>
+        <app-kpi-tile [label]="'URSSAF ' + d.year" [value]="d.summary.social | eur: true">
+            <p class="text-muted-foreground mt-1 text-xs">
+                Cotisations sociales · {{ rateOfCa(d, d.summary.social) }} du CA
+            </p>
+        </app-kpi-tile>
+        <app-kpi-tile [label]="'Impôts ' + d.year" [value]="taxes().total | eur: true">
+            <dl class="mt-1.5 grid gap-0.5 text-xs">
+                @for (t of taxes().lines; track t.label) {
+                    <div class="flex justify-between gap-2">
+                        <dt class="text-muted-foreground">{{ t.label }}</dt>
+                        <dd class="tabular-nums">{{ t.value }}</dd>
+                    </div>
+                }
+            </dl>
+        </app-kpi-tile>
+        <app-kpi-tile label="Net estimé" [value]="d.summary.net | eur: true">
+            <p class="text-muted-foreground mt-1 text-xs">Après cotisations et impôts</p>
+        </app-kpi-tile>
+    </div>
+
+    <div class="mt-4 grid gap-4 lg:grid-cols-3">
+        <section hlmCard class="lg:col-span-2">
+            <div hlmCardHeader>
+                <h2 hlmCardTitle>Encaissements mensuels</h2>
+                <p hlmCardDescription>{{ d.year }} comparé à {{ d.year - 1 }}</p>
+            </div>
+            <div hlmCardContent>
+                <div echarts [options]="chart()" class="h-56 w-full sm:h-72"></div>
+            </div>
+        </section>
+
+        <section hlmCard>
+            <div hlmCardHeader>
+                <h2 hlmCardTitle>Seuils {{ d.year }}</h2>
+                <p hlmCardDescription>Calculés sur le CA encaissé</p>
+            </div>
+            <div hlmCardContent class="grid gap-5">
+                @for (t of thresholds(); track t.label) {
+                    <div>
+                        <div class="mb-1.5 flex items-baseline justify-between gap-2 text-sm">
+                            <span class="font-medium">{{ t.label }}</span>
+                            <span class="text-muted-foreground tabular-nums">{{ t.pct }} %</span>
+                        </div>
+                        <div class="bg-muted h-2 overflow-hidden rounded-full">
+                            <div
+                                class="h-full rounded-full transition-all"
+                                [class]="t.color"
+                                [style.width.%]="t.bar"
+                            ></div>
+                        </div>
+                        <p class="text-muted-foreground mt-1.5 text-xs">
+                            {{ d.summary.ca | eur: true }} / {{ t.limit | eur: true }} · reste
+                            {{ t.remaining | eur: true }}
+                        </p>
+                    </div>
+                }
+                @if (d.pending.count > 0) {
+                    <a
+                        routerLink="/paiements"
+                        class="bg-muted/60 hover:bg-muted flex items-center gap-3 rounded-lg p-3 text-sm transition-colors"
+                    >
+                        <ng-icon name="lucideClock" class="text-muted-foreground text-base" />
+                        <span class="flex-1">
+                            <span class="font-medium"
+                                >{{ d.pending.count }} facture{{ d.pending.count > 1 ? 's' : '' }} en attente</span
+                            ><br />
+                            <span class="text-muted-foreground"
+                                >{{ d.pending.amount | eur }} non encaissé{{ d.pending.count > 1 ? 's' : '' }}</span
+                            >
+                        </span>
+                        <ng-icon name="lucideArrowRight" />
+                    </a>
+                }
+            </div>
+        </section>
+    </div>
+
+    <div class="mt-4 grid gap-4 lg:grid-cols-3">
+        <section hlmCard class="lg:col-span-2">
+            <div hlmCardHeader>
+                <h2 hlmCardTitle>Prochaines échéances</h2>
+                <p hlmCardDescription>Non réglées, en retard ou dans les 6 mois</p>
+            </div>
+            <div hlmCardContent>
+                @if (d.upcoming.length === 0) {
+                    <p class="text-muted-foreground py-6 text-center text-sm">Rien à prévoir pour l’instant.</p>
+                } @else {
+                    <ul class="divide-y">
+                        @for (dl of d.upcoming; track dl.id) {
+                            <li class="flex items-center gap-3 py-2.5">
+                                <div class="min-w-0 flex-1">
+                                    <p class="truncate text-sm font-medium">{{ dl.title }}</p>
+                                    <p class="text-muted-foreground text-xs">
+                                        {{ dl.dueOn | frDate }} ·
+                                        <span [class.text-destructive]="isLate(dl)" [class.font-medium]="isLate(dl)">{{
+                                            rel(dl.dueOn)
+                                        }}</span>
+                                    </p>
+                                </div>
+                                <span hlmBadge variant="outline" class="max-sm:hidden">{{ kindLabel(dl) }}</span>
+                                <span class="text-right text-sm tabular-nums sm:w-24">{{ dl.amount | eur }}</span>
+                                <button
+                                    hlmBtn
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    (click)="markDone(dl)"
+                                    aria-label="Marquer comme réglée"
+                                    title="Marquer comme réglée"
+                                >
+                                    <ng-icon name="lucideCheck" />
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                }
+                <a hlmBtn variant="link" routerLink="/echeances" class="mt-2 px-0"
+                    >Toutes les échéances <ng-icon name="lucideArrowRight"
+                /></a>
+            </div>
+        </section>
+
+        <section hlmCard>
+            <div hlmCardHeader>
+                <h2 hlmCardTitle>Détail {{ d.year }}</h2>
+            </div>
+            <div hlmCardContent>
+                <dl class="grid gap-2 text-sm">
+                    @for (row of breakdown(); track row.label) {
+                        <div
+                            class="flex justify-between gap-2"
+                            [class]="row.strong ? 'border-t pt-2 font-semibold' : ''"
+                        >
+                            <dt [class.text-muted-foreground]="!row.strong">{{ row.label }}</dt>
+                            <dd class="tabular-nums">{{ row.value }}</dd>
+                        </div>
+                    }
+                </dl>
+                @if (d.settings.periodsInYear > 1) {
+                    <p class="text-muted-foreground mt-3 text-xs">
+                        Les taux ont changé en cours d’année : chaque encaissement est calculé avec les taux en vigueur
+                        à sa date.
+                    </p>
+                }
+            </div>
+        </section>
+    </div>
+} @else if (error()) {
+    <p class="text-destructive text-sm">{{ error() }}</p>
+} @else {
+    <div class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        @for (i of [1, 2, 3, 4]; track i) {
+            <hlm-skeleton class="h-28 rounded-xl" />
+        }
+    </div>
+    <hlm-skeleton class="mt-4 block h-80 rounded-xl" />
+}
