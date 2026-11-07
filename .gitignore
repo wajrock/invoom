@@ -1,10 +1,16 @@
-node_modules
-dist
-.angular
-.env
+node_modules/
+dist/
+coverage/
+.angular/
+.nx/
+out-tsc/
 *.log
+.env
 .DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
 
-# Factures réelles (IBAN, SIRET…) : jamais dans le dépôt
+# Real invoices (IBAN, SIRET…) must never be committed
 /*.pdf
-.nx

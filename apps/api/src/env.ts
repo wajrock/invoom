@@ -16,7 +16,7 @@ const schema = z.object({
   MAIL_FROM: z.string().default('Freelance Hub <no-reply@localhost>'),
   PORT: z.coerce.number().default(3333),
   TRUST_PROXY: z.enum(['true', 'false']).default('false').transform((v) => v === 'true'),
-  STATIC_DIR: z.string().default('../client/dist/client/browser'),
+  STATIC_DIR: z.string().default('../web/dist/web/browser'),
   NODE_ENV: z.string().default('development'),
 });
 

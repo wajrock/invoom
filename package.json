@@ -1,0 +1,32 @@
+{
+  "name": "invoom",
+  "private": true,
+  "description": "Open-source back office for freelancers: invoices, clients, payments and tax deadlines.",
+  "license": "AGPL-3.0-only",
+  "packageManager": "pnpm@11.21.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter @invoom/api --filter @invoom/web dev",
+    "build": "pnpm --filter @invoom/web build",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint . && prettier --check .",
+    "lint:fix": "eslint . --fix && prettier --write .",
+    "format": "prettier --write .",
+    "check": "pnpm lint && pnpm typecheck && pnpm test",
+    "services": "docker compose up -d"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "angular-eslint": "^22.6.0",
+    "eslint": "^10.14.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.7",
+    "globals": "^17.14.0",
+    "prettier": "^3.9.10",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.1"
+  }
+}
