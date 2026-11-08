@@ -1,4 +1,4 @@
-import {ABATTEMENT, annualPeriod, periodAt, type TaxSettings} from './tax-settings.ts';
+import {ABATTEMENT, type Activity, annualPeriod, periodAt, type TaxSettings} from './tax-settings.ts';
 import {isCfeExempt} from './charges.ts';
 
 export interface Simulation {
@@ -15,6 +15,8 @@ export interface Simulation {
     versementLiberatoire: boolean;
     /** Yearly CFE, not spread over a single amount */
     cfe: number;
+    /** Settings the simulation used, to prefill custom rates */
+    inputs: {activity: Activity; social: number; vl: number; incomeTaxRate: number};
 }
 
 /** Charges on `gross` with the rates in force on `date`, rounded like the dashboard. */
@@ -36,6 +38,12 @@ export function simulateFromGross(gross: number, s: TaxSettings, date: string): 
         rates: {social: period.rates.social, vl: vlRate, incomeTax: incomeTaxRate},
         versementLiberatoire: period.versementLiberatoire,
         cfe: isCfeExempt(year, s) ? 0 : annualPeriod(s, year).cfeAmount,
+        inputs: {
+            activity: s.activity,
+            social: period.rates.social,
+            vl: period.rates.vl,
+            incomeTaxRate: period.incomeTaxRate,
+        },
     };
 }
 
