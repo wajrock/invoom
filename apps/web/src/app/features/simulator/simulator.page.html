@@ -4,32 +4,9 @@
 />
 
 <div class="grid items-start gap-4 lg:grid-cols-2">
-    <section hlmCard>
+    <section hlmCard class="lg:col-start-1">
         <div hlmCardContent class="grid gap-5">
-            <div class="bg-muted grid grid-cols-2 gap-1 rounded-lg p-1" role="group" aria-label="Sens du calcul">
-                <button
-                    type="button"
-                    class="rounded-md px-3 py-2 text-sm font-medium transition-colors"
-                    [class]="
-                        from() === 'gross' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                    "
-                    [attr.aria-pressed]="from() === 'gross'"
-                    (click)="setFrom('gross')"
-                >
-                    Je facture…
-                </button>
-                <button
-                    type="button"
-                    class="rounded-md px-3 py-2 text-sm font-medium transition-colors"
-                    [class]="
-                        from() === 'net' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                    "
-                    [attr.aria-pressed]="from() === 'net'"
-                    (click)="setFrom('net')"
-                >
-                    Je veux toucher…
-                </button>
-            </div>
+            <app-segmented-control aria-label="Sens du calcul" [options]="directions" [(value)]="from" />
 
             <div class="grid gap-2">
                 <label hlmLabel for="sim-amount">
@@ -72,7 +49,7 @@
         </div>
     </section>
 
-    <section hlmCard aria-live="polite">
+    <section hlmCard class="lg:col-start-2 lg:row-span-2 lg:row-start-1" aria-live="polite">
         <div hlmCardContent class="grid gap-5">
             @if (error()) {
                 <p class="text-destructive text-sm">{{ error() }}</p>
@@ -127,16 +104,39 @@
                 </dl>
 
                 <p class="text-muted-foreground text-xs leading-relaxed">
-                    Taux en vigueur aujourd'hui selon tes
-                    <a routerLink="/parametres" class="text-foreground underline underline-offset-2"
-                        >paramètres fiscaux</a
-                    >. {{ exclusions() }}
+                    @if (source() === 'custom') {
+                        Taux personnalisés, non enregistrés.
+                    } @else {
+                        Taux en vigueur aujourd'hui selon tes
+                        <a routerLink="/parametres" class="text-foreground underline underline-offset-2"
+                            >paramètres fiscaux</a
+                        >.
+                    }
+                    {{ exclusions() }}
                     @if (!r.versementLiberatoire) {
                         L'impôt est une estimation : ton taux marginal appliqué au revenu après abattement.
                     }
                 </p>
             } @else {
                 <p class="text-muted-foreground text-sm">Saisis un montant pour lancer la simulation.</p>
+            }
+        </div>
+    </section>
+
+    <section hlmCard class="lg:col-start-1">
+        <div hlmCardContent class="grid gap-3">
+            <p class="text-sm font-medium">Taux de charges</p>
+            <app-segmented-control
+                aria-label="Taux de charges"
+                [options]="sources"
+                [value]="source()"
+                (valueChange)="setSource($event)"
+            />
+            @if (source() === 'custom' && customForm(); as f) {
+                <app-custom-rates [value]="f" (valueChange)="customForm.set($event)" [activities]="activities()" />
+                @if (customInvalid()) {
+                    <p class="text-destructive text-sm">Les taux doivent être compris entre 0 et 100 %.</p>
+                }
             }
         </div>
     </section>

@@ -1,0 +1,45 @@
+@let f = value();
+<div class="grid gap-4">
+    <div class="grid gap-2">
+        <label hlmLabel for="sim-activity">Activité</label>
+        <select id="sim-activity" class="select-native" [ngModel]="f.activity" (ngModelChange)="setActivity($event)">
+            @for (a of activities(); track a.activity) {
+                <option [value]="a.activity">{{ a.label }}</option>
+            }
+        </select>
+    </div>
+
+    <div class="grid gap-2">
+        <label hlmLabel for="sim-social">Cotisations sociales (%)</label>
+        <input
+            hlmInput
+            id="sim-social"
+            inputmode="decimal"
+            [ngModel]="f.social"
+            (ngModelChange)="set('social', $event)"
+        />
+    </div>
+
+    <div class="flex items-center gap-3">
+        <hlm-switch inputId="sim-vl-on" [checked]="f.vlOn" (checkedChange)="set('vlOn', $event)" />
+        <label hlmLabel for="sim-vl-on">Versement libératoire</label>
+    </div>
+
+    @if (f.vlOn) {
+        <div class="grid gap-2">
+            <label hlmLabel for="sim-vl">Taux du versement libératoire (%)</label>
+            <input hlmInput id="sim-vl" inputmode="decimal" [ngModel]="f.vl" (ngModelChange)="set('vl', $event)" />
+        </div>
+    } @else {
+        <div class="grid gap-2">
+            <label hlmLabel for="sim-tmi">Taux marginal d’imposition (%)</label>
+            <input
+                hlmInput
+                id="sim-tmi"
+                inputmode="decimal"
+                [ngModel]="f.incomeTaxRate"
+                (ngModelChange)="set('incomeTaxRate', $event)"
+            />
+        </div>
+    }
+</div>

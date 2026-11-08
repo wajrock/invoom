@@ -7,9 +7,25 @@ import {HlmLabelImports} from '@spartan-ng/helm/label';
 import {errorMessage} from '../../core/http/error-message';
 import {EurPipe} from '../../shared/pipes/eur.pipe';
 import {PageHeader} from '../../shared/ui/page-header/page-header';
+import {SegmentedControl, type SegmentOption} from '../../shared/ui/segmented-control/segmented-control';
 import {centsToInput, formatCents, parseEuros} from '../../shared/utils/money';
+import {TaxSettingsApi} from '../settings/tax-settings.api';
+import type {ActivityDefaults} from '../settings/tax-settings.models';
+import {CustomRatesFields, type CustomRatesForm, formFromInputs, parseCustomRates} from './custom-rates/custom-rates';
 import {SimulatorApi} from './simulator.api';
 import type {Simulation, SimulationFrom} from './simulator.models';
+
+type RatesSource = 'saved' | 'custom';
+
+const DIRECTIONS: SegmentOption<SimulationFrom>[] = [
+    {value: 'gross', label: 'Je facture…'},
+    {value: 'net', label: 'Je veux toucher…'},
+];
+
+const SOURCES: SegmentOption<RatesSource>[] = [
+    {value: 'saved', label: 'Mes paramètres'},
+    {value: 'custom', label: 'Personnalisés'},
+];
 
 const QUICK_AMOUNTS = [500_00, 1_000_00, 2_500_00, 5_000_00];
 
@@ -17,17 +33,42 @@ const percent = new Intl.NumberFormat('fr-FR', {style: 'percent', maximumFractio
 
 @Component({
     selector: 'app-simulator',
-    imports: [FormsModule, RouterLink, HlmCardImports, HlmInputImports, HlmLabelImports, EurPipe, PageHeader],
+    imports: [
+        FormsModule,
+        RouterLink,
+        HlmCardImports,
+        HlmInputImports,
+        HlmLabelImports,
+        EurPipe,
+        PageHeader,
+        SegmentedControl,
+        CustomRatesFields,
+    ],
     templateUrl: './simulator.page.html',
 })
 export class SimulatorPage {
     private readonly api = inject(SimulatorApi);
+    private readonly taxApi = inject(TaxSettingsApi);
 
     protected readonly from = signal<SimulationFrom>('gross');
     protected readonly input = signal(centsToInput(1_000_00));
     protected readonly result = signal<Simulation | null>(null);
     protected readonly error = signal('');
     protected readonly quickAmounts = QUICK_AMOUNTS;
+    protected readonly directions = DIRECTIONS;
+    protected readonly sources = SOURCES;
+
+    protected readonly source = signal<RatesSource>('saved');
+    protected readonly customForm = signal<CustomRatesForm | null>(null);
+    protected readonly activities = signal<ActivityDefaults[]>([]);
+    /** Parsed custom rates; null while one of them is invalid. */
+    protected readonly customRates = computed(() => {
+        const f = this.customForm();
+        return this.source() === 'custom' && f ? parseCustomRates(f) : null;
+    });
+    protected readonly customInvalid = computed(
+        () => this.source() === 'custom' && this.customForm() !== null && this.customRates() === null,
+    );
 
     protected readonly amount = computed(() => parseEuros(this.input()));
     protected readonly invalid = computed(() => this.input().trim() !== '' && this.amount() === null);
@@ -52,11 +93,12 @@ export class SimulatorPage {
         effect((onCleanup) => {
             const amount = this.amount();
             const from = this.from();
-            if (amount === null) return;
+            const custom = this.source() === 'custom' ? this.customRates() : undefined;
+            if (amount === null || custom === null) return;
             const id = ++this.requestId;
             const timer = setTimeout(async () => {
                 try {
-                    const r = await this.api.simulate(amount, from);
+                    const r = await this.api.simulate(amount, from, custom);
                     if (id !== this.requestId) return;
                     this.result.set(r);
                     this.error.set('');
@@ -66,10 +108,29 @@ export class SimulatorPage {
             }, 200);
             onCleanup(() => clearTimeout(timer));
         });
+
+        // Custom rates start from the saved ones, so only what differs needs typing
+        effect(() => {
+            if (this.source() !== 'custom' || this.customForm()) return;
+            const r = this.result();
+            const first = this.activities()[0];
+            if (r) this.customForm.set(formFromInputs(r.inputs, r.versementLiberatoire));
+            else if (first)
+                this.customForm.set(
+                    formFromInputs({...first.rates, activity: first.activity, incomeTaxRate: 0.11}, false),
+                );
+        });
     }
 
-    protected setFrom(from: SimulationFrom) {
-        this.from.set(from);
+    protected async setSource(source: RatesSource) {
+        this.source.set(source);
+        if (source === 'custom' && !this.activities().length) {
+            try {
+                this.activities.set(await this.taxApi.defaults());
+            } catch (err) {
+                this.error.set(errorMessage(err));
+            }
+        }
     }
 
     protected pick(cents: number) {
