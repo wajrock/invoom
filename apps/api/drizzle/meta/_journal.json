@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1793737742254,
+      "when": 1794134259460,
       "tag": "0000_init",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1793814516452,
-      "tag": "0001_clients",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1793820603054,
-      "tag": "0002_services",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1794083583717,
-      "tag": "0003_accounts",
       "breakpoints": true
     }
   ]

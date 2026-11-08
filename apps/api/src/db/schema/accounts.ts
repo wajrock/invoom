@@ -11,8 +11,8 @@ export const users = pgTable('users', {
 /** Business data belongs to a workspace rather than a user, so members can be invited later. */
 export const workspaces = pgTable('workspaces', {
     id: uuid('id').primaryKey().defaultRandom(),
-    /** Workspace data key, encrypted with the master key; null for the legacy workspace (master key). */
-    dataKey: bytea('data_key'),
+    /** Workspace data key, encrypted with the master key. */
+    dataKey: bytea('data_key').notNull(),
     createdAt: timestamp('created_at', {withTimezone: true}).notNull().defaultNow(),
 });
 

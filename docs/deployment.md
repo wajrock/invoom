@@ -41,12 +41,12 @@ Row-level security is enforced through a restricted `invoom_app` role that the m
 
 Before opening sign-ups, add the SPF and DKIM records given by your SMTP provider to your domain's DNS, and send from an address on that domain.
 
-## Migrating data from before accounts existed
+## Access link (last resort)
 
-The accounts migration moves existing data into a legacy workspace. Its owner claims it once, from a shell in the running container:
+When a user has lost every device and recovery code and cannot receive email (or before SMTP is set up), an administrator can issue a one-time link from a shell in the running container:
 
 ```bash
-node scripts/enroll.ts --email you@example.com https://your-domain
+node scripts/access-link.ts --email user@example.com https://your-domain
 ```
 
-This creates the account, attaches the legacy workspace and prints a one-time link to create a passkey. The same command gives a user an access link as a last resort.
+The link is valid for 30 minutes and creates a passkey on the device that opens it.

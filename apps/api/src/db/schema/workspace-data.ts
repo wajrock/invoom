@@ -3,12 +3,9 @@ import {date, index, integer, pgTable, primaryKey, text, timestamp, unique, uuid
 import {workspaces} from './accounts.ts';
 import {bytea} from './columns.ts';
 
-/** Workspace that received the data created before accounts existed. */
-export const LEGACY_WORKSPACE_ID = '00000000-0000-4000-8000-000000000001';
-
 /**
  * Every business row belongs to a workspace. Isolation is enforced by Postgres row-level security
- * (see migration 0003); workspace_id defaults to the workspace set on the request transaction.
+ * (see the init migration); workspace_id defaults to the workspace set on the request transaction.
  */
 const workspaceId = () =>
     uuid('workspace_id')

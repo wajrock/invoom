@@ -25,7 +25,7 @@ modules/<feature>/      one folder per domain
   *.schema.ts           zod input schemas and types
   *.store.ts            data access shared with other modules
   *.service.ts / *.defaults.ts
-scripts/enroll.ts       admin tool: account access link, legacy data claim
+scripts/access-link.ts  admin tool: one-time access link for an account
 drizzle/                SQL migrations (generated, then hand-edited for RLS)
 ```
 
@@ -53,7 +53,7 @@ Adding a business table means: a `workspaceId()` column, an RLS policy plus `FOR
 
 ### Encryption
 
-Business payloads are stored encrypted (AES-256-GCM) in `bytea` columns; only fields needed for sorting or filtering (dates) stay in clear. Each workspace has its own data key, encrypted with the master `ENCRYPTION_KEY`. The legacy workspace (data created before accounts existed) uses the master key directly.
+Business payloads are stored encrypted (AES-256-GCM) in `bytea` columns; only fields needed for sorting or filtering (dates) stay in clear. Each workspace has its own data key, encrypted with the master `ENCRYPTION_KEY`.
 
 ### Authentication
 

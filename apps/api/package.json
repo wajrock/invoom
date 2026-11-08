@@ -11,7 +11,7 @@
         "typecheck": "tsc --noEmit",
         "test": "node --test 'src/**/*.test.ts'",
         "db:generate": "drizzle-kit generate",
-        "enroll": "node --env-file-if-exists=.env scripts/enroll.ts",
+        "access-link": "node --env-file-if-exists=.env scripts/access-link.ts",
         "gen-key": "node -e \"console.log(require('node:crypto').randomBytes(32).toString('base64'))\""
     },
     "dependencies": {

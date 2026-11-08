@@ -94,8 +94,7 @@ export async function createWorkspaceRuntime(db: Db, master: Cipher): Promise<Wo
             .from(workspaces)
             .where(eq(workspaces.id, workspaceId));
         if (!ws) throw new Error('Espace introuvable');
-        // The legacy workspace is encrypted with the master key itself
-        const cipher = ws.dataKey ? createCipher(master.decrypt(ws.dataKey).toString('base64')) : master;
+        const cipher = createCipher(master.decrypt(ws.dataKey).toString('base64'));
         ciphers.set(workspaceId, cipher);
         return cipher;
     }
