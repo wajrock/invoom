@@ -18,13 +18,13 @@ Keep clear space around the logo of at least the height of the "o". Don't recolo
 
 White symbol on a black tile (`#0A0A0B`), corner radius 22.36 %, symbol at 40 % of the tile height.
 
-| File                                              | Use                                                          |
-| ------------------------------------------------- | ------------------------------------------------------------ |
-| `icon/invoom-icon.svg`, `-1024/512/192.png`       | Rounded icon (web manifest, stores, docs)                    |
-| `icon/invoom-icon-square.svg`, `-square-1024.png` | Full-bleed square, for platforms that apply their own mask   |
-| `icon/invoom-icon-maskable-512.png`               | Android maskable icon                                        |
-| `icon/apple-touch-icon.png`                       | iOS home screen (180 × 180, iOS rounds the corners)          |
-| `icon/favicon.svg`, `favicon.ico`                 | Browser tab; the symbol is enlarged to stay legible at 16 px |
+| File                                              | Use                                                                          |
+| ------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `icon/invoom-icon.svg`, `-1024/512/192.png`       | Rounded icon (web manifest, stores, docs)                                    |
+| `icon/invoom-icon-square.svg`, `-square-1024.png` | Full-bleed square, for platforms that apply their own mask                   |
+| `icon/invoom-icon-maskable-512.png`               | Android maskable icon                                                        |
+| `icon/apple-touch-icon.png`                       | iOS home screen (180 × 180, iOS rounds the corners)                          |
+| `icon/favicon.svg`, `favicon.ico`                 | Browser tab: black symbol on a white tile, enlarged to stay legible at 16 px |
 
 ## Social
 
