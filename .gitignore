@@ -8,9 +8,7 @@ out-tsc/
 .env
 .DS_Store
 .idea/
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
+.vscode/
 
 # Real invoices (IBAN, SIRET…) must never be committed
 /*.pdf
