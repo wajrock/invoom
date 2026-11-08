@@ -1,8 +1,8 @@
-import {Logo} from '../../../shared/ui/logo/logo';
 import {Component, computed, inject} from '@angular/core';
 import {NgIcon, provideIcons} from '@ng-icons/core';
-import {lucideKeyRound, lucideMail, lucideMailCheck, lucideScanFace} from '@ng-icons/lucide';
-import {HlmCardImports} from '@spartan-ng/helm/card';
+import {lucideCodeXml, lucideLock, lucideScanFace} from '@ng-icons/lucide';
+import {BrandPattern} from '../../../shared/ui/brand-pattern/brand-pattern';
+import {Logo} from '../../../shared/ui/logo/logo';
 import {RecoveryCodes} from '../recovery-codes/recovery-codes';
 import {LoginFlow, type LoginStep} from './login-flow';
 import {EmailLinkStep} from './steps/email-link-step';
@@ -11,18 +11,19 @@ import {LostAccessStep} from './steps/lost-access-step';
 import {SignInStep} from './steps/sign-in-step';
 import {SignUpStep} from './steps/sign-up-step';
 
-const ICONS: Record<LoginStep, string> = {
-    signin: 'lucideScanFace',
-    signup: 'lucideMail',
-    lost: 'lucideKeyRound',
-    sent: 'lucideMailCheck',
-    link: 'lucideScanFace',
-    codes: 'lucideKeyRound',
-};
+const CAPABILITIES = [
+    {icon: 'lucideScanFace', label: 'Sans mot de passe', detail: 'Face ID, Touch ID ou le code de ton appareil.'},
+    {
+        icon: 'lucideLock',
+        label: 'Données chiffrées',
+        detail: 'Chaque espace a sa propre clé, isolé des autres comptes.',
+    },
+    {icon: 'lucideCodeXml', label: 'Open source', detail: 'Code public, que tu peux aussi héberger toi-même.'},
+];
 
 const SUBTITLES: Record<LoginStep, string> = {
-    signin: 'Connecte-toi avec Face ID, Touch ID ou le verrouillage de ton appareil.',
-    signup: 'Indique ton adresse : tu recevras un lien pour créer ton compte.',
+    signin: 'Avec Face ID, Touch ID ou le code de ton appareil.',
+    signup: 'Commence avec ton adresse e\u2011mail, sans mot de passe.',
     lost: 'Utilise un code de récupération, ou reçois un lien par e-mail.',
     sent: 'Le lien te permettra de créer ta passkey.',
     link: 'Crée la passkey de cet appareil : elle remplace tout mot de passe.',
@@ -34,7 +35,7 @@ const SUBTITLES: Record<LoginStep, string> = {
     imports: [
         NgIcon,
         Logo,
-        HlmCardImports,
+        BrandPattern,
         RecoveryCodes,
         SignInStep,
         SignUpStep,
@@ -42,17 +43,17 @@ const SUBTITLES: Record<LoginStep, string> = {
         EmailSentStep,
         EmailLinkStep,
     ],
-    providers: [LoginFlow, provideIcons({lucideScanFace, lucideKeyRound, lucideMail, lucideMailCheck})],
+    providers: [LoginFlow, provideIcons({lucideScanFace, lucideLock, lucideCodeXml})],
     templateUrl: './login.page.html',
 })
 export class LoginPage {
     protected readonly flow = inject(LoginFlow);
+    protected readonly capabilities = CAPABILITIES;
 
-    protected readonly icon = computed(() => ICONS[this.flow.step()]);
     protected readonly subtitle = computed(() => SUBTITLES[this.flow.step()]);
     protected readonly title = computed(() => {
         const titles: Record<LoginStep, string> = {
-            signin: 'Connexion',
+            signin: 'Bon retour',
             signup: 'Créer un compte',
             lost: 'Retrouver l’accès',
             sent: 'Vérifie tes e-mails',

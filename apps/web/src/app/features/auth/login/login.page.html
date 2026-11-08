@@ -1,35 +1,75 @@
-<div class="bg-muted/40 grid min-h-dvh content-center justify-items-center gap-6 p-4">
-    <app-logo class="h-7" />
-    <section hlmCard class="w-full max-w-sm">
-        <div hlmCardHeader>
-            <div class="bg-primary text-primary-foreground mb-2 grid size-10 place-items-center rounded-lg">
-                <ng-icon [name]="icon()" class="text-lg" />
-            </div>
-            <h1 hlmCardTitle class="text-xl">{{ title() }}</h1>
-            <p hlmCardDescription>{{ subtitle() }}</p>
+<div class="bg-background relative isolate min-h-dvh lg:grid lg:grid-cols-2">
+    <!-- Desktop: brand column whose tint and mosaic fade into the form column -->
+    <aside class="relative hidden overflow-hidden px-12 py-10 lg:flex lg:flex-col lg:justify-between xl:px-16">
+        <div class="bg-muted absolute inset-0 -z-10 [mask-image:linear-gradient(to_right,#000_50%,transparent)]"></div>
+        <app-brand-pattern
+            class="text-foreground absolute inset-0 -z-10 opacity-[0.09] [mask-image:linear-gradient(to_right,#000_35%,transparent_90%)] dark:opacity-[0.13]"
+        />
+        <app-logo class="h-9 self-start" />
+
+        <div class="grid max-w-md gap-10">
+            <p class="text-4xl leading-tight font-semibold tracking-tight text-balance">
+                Le back-office open source des indépendants.
+            </p>
+            <ul class="grid gap-6">
+                @for (c of capabilities; track c.label) {
+                    <li class="flex gap-4">
+                        <ng-icon [name]="c.icon" class="mt-0.5 shrink-0 text-xl" />
+                        <div class="grid gap-0.5">
+                            <span class="font-medium">{{ c.label }}</span>
+                            <span class="text-muted-foreground text-sm">{{ c.detail }}</span>
+                        </div>
+                    </li>
+                }
+            </ul>
         </div>
 
-        <div hlmCardContent class="grid gap-4">
-            @switch (flow.step()) {
-                @case ('signin') {
-                    <app-sign-in-step />
+        <p class="text-muted-foreground text-sm">Factures, clients, encaissements et échéances, au même endroit.</p>
+    </aside>
+
+    <!-- Mobile: the mosaic fades out from the top of the screen -->
+    <app-brand-pattern
+        class="text-foreground absolute inset-0 -z-10 opacity-[0.08] [mask-image:radial-gradient(ellipse_90%_55%_at_50%_0%,#000_10%,transparent_75%)] lg:hidden dark:opacity-[0.12]"
+    />
+
+    <main class="grid min-h-dvh content-center justify-items-center px-4 py-12 lg:px-12">
+        <div class="grid w-full max-w-sm gap-8">
+            <header class="grid justify-items-center gap-2 text-center">
+                <app-logo class="mb-4 h-9 lg:hidden" />
+                <h1 class="text-2xl font-semibold tracking-tight text-balance">{{ title() }}</h1>
+                <p class="text-muted-foreground text-sm text-balance">{{ subtitle() }}</p>
+            </header>
+
+            <div class="grid gap-4">
+                @switch (flow.step()) {
+                    @case ('signin') {
+                        <app-sign-in-step />
+                    }
+                    @case ('signup') {
+                        <app-sign-up-step />
+                    }
+                    @case ('lost') {
+                        <app-lost-access-step />
+                    }
+                    @case ('sent') {
+                        <app-email-sent-step />
+                    }
+                    @case ('link') {
+                        <app-email-link-step />
+                    }
+                    @case ('codes') {
+                        <app-recovery-codes [codes]="flow.codes()" (done)="flow.enter()" />
+                    }
                 }
-                @case ('signup') {
-                    <app-sign-up-step />
+            </div>
+
+            <ul
+                class="text-muted-foreground flex flex-wrap justify-center gap-x-3 gap-y-2 text-xs max-sm:text-[11px] sm:gap-x-5 lg:hidden"
+            >
+                @for (c of capabilities; track c.label) {
+                    <li class="flex items-center gap-1.5"><ng-icon [name]="c.icon" />{{ c.label }}</li>
                 }
-                @case ('lost') {
-                    <app-lost-access-step />
-                }
-                @case ('sent') {
-                    <app-email-sent-step />
-                }
-                @case ('link') {
-                    <app-email-link-step />
-                }
-                @case ('codes') {
-                    <app-recovery-codes [codes]="flow.codes()" (done)="flow.enter()" />
-                }
-            }
+            </ul>
         </div>
-    </section>
+    </main>
 </div>
