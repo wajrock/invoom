@@ -4,26 +4,42 @@
     <div class="flex h-14 items-center px-5">
         <app-logo class="h-5" />
     </div>
-    <nav class="flex flex-1 flex-col gap-0.5 px-2 py-2">
-        @for (item of nav; track item.path) {
-            <a
-                [routerLink]="item.path"
-                routerLinkActive="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                [routerLinkActiveOptions]="{exact: item.path === '/'}"
-                class="hover:bg-sidebar-accent/70 flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors"
-            >
-                <ng-icon [name]="item.icon" class="text-base opacity-80" />
-                {{ item.label }}
-            </a>
+    <nav class="flex flex-1 flex-col gap-4 overflow-y-auto px-2 py-2" aria-label="Navigation principale">
+        @for (group of groups; track $index) {
+            <div class="grid gap-0.5">
+                @if (group.label) {
+                    <p class="text-sidebar-foreground/50 px-3 pb-1 text-[11px] font-medium tracking-wider uppercase">
+                        {{ group.label }}
+                    </p>
+                }
+                @for (item of group.items; track item.path) {
+                    <ng-container *ngTemplateOutlet="link; context: {$implicit: item}" />
+                }
+            </div>
         }
     </nav>
-    <div class="border-sidebar-border flex items-center gap-1 border-t p-2">
-        <button hlmBtn variant="ghost" size="sm" class="flex-1 justify-start" (click)="logout.emit()">
-            <ng-icon name="lucideLogOut" />
-            Déconnexion
-        </button>
-        <button hlmBtn variant="ghost" size="icon-sm" (click)="theme.toggle()" [attr.aria-label]="themeLabel()">
-            <ng-icon [name]="theme.theme() === 'dark' ? 'lucideSun' : 'lucideMoon'" />
-        </button>
+    <div class="border-sidebar-border grid gap-0.5 border-t p-2">
+        <ng-container *ngTemplateOutlet="link; context: {$implicit: settings}" />
+        <div class="flex items-center gap-1">
+            <button hlmBtn variant="ghost" size="sm" class="flex-1 justify-start" (click)="logout.emit()">
+                <ng-icon name="lucideLogOut" />
+                Déconnexion
+            </button>
+            <button hlmBtn variant="ghost" size="icon-sm" (click)="theme.toggle()" [attr.aria-label]="themeLabel()">
+                <ng-icon [name]="theme.theme() === 'dark' ? 'lucideSun' : 'lucideMoon'" />
+            </button>
+        </div>
     </div>
 </aside>
+
+<ng-template #link let-item>
+    <a
+        [routerLink]="item.path"
+        routerLinkActive="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+        [routerLinkActiveOptions]="{exact: item.path === '/'}"
+        class="hover:bg-sidebar-accent/70 flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors"
+    >
+        <ng-icon [name]="item.icon" class="text-base opacity-80" />
+        {{ item.label }}
+    </a>
+</ng-template>

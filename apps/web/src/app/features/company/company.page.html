@@ -1,4 +1,8 @@
-<app-page-header heading="Entreprise" subtitle="Informations à portée de main pour tes factures et démarches">
+<app-page-header
+    heading="Entreprise"
+    subtitle="Informations à portée de main pour tes factures et démarches"
+    [level]="2"
+>
     @if (fields()) {
         <div class="flex gap-2">
             @if (editing()) {

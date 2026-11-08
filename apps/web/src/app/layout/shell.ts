@@ -4,7 +4,7 @@ import {NavigationEnd, Router, RouterOutlet} from '@angular/router';
 import {filter} from 'rxjs';
 import {Auth} from '../core/auth/auth.service';
 import {MoreSheet} from './more-sheet';
-import {MORE} from './nav';
+import {MORE_GROUPS} from './nav';
 import {Sidebar} from './sidebar';
 import {TabBar} from './tab-bar';
 
@@ -41,7 +41,7 @@ export class Shell {
 
     protected readonly moreActive = computed(() => {
         const path = this.url().split(/[?#]/)[0];
-        return MORE.some((m) => path === m.path || path.startsWith(m.path + '/'));
+        return MORE_GROUPS.flatMap((g) => g.items).some((m) => path === m.path || path.startsWith(m.path + '/'));
     });
 
     constructor() {

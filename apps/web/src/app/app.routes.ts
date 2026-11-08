@@ -47,25 +47,38 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/simulator/simulator.page').then((m) => m.SimulatorPage),
             },
             {
-                path: 'plateformes',
-                title: navLabel('/plateformes'),
+                path: 'demarches',
+                title: navLabel('/demarches'),
                 loadComponent: () => import('./features/platforms/platforms.page').then((m) => m.PlatformsPage),
             },
             {
-                path: 'entreprise',
-                title: navLabel('/entreprise'),
-                loadComponent: () => import('./features/company/company.page').then((m) => m.CompanyPage),
-            },
-            {
-                path: 'securite',
-                title: navLabel('/securite'),
-                loadComponent: () => import('./features/auth/security/security.page').then((m) => m.SecurityPage),
-            },
-            {
                 path: 'parametres',
-                title: navLabel('/parametres'),
-                loadComponent: () => import('./features/settings/tax-settings.page').then((m) => m.TaxSettingsPage),
+                loadComponent: () => import('./features/settings/settings.layout').then((m) => m.SettingsLayout),
+                children: [
+                    {path: '', pathMatch: 'full', redirectTo: 'entreprise'},
+                    {
+                        path: 'entreprise',
+                        title: navLabel('/parametres/entreprise'),
+                        loadComponent: () => import('./features/company/company.page').then((m) => m.CompanyPage),
+                    },
+                    {
+                        path: 'fiscalite',
+                        title: navLabel('/parametres/fiscalite'),
+                        loadComponent: () =>
+                            import('./features/settings/tax-settings.page').then((m) => m.TaxSettingsPage),
+                    },
+                    {
+                        path: 'securite',
+                        title: navLabel('/parametres/securite'),
+                        loadComponent: () =>
+                            import('./features/auth/security/security.page').then((m) => m.SecurityPage),
+                    },
+                ],
             },
+            // Former addresses, kept for bookmarks and links already sent
+            {path: 'plateformes', redirectTo: 'demarches'},
+            {path: 'entreprise', redirectTo: 'parametres/entreprise'},
+            {path: 'securite', redirectTo: 'parametres/securite'},
         ],
     },
     {path: '**', redirectTo: ''},

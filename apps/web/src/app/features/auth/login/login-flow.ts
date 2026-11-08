@@ -70,7 +70,7 @@ export class LoginFlow {
         return this.run(async () => {
             const remaining = await this.api.loginWithRecoveryCode(code);
             // Fallback sign-in: invite the user to register a passkey on this device
-            await this.router.navigate(['/securite'], {queryParams: {recovered: remaining}});
+            await this.router.navigate(['/parametres/securite'], {queryParams: {recovered: remaining}});
         });
     }
 

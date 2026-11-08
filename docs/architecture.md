@@ -82,6 +82,7 @@ features/    one folder per domain (auth, dashboard, payments, invoices, clients
 
 - `libs/ui` contains the vendored spartan-ng "helm" components (imported as `@spartan-ng/helm/*`).
 - Routes are lazy-loaded per feature (`app.routes.ts`).
+- The menu is defined once in `layout/nav.ts`: titled sections (Activité, Facturation, Outils), and Paramètres with its own tabs (Entreprise, Fiscalité, Sécurité under `/parametres/*`). Menu labels are reused as tab titles.
 - On screens under 640 px, dialogs become bottom sheets and primary actions become floating buttons.
 
 ## Conventions

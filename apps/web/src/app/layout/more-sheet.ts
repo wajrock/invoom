@@ -4,7 +4,7 @@ import {NgIcon, provideIcons} from '@ng-icons/core';
 import {lucideChevronRight, lucideLogOut, lucideMoon, lucideSun} from '@ng-icons/lucide';
 import {ThemeService} from '../core/theme.service';
 import {BottomSheet} from '../shared/ui/bottom-sheet/bottom-sheet';
-import {MORE, NAV_ICONS} from './nav';
+import {MORE_GROUPS, NAV_ICONS} from './nav';
 
 /** Mobile "Plus" sheet: secondary pages, theme and sign-out. */
 @Component({
@@ -15,7 +15,7 @@ import {MORE, NAV_ICONS} from './nav';
 })
 export class MoreSheet {
     protected readonly theme = inject(ThemeService);
-    protected readonly items = MORE;
+    protected readonly groups = MORE_GROUPS;
     readonly closed = output<void>();
     readonly logout = output<void>();
 }

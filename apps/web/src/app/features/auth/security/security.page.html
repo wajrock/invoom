@@ -1,4 +1,8 @@
-<app-page-header heading="Sécurité" [subtitle]="email() ?? 'Connexion par passkey et codes de récupération'" />
+<app-page-header
+    heading="Sécurité"
+    [subtitle]="email() ?? 'Connexion par passkey et codes de récupération'"
+    [level]="2"
+/>
 
 @if (recovered() !== null) {
     <app-warning-banner class="mb-6">

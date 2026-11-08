@@ -182,6 +182,9 @@
     & h1 + p {
         @apply max-md:hidden;
     }
+    & h2 {
+        @apply text-lg font-semibold;
+    }
 }
 
 /* Primary action: round floating button above the mobile tab bar */
