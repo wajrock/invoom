@@ -1,9 +1,10 @@
 <div class="bg-background relative isolate min-h-dvh lg:grid lg:grid-cols-2">
-    <!-- Desktop: brand column whose mosaic fades into the form column -->
+    <!-- Desktop: the mosaic spans the screen and eases out before reaching the form -->
+    <app-brand-pattern
+        class="text-foreground absolute inset-0 -z-10 hidden opacity-[0.06] [mask-image:linear-gradient(to_right,#000_0%,rgb(0_0_0/0.9)_20%,rgb(0_0_0/0.6)_35%,rgb(0_0_0/0.3)_47%,rgb(0_0_0/0.1)_56%,transparent_62%)] lg:block dark:opacity-[0.09]"
+    />
+    <!-- Desktop: brand column -->
     <aside class="relative hidden overflow-hidden px-12 py-10 lg:flex lg:flex-col lg:justify-between xl:px-16">
-        <app-brand-pattern
-            class="text-foreground absolute inset-0 -z-10 opacity-[0.09] [mask-image:linear-gradient(to_right,#000_35%,transparent_90%)] dark:opacity-[0.13]"
-        />
         <app-logo class="h-9 self-start" />
 
         <div class="grid max-w-md gap-10">
@@ -28,7 +29,7 @@
 
     <!-- Mobile: the mosaic fades out from the top of the screen -->
     <app-brand-pattern
-        class="text-foreground absolute inset-0 -z-10 opacity-[0.08] [mask-image:radial-gradient(ellipse_90%_55%_at_50%_0%,#000_10%,transparent_75%)] lg:hidden dark:opacity-[0.12]"
+        class="text-foreground absolute inset-0 -z-10 opacity-[0.06] [mask-image:radial-gradient(ellipse_100%_60%_at_50%_0%,#000_0%,rgb(0_0_0/0.7)_30%,rgb(0_0_0/0.35)_55%,rgb(0_0_0/0.1)_75%,transparent_90%)] lg:hidden dark:opacity-[0.09]"
     />
 
     <main class="grid min-h-dvh content-center justify-items-center px-4 py-12 lg:px-12">
