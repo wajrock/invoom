@@ -1,7 +1,7 @@
-<picture>
-    <source media="(prefers-color-scheme: dark)" srcset="brand/social/github-social-preview.png">
-    <img src="brand/social/github-social-preview-light.png" alt="Invoom, le back-office open source des indépendants">
-</picture>
+<p align="center">
+    <img src="brand/social/readme-banner-light.png#gh-light-mode-only" alt="Invoom" width="100%">
+    <img src="brand/social/readme-banner-dark.png#gh-dark-mode-only" alt="Invoom" width="100%">
+</p>
 
 # Invoom
 

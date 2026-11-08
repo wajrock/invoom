@@ -28,11 +28,11 @@ White symbol on a black tile (`#0A0A0B`), corner radius 22.36 %, symbol at 40 % 
 
 ## Social
 
-| File                                     | Use                                                      |
-| ---------------------------------------- | -------------------------------------------------------- |
-| `social/og-image.png`                    | Link previews (1200 × 630)                               |
-| `social/github-social-preview.png`       | GitHub repository social preview (1280 × 640)            |
-| `social/github-social-preview-light.png` | Light version of the cover (README in GitHub light mode) |
+| File                                                       | Use                                                         |
+| ---------------------------------------------------------- | ----------------------------------------------------------- |
+| `social/og-image.png`                                      | Link previews (1200 × 630)                                  |
+| `social/github-social-preview.png`                         | GitHub repository social preview (1280 × 640)               |
+| `social/readme-banner-light.png`, `readme-banner-dark.png` | Transparent README banners for GitHub light and dark themes |
 
 ## Colours
 
