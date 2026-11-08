@@ -1,5 +1,6 @@
 import {
     lucideBuilding2,
+    lucideCalculator,
     lucideCalendarClock,
     lucideLayoutDashboard,
     lucideLink,
@@ -24,6 +25,7 @@ export const NAV_ICONS = {
     lucideUsers,
     lucidePackage,
     lucideCalendarClock,
+    lucideCalculator,
     lucideLink,
     lucideBuilding2,
     lucideSettings,
@@ -36,6 +38,7 @@ export const NAV: NavItem[] = [
     {path: '/clients', label: 'Clients', icon: 'lucideUsers'},
     {path: '/prestations', label: 'Prestations', icon: 'lucidePackage'},
     {path: '/echeances', label: 'Échéances', icon: 'lucideCalendarClock'},
+    {path: '/simulateur', label: 'Simulateur', icon: 'lucideCalculator'},
     {path: '/plateformes', label: 'Plateformes', icon: 'lucideLink'},
     {path: '/entreprise', label: 'Entreprise', icon: 'lucideBuilding2'},
     {path: '/parametres', label: 'Paramètres fiscaux', icon: 'lucideSettings'},

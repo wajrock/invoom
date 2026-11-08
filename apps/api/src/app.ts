@@ -17,6 +17,7 @@ import {paymentRoutes} from './modules/payments/payments.routes.ts';
 import {platformRoutes} from './modules/platforms/platforms.routes.ts';
 import {serviceRoutes} from './modules/services/services.routes.ts';
 import {settingsRoutes} from './modules/settings/settings.routes.ts';
+import {simulatorRoutes} from './modules/simulator/simulator.routes.ts';
 
 function isSameOrigin(origin: string | undefined, host: string | undefined): boolean {
     if (!origin || !host) return false;
@@ -118,6 +119,7 @@ export function createApp(db: Db, opts: AppOptions) {
     api.route('/files', fileRoutes(deps));
     api.route('/deadlines', deadlineRoutes(deps));
     api.route('/dashboard', dashboardRoutes(deps));
+    api.route('/simulator', simulatorRoutes(deps));
     app.route('/api', api);
     app.all('/api/*', (c) => c.json({error: 'Introuvable'}, 404));
 

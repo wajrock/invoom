@@ -42,6 +42,11 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/deadlines/deadlines.page').then((m) => m.DeadlinesPage),
             },
             {
+                path: 'simulateur',
+                title: navLabel('/simulateur'),
+                loadComponent: () => import('./features/simulator/simulator.page').then((m) => m.SimulatorPage),
+            },
+            {
                 path: 'plateformes',
                 title: navLabel('/plateformes'),
                 loadComponent: () => import('./features/platforms/platforms.page').then((m) => m.PlatformsPage),

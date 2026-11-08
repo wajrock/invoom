@@ -29,7 +29,7 @@ scripts/access-link.ts  admin tool: one-time access link for an account
 drizzle/                SQL migrations (generated, then hand-edited for RLS)
 ```
 
-Modules: `auth`, `clients`, `company`, `dashboard`, `deadlines`, `fiscal` (pure tax rules), `invoices` (numbering, totals, PDF), `payments` (and uploaded files), `platforms`, `services`, `settings`.
+Modules: `auth`, `clients`, `company`, `dashboard`, `deadlines`, `fiscal` (pure tax rules), `invoices` (numbering, totals, PDF), `payments` (and uploaded files), `platforms`, `services`, `settings`, `simulator` (net after charges, or amount to invoice for a target net).
 
 ### Request lifecycle
 
@@ -77,7 +77,7 @@ core/        app-wide services: auth (service, guards, interceptor), theme, HTTP
 shared/      reusable UI components, pipes and utilities
 layout/      application shell: sidebar (desktop), tab bar and "Plus" sheet (mobile)
 features/    one folder per domain (auth, dashboard, payments, invoices, clients, services,
-             deadlines, platforms, company, settings) with pages, dialogs and data access
+             deadlines, simulator, platforms, company, settings) with pages, dialogs and data access
 ```
 
 - `libs/ui` contains the vendored spartan-ng "helm" components (imported as `@spartan-ng/helm/*`).

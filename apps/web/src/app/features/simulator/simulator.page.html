@@ -1,0 +1,143 @@
+<app-page-header
+    heading="Simulateur"
+    subtitle="Ce qu'il te reste après charges, ou ce qu'il faut facturer pour toucher un montant"
+/>
+
+<div class="grid items-start gap-4 lg:grid-cols-2">
+    <section hlmCard>
+        <div hlmCardContent class="grid gap-5">
+            <div class="bg-muted grid grid-cols-2 gap-1 rounded-lg p-1" role="group" aria-label="Sens du calcul">
+                <button
+                    type="button"
+                    class="rounded-md px-3 py-2 text-sm font-medium transition-colors"
+                    [class]="
+                        from() === 'gross' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                    "
+                    [attr.aria-pressed]="from() === 'gross'"
+                    (click)="setFrom('gross')"
+                >
+                    Je facture…
+                </button>
+                <button
+                    type="button"
+                    class="rounded-md px-3 py-2 text-sm font-medium transition-colors"
+                    [class]="
+                        from() === 'net' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                    "
+                    [attr.aria-pressed]="from() === 'net'"
+                    (click)="setFrom('net')"
+                >
+                    Je veux toucher…
+                </button>
+            </div>
+
+            <div class="grid gap-2">
+                <label hlmLabel for="sim-amount">
+                    {{ from() === 'gross' ? 'Montant facturé hors TVA' : 'Montant net souhaité' }}
+                </label>
+                <div class="relative">
+                    <input
+                        hlmInput
+                        id="sim-amount"
+                        name="amount"
+                        inputmode="decimal"
+                        autocomplete="off"
+                        class="h-12 pr-10 text-lg font-medium tabular-nums md:text-lg"
+                        [forceInvalid]="invalid()"
+                        [ngModel]="input()"
+                        (ngModelChange)="input.set($event)"
+                    />
+                    <span
+                        class="text-muted-foreground pointer-events-none absolute inset-y-0 right-4 grid place-items-center"
+                    >
+                        €
+                    </span>
+                </div>
+                @if (invalid()) {
+                    <p class="text-destructive text-sm">Montant invalide</p>
+                }
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+                @for (a of quickAmounts; track a) {
+                    <button
+                        type="button"
+                        class="hover:bg-muted rounded-full border px-3 py-1 text-sm tabular-nums transition-colors"
+                        (click)="pick(a)"
+                    >
+                        {{ a | eur: true }}
+                    </button>
+                }
+            </div>
+        </div>
+    </section>
+
+    <section hlmCard aria-live="polite">
+        <div hlmCardContent class="grid gap-5">
+            @if (error()) {
+                <p class="text-destructive text-sm">{{ error() }}</p>
+            } @else if (result(); as r) {
+                <div class="grid gap-1">
+                    <p class="text-muted-foreground text-sm">
+                        {{ from() === 'gross' ? 'Net en poche' : 'À facturer hors TVA' }}
+                    </p>
+                    <p class="text-4xl font-semibold tracking-tight tabular-nums">
+                        {{ (from() === 'gross' ? r.net : r.gross) | eur }}
+                    </p>
+                </div>
+
+                @if (shares(); as s) {
+                    <div class="bg-muted flex h-2.5 overflow-hidden rounded-full" aria-hidden="true">
+                        <span class="bg-foreground" [style.width]="s.net"></span>
+                        <span class="bg-foreground/40" [style.width]="s.social"></span>
+                        <span class="bg-foreground/20" [style.width]="s.tax"></span>
+                    </div>
+                }
+
+                <dl class="grid gap-2.5 text-sm">
+                    <div class="flex justify-between gap-4">
+                        <dt>Montant facturé</dt>
+                        <dd class="tabular-nums">{{ r.gross | eur }}</dd>
+                    </div>
+                    <div class="flex justify-between gap-4">
+                        <dt class="flex items-center gap-2">
+                            <span class="bg-foreground/40 size-2 rounded-full"></span>
+                            Cotisations sociales ({{ percent(r.rates.social) }})
+                        </dt>
+                        <dd class="tabular-nums">− {{ r.social | eur }}</dd>
+                    </div>
+                    <div class="flex justify-between gap-4">
+                        <dt class="flex items-center gap-2">
+                            <span class="bg-foreground/20 size-2 rounded-full"></span>
+                            @if (r.versementLiberatoire) {
+                                Versement libératoire ({{ percent(r.rates.vl) }})
+                            } @else {
+                                Impôt sur le revenu estimé ({{ percent(r.rates.incomeTax) }})
+                            }
+                        </dt>
+                        <dd class="tabular-nums">− {{ r.vl + r.incomeTax | eur }}</dd>
+                    </div>
+                    <div class="flex justify-between gap-4 border-t pt-2.5 font-medium">
+                        <dt class="flex items-center gap-2">
+                            <span class="bg-foreground size-2 rounded-full"></span>
+                            Net en poche
+                        </dt>
+                        <dd class="tabular-nums">{{ r.net | eur }}</dd>
+                    </div>
+                </dl>
+
+                <p class="text-muted-foreground text-xs leading-relaxed">
+                    Taux en vigueur aujourd'hui selon tes
+                    <a routerLink="/parametres" class="text-foreground underline underline-offset-2"
+                        >paramètres fiscaux</a
+                    >. {{ exclusions() }}
+                    @if (!r.versementLiberatoire) {
+                        L'impôt est une estimation : ton taux marginal appliqué au revenu après abattement.
+                    }
+                </p>
+            } @else {
+                <p class="text-muted-foreground text-sm">Saisis un montant pour lancer la simulation.</p>
+            }
+        </div>
+    </section>
+</div>

@@ -10,6 +10,8 @@ import {
     normalizeTaxSettings,
     periodAt,
     type RatePeriod,
+    simulateFromGross,
+    simulateFromNet,
     type TaxSettings,
 } from './index.ts';
 
@@ -194,4 +196,36 @@ test('migrates the legacy format without periods', () => {
     assert.deepEqual(s.periods[0].rates, {social: 0.256, vl: 0.022}); // CFP et chambre retirées
     assert.equal(s.periods[0].declarationFrequency, 'monthly');
     assert.ok(!('acre' in s) && !('acreReduction' in s.periods[0]));
+});
+
+test('simulation from the invoiced amount, without VL', () => {
+    // BNC: 26.1 % contributions, income tax 11 % on 66 % of revenue (7.26 %)
+    const sim = simulateFromGross(1_000_00, base(), '2026-03-01');
+    assert.equal(sim.social, 261_00);
+    assert.equal(sim.vl, 0);
+    assert.equal(sim.incomeTax, 72_60);
+    assert.equal(sim.net, 666_40);
+});
+
+test('simulation with the VL scheme replaces the income tax estimate', () => {
+    const sim = simulateFromGross(1_000_00, base({}, {versementLiberatoire: true}), '2026-03-01');
+    assert.equal(sim.vl, 22_00);
+    assert.equal(sim.incomeTax, 0);
+    assert.equal(sim.net, 717_00);
+});
+
+test('simulation from a target net finds the smallest amount to invoice', () => {
+    const s = base();
+    for (const target of [1, 99, 1_000_00, 3_333_33, 12_345_67]) {
+        const sim = simulateFromNet(target, s, '2026-03-01');
+        assert.ok(sim.net >= target, `net ${sim.net} >= ${target}`);
+        assert.ok(simulateFromGross(sim.gross - 1, s, '2026-03-01').net < target);
+    }
+});
+
+test('simulation uses the rates in force on the given date', () => {
+    const s = base({}, {});
+    s.periods.push({...defaultPeriod('bnc', '2026-07-01'), rates: {social: 0.2, vl: 0.022}});
+    assert.equal(simulateFromGross(1_000_00, s, '2026-06-30').social, 261_00);
+    assert.equal(simulateFromGross(1_000_00, s, '2026-07-01').social, 200_00);
 });
