@@ -18,6 +18,7 @@ pnpm --filter @invoom/api db:generate   # after editing apps/api/src/db/schema
 ## Layout
 
 - `apps/api` — Hono API. Business code lives in `src/modules/<feature>/` (`*.routes.ts`, `*.schema.ts`, `*.store.ts`). Infrastructure is in `src/core` and `src/db`.
+- `brand/` — logo, icons and colours; app icons in `apps/web/public` are copies of `brand/icon`.
 - `apps/web` — Angular app. Business code lives in `src/app/features/<feature>/`; reusable UI goes in `src/app/shared`; `libs/ui` is the vendored spartan-ng UI kit.
 
 ## Rules

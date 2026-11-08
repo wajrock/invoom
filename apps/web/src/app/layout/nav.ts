@@ -38,7 +38,7 @@ export const NAV: NavItem[] = [
     {path: '/echeances', label: 'Échéances', icon: 'lucideCalendarClock'},
     {path: '/plateformes', label: 'Plateformes', icon: 'lucideLink'},
     {path: '/entreprise', label: 'Entreprise', icon: 'lucideBuilding2'},
-    {path: '/parametres', label: 'Paramètres', icon: 'lucideSettings'},
+    {path: '/parametres', label: 'Paramètres fiscaux', icon: 'lucideSettings'},
     {path: '/securite', label: 'Sécurité', icon: 'lucideShieldCheck'},
 ];
 
@@ -47,3 +47,10 @@ const TAB_PATHS = ['/', '/paiements', '/clients', '/echeances'];
 
 export const TABS = TAB_PATHS.map((p) => NAV.find((n) => n.path === p)!);
 export const MORE = NAV.filter((n) => !TAB_PATHS.includes(n.path));
+
+/** Page name shown in the menu, reused as the browser tab title so both always match. */
+export function navLabel(path: string): string {
+    const item = NAV.find((i) => i.path === path);
+    if (!item) throw new Error(`No navigation entry for ${path}`);
+    return item.label;
+}

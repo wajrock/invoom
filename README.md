@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="brand/logo/invoom-logo-white.svg">
+    <img src="brand/logo/invoom-logo-black.svg" alt="Invoom" width="220">
+  </picture>
+</p>
+
 # Invoom
 
 Open-source back office for French freelancers (micro-entrepreneurs): bilingual invoices, client book, payments, and URSSAF, CFE and income tax deadlines, in one place.
@@ -51,6 +58,7 @@ Database migrations live in `apps/api/drizzle` and run automatically when the AP
 apps/
   api/        HTTP API, database, PDF generation, tax rules
   web/        Angular application
+brand/        logo, icons, social images, colours and fonts
 docs/         architecture and deployment notes
 AGENTS.md     instructions for coding agents
 ```
