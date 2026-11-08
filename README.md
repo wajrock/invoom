@@ -34,6 +34,8 @@ pnpm dev                          # API on :3333, web app on :4200
 
 Open http://localhost:4200, create an account, and confirm it from the email caught by Mailpit at http://localhost:8025.
 
+Always use http://localhost:4200 in development: the Angular dev server reloads the page on every change. The API on :3333 only answers `/api/*` and redirects other pages to :4200; it serves the built web app only in production (`STATIC_DIR`).
+
 To test on a phone, use an HTTPS tunnel (e.g. `cloudflared tunnel --url http://localhost:4200`): passkeys require `localhost` or HTTPS.
 
 ## Scripts

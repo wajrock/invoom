@@ -22,7 +22,8 @@ const schema = z.object({
         .enum(['true', 'false'])
         .default('false')
         .transform((v) => v === 'true'),
-    STATIC_DIR: z.string().default('../web/dist/web/browser'),
+    /** Built web app to serve (set by the Docker image). In development the Angular dev server serves it. */
+    STATIC_DIR: z.string().min(1).optional(),
     NODE_ENV: z.string().default('development'),
 });
 

@@ -28,7 +28,35 @@ function isSameOrigin(origin: string | undefined, host: string | undefined): boo
 }
 
 export interface AppOptions extends Omit<AuthOptions, 'db'> {
+    /** Built web app to serve (production). */
     staticDir?: string;
+    /** Port of the Angular dev server that non-API visits are redirected to (development). */
+    devWebPort?: number;
+}
+
+/** Angular output file names carry a content hash, so they can be cached forever. */
+const HASHED_ASSET = /-[A-Za-z0-9_]{8}\.(?:js|css)$/;
+
+/** Static files plus the single-page-app fallback. */
+function serveWebApp(app: Hono, dir: string) {
+    const indexPath = join(dir, 'index.html');
+    if (!existsSync(indexPath)) throw new Error(`STATIC_DIR has no index.html: ${dir}`);
+    const indexHtml = readFileSync(indexPath, 'utf8');
+    app.use(
+        '*',
+        serveStatic({
+            root: relative(process.cwd(), dir),
+            onFound: (path, c) => {
+                c.header('Cache-Control', HASHED_ASSET.test(path) ? 'public, max-age=31536000, immutable' : 'no-cache');
+            },
+        }),
+    );
+    app.get('*', (c) => {
+        // A missing script or stylesheet must fail as such, not come back as HTML (blank page)
+        if (/\.[a-z0-9]+$/i.test(c.req.path)) return c.notFound();
+        c.header('Cache-Control', 'no-cache');
+        return c.html(indexHtml);
+    });
 }
 
 /**
@@ -93,12 +121,16 @@ export function createApp(db: Db, opts: AppOptions) {
     app.route('/api', api);
     app.all('/api/*', (c) => c.json({error: 'Introuvable'}, 404));
 
-    // Front Angular (production) : fichiers statiques + fallback SPA
-    const staticDir = opts.staticDir ? resolve(opts.staticDir) : null;
-    if (staticDir && existsSync(join(staticDir, 'index.html'))) {
-        const indexHtml = readFileSync(join(staticDir, 'index.html'), 'utf8');
-        app.use('*', serveStatic({root: relative(process.cwd(), staticDir)}));
-        app.get('*', (c) => c.html(indexHtml));
+    if (opts.staticDir) {
+        serveWebApp(app, resolve(opts.staticDir));
+    } else if (opts.devWebPort) {
+        // In development the Angular dev server serves the web app with live reload: send stray visits there
+        const port = String(opts.devWebPort);
+        app.get('*', (c) => {
+            const url = new URL(c.req.url);
+            url.port = port;
+            return c.redirect(url.toString());
+        });
     }
 
     return app;

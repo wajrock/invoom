@@ -17,6 +17,7 @@ const app = createApp(db, {
     secureCookies: isProd,
     trustProxy: env.TRUST_PROXY,
     staticDir: env.STATIC_DIR,
+    devWebPort: isProd ? undefined : 4200,
 });
 
 const server = serve({fetch: app.fetch, port: env.PORT}, (info) => {
