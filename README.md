@@ -1,4 +1,7 @@
-![Invoom](brand/social/github-social-preview.png)
+<picture>
+    <source media="(prefers-color-scheme: dark)" srcset="brand/social/github-social-preview.png">
+    <img src="brand/social/github-social-preview-light.png" alt="Invoom, le back-office open source des indépendants">
+</picture>
 
 # Invoom
 
