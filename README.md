@@ -1,9 +1,4 @@
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="brand/logo/invoom-logo-white.svg">
-    <img src="brand/logo/invoom-logo-black.svg" alt="Invoom" width="220">
-  </picture>
-</p>
+![Invoom](brand/social/github-social-preview.png)
 
 # Invoom
 
