@@ -12,19 +12,18 @@ import {StepError} from '../step-error';
     providers: [provideIcons({lucideScanFace})],
     host: {class: 'contents'},
     template: `
-        <button hlmBtn class="h-11 w-full text-[15px]" [disabled]="flow.loading()" (click)="flow.signin()">
-            @if (flow.loading()) {
-                <app-spinner />
-            } @else {
-                <ng-icon name="lucideScanFace" />
-            }
-            Se connecter avec une passkey
-        </button>
-        <app-step-error />
-        <div class="text-muted-foreground flex items-center gap-3 text-xs">
-            <span class="bg-border h-px flex-1"></span>Nouveau sur Invoom ?<span class="bg-border h-px flex-1"></span>
+        <div class="grid gap-3">
+            <button hlmBtn class="h-11 w-full text-[15px]" [disabled]="flow.loading()" (click)="flow.signin()">
+                @if (flow.loading()) {
+                    <app-spinner />
+                } @else {
+                    <ng-icon name="lucideScanFace" />
+                }
+                Se connecter avec une passkey
+            </button>
+            <button hlmBtn variant="outline" class="h-11 w-full" (click)="flow.goTo('signup')">Créer un compte</button>
         </div>
-        <button hlmBtn variant="outline" class="h-11 w-full" (click)="flow.goTo('signup')">Créer un compte</button>
+        <app-step-error />
         <button
             hlmBtn
             variant="link"
