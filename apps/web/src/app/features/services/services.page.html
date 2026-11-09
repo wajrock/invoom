@@ -15,11 +15,12 @@
         <ul class="bg-card divide-y overflow-hidden rounded-xl border sm:hidden">
             @for (s of filtered(); track s.id) {
                 <li>
-                    <app-list-row (activate)="edit(s)">
+                    <app-list-row (activate)="detail(s)">
+                        <app-avatar size="md" [name]="clientLabel(s.clientId)" />
                         <span class="min-w-0 flex-1">
                             <span class="block truncate font-medium">{{ s.label }}</span>
                             <span class="text-muted-foreground block truncate text-xs">
-                                {{ clientName(s.clientId) }}{{ s.labelEn ? ' · ' + s.labelEn : '' }}
+                                <span class="sr-only">{{ clientName(s.clientId) }} · </span>{{ s.labelEn || s.detail }}
                             </span>
                         </span>
                         <span class="shrink-0 text-right">
@@ -58,7 +59,7 @@
                 <thead hlmTHead class="bg-muted/40">
                     <tr hlmTr>
                         <th hlmTh>Désignation</th>
-                        <th hlmTh class="hidden sm:table-cell">Client</th>
+                        <th hlmTh class="hidden w-12 sm:table-cell">Client</th>
                         <th hlmTh class="hidden lg:table-cell">Version anglaise</th>
                         <th hlmTh class="hidden sm:table-cell">Unité</th>
                         <th hlmTh class="text-right">Prix u. HT</th>
@@ -71,8 +72,8 @@
                             hlmTr
                             class="cursor-pointer"
                             tabindex="0"
-                            (click)="edit(s)"
-                            (keydown.enter)="$event.target === $event.currentTarget && edit(s)"
+                            (click)="detail(s)"
+                            (keydown.enter)="$event.target === $event.currentTarget && detail(s)"
                         >
                             <td hlmTd class="max-w-72">
                                 <p class="truncate font-medium">{{ s.label }}</p>
@@ -80,12 +81,9 @@
                                     <p class="text-muted-foreground truncate text-xs">{{ s.detail }}</p>
                                 }
                             </td>
-                            <td
-                                hlmTd
-                                class="hidden whitespace-nowrap sm:table-cell"
-                                [class.text-muted-foreground]="!s.clientId"
-                            >
-                                {{ s.clientId ? clientName(s.clientId) : 'Tous' }}
+                            <td hlmTd class="hidden sm:table-cell">
+                                <app-avatar [name]="clientLabel(s.clientId)" />
+                                <span class="sr-only">{{ clientName(s.clientId) }}</span>
                             </td>
                             <td hlmTd class="text-muted-foreground hidden max-w-60 truncate lg:table-cell">
                                 {{ s.labelEn || '—' }}
