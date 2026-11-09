@@ -1,67 +1,16 @@
-<span hlmLabel>Prestations</span>
+<h3 class="text-sm font-semibold">Prestations</h3>
+
 @for (l of editor.lines(); track l.key) {
-    <div class="grid gap-2 rounded-lg border p-3">
-        <div class="grid grid-cols-6 gap-2 sm:grid-cols-12">
+    <div class="grid gap-3 rounded-xl border p-3">
+        <div class="flex gap-2">
             <input
                 hlmInput
-                class="col-span-6 sm:col-span-5"
+                class="min-w-0 flex-1"
                 [name]="'label-' + l.key"
                 placeholder="Désignation"
                 aria-label="Désignation"
                 required
                 [(ngModel)]="l.label"
-            />
-            <input
-                hlmInput
-                class="col-span-2 sm:col-span-1"
-                [name]="'qty-' + l.key"
-                inputmode="decimal"
-                placeholder="Qté"
-                aria-label="Quantité"
-                [(ngModel)]="l.quantity"
-            />
-            <input
-                hlmInput
-                class="col-span-2 sm:col-span-2"
-                [name]="'unit-' + l.key"
-                placeholder="Unité (option.)"
-                title="Optionnel : jour, semaine, forfait…"
-                aria-label="Unité (optionnelle)"
-                [(ngModel)]="l.unit"
-            />
-            <input
-                hlmInput
-                class="col-span-2 sm:col-span-2"
-                [name]="'price-' + l.key"
-                inputmode="decimal"
-                placeholder="Prix u. HT"
-                aria-label="Prix unitaire HT"
-                [(ngModel)]="l.unitPrice"
-            />
-            <div class="col-span-5 flex items-center justify-end text-sm font-medium tabular-nums sm:col-span-1">
-                {{ lineTotal(l) }}
-            </div>
-            <button
-                hlmBtn
-                type="button"
-                variant="ghost"
-                size="icon"
-                class="col-span-1 justify-self-end"
-                [disabled]="editor.lines().length === 1"
-                (click)="editor.removeLine(l)"
-                aria-label="Supprimer la ligne"
-            >
-                <ng-icon name="lucideTrash2" />
-            </button>
-        </div>
-        <div class="flex gap-2">
-            <input
-                hlmInput
-                class="flex-1"
-                [name]="'detail-' + l.key"
-                placeholder="Détail (optionnel) : période, livrables…"
-                aria-label="Détail"
-                [(ngModel)]="l.detail"
             />
             <button
                 hlmBtn
@@ -74,61 +23,149 @@
             >
                 <ng-icon name="lucideBookmarkPlus" />
             </button>
+            <button
+                hlmBtn
+                type="button"
+                variant="ghost"
+                size="icon"
+                (click)="editor.removeLine(l)"
+                aria-label="Supprimer la ligne"
+            >
+                <ng-icon name="lucideTrash2" />
+            </button>
         </div>
+
+        <div class="grid grid-cols-[4.5rem_1fr_1fr] gap-2 sm:grid-cols-[4.5rem_1fr_1fr_7rem]">
+            <div class="grid gap-1.5">
+                <label class="text-muted-foreground text-xs" [for]="'qty-' + l.key">Quantité</label>
+                <input
+                    hlmInput
+                    [id]="'qty-' + l.key"
+                    [name]="'qty-' + l.key"
+                    inputmode="decimal"
+                    placeholder="1"
+                    [(ngModel)]="l.quantity"
+                />
+            </div>
+            <div class="grid gap-1.5">
+                <label class="text-muted-foreground text-xs" [for]="'unit-' + l.key">Unité</label>
+                <input
+                    hlmInput
+                    [id]="'unit-' + l.key"
+                    [name]="'unit-' + l.key"
+                    placeholder="jour, forfait…"
+                    [(ngModel)]="l.unit"
+                />
+            </div>
+            <div class="grid gap-1.5">
+                <label class="text-muted-foreground text-xs" [for]="'price-' + l.key">Prix unitaire HT</label>
+                <input
+                    hlmInput
+                    [id]="'price-' + l.key"
+                    [name]="'price-' + l.key"
+                    inputmode="decimal"
+                    placeholder="0,00"
+                    [(ngModel)]="l.unitPrice"
+                />
+            </div>
+            <div
+                class="col-span-3 flex items-center justify-between gap-1.5 text-sm sm:col-span-1 sm:grid sm:justify-items-end"
+            >
+                <span class="text-muted-foreground text-xs">Total HT</span>
+                <span class="font-medium tabular-nums sm:flex sm:h-9 sm:items-center">{{ lineTotal(l) }}</span>
+            </div>
+        </div>
+
+        <input
+            hlmInput
+            [name]="'detail-' + l.key"
+            placeholder="Détail (optionnel) : période, livrables…"
+            aria-label="Détail"
+            [(ngModel)]="l.detail"
+        />
+
         @if (form.english) {
-            <div class="bg-muted/40 -mx-3 -mb-3 grid gap-2 rounded-b-lg border-t px-3 py-3">
-                <span class="text-muted-foreground text-xs font-medium"
-                    >Version anglaise (vide = identique au français)</span
-                >
-                <div class="grid grid-cols-6 gap-2 sm:grid-cols-12">
+            <div class="grid gap-2 border-t pt-3">
+                <span class="text-muted-foreground text-xs font-medium">En anglais (vide = texte français)</span>
+                <div class="grid grid-cols-[1fr_7rem] gap-2">
                     <input
                         hlmInput
-                        class="col-span-4 sm:col-span-9"
                         [name]="'labelEn-' + l.key"
-                        [placeholder]="l.label || 'Description'"
-                        aria-label="Désignation (EN)"
+                        placeholder="Description"
+                        aria-label="Description"
                         [(ngModel)]="l.labelEn"
                     />
                     <input
                         hlmInput
-                        class="col-span-2 sm:col-span-3"
                         [name]="'unitEn-' + l.key"
-                        [placeholder]="l.unit || 'Unit (optional)'"
-                        aria-label="Unité EN (optionnelle)"
+                        placeholder="Unit"
+                        aria-label="Unit"
                         [(ngModel)]="l.unitEn"
                     />
                 </div>
                 <input
                     hlmInput
                     [name]="'detailEn-' + l.key"
-                    [placeholder]="l.detail || 'Details (optional)'"
-                    aria-label="Détail (EN)"
+                    placeholder="Details"
+                    aria-label="Details"
                     [(ngModel)]="l.detailEn"
                 />
             </div>
         }
     </div>
 }
-<div class="flex flex-wrap items-start justify-between gap-4">
-    <div class="flex flex-wrap gap-2">
-        <button hlmBtn type="button" variant="outline" size="sm" (click)="editor.addLine()">
-            <ng-icon name="lucidePlus" /> Ajouter une ligne
-        </button>
-        @if (editor.servicesFor().length) {
-            <select
-                class="select-native h-8! w-auto! text-sm"
-                name="pick-service"
-                aria-label="Ajouter une prestation enregistrée"
-                [ngModel]="''"
-                (ngModelChange)="pickService($event, picker)"
-                #picker
-            >
-                <option value="" disabled>+ Prestation enregistrée…</option>
-                @for (sv of editor.servicesFor(); track sv.id) {
-                    <option [value]="sv.id">{{ sv.label }} — {{ price(sv.unitPrice) }}</option>
-                }
-            </select>
-        }
+
+@if (!editor.lines().length) {
+    <div
+        class="text-muted-foreground grid place-items-center gap-1 rounded-xl border border-dashed px-4 py-6 text-center text-sm"
+    >
+        Aucune prestation pour l’instant.
+        <span class="text-xs">Ajoute une ligne ou choisis une prestation enregistrée.</span>
     </div>
-    <app-invoice-totals />
+}
+
+<div class="flex flex-wrap gap-2">
+    <button hlmBtn type="button" variant="outline" size="sm" (click)="editor.addLine()">
+        <ng-icon name="lucidePlus" /> Nouvelle ligne
+    </button>
+    <button hlmBtn type="button" variant="outline" size="sm" [hlmDropdownMenuTrigger]="catalog">
+        <ng-icon name="lucideBookmark" /> Prestation enregistrée
+        <ng-icon name="lucideChevronDown" class="text-muted-foreground" />
+    </button>
 </div>
+
+<ng-template #catalog>
+    <hlm-dropdown-menu class="max-h-80 w-72 overflow-y-auto">
+        @for (sv of editor.servicesFor(); track sv.id) {
+            <button hlmDropdownMenuItem type="button" (click)="editor.addServiceLine(sv.id)">
+                <span class="min-w-0 flex-1 truncate">{{ sv.label }}</span>
+                <span class="text-muted-foreground text-xs tabular-nums">{{ price(sv.unitPrice) }}</span>
+            </button>
+        } @empty {
+            <p class="text-muted-foreground px-2 py-1.5 text-xs">
+                {{ form.clientId ? 'Aucune prestation enregistrée pour ce client.' : 'Aucune prestation enregistrée.' }}
+            </p>
+        }
+        <hlm-dropdown-menu-separator />
+        @if (editor.lastInvoice(); as last) {
+            <button hlmDropdownMenuItem type="button" (click)="editor.copyLastInvoice()">
+                <ng-icon name="lucideHistory" /> Reprendre la facture {{ last.number }}
+            </button>
+        }
+        <button hlmDropdownMenuItem type="button" (click)="createService()">
+            <ng-icon name="lucidePlus" /> Créer une prestation…
+        </button>
+    </hlm-dropdown-menu>
+</ng-template>
+
+@if (editor.lines().length) {
+    @let t = editor.totals();
+    <dl class="bg-muted/40 grid grid-cols-[1fr_auto] gap-x-6 gap-y-1 rounded-xl p-4 text-sm tabular-nums">
+        <dt class="text-muted-foreground">Total HT</dt>
+        <dd class="text-right">{{ price(t.ht) }}</dd>
+        <dt class="text-muted-foreground">TVA</dt>
+        <dd class="text-right">{{ price(t.vat) }}</dd>
+        <dt class="mt-1 border-t pt-2 font-semibold">Total TTC</dt>
+        <dd class="mt-1 border-t pt-2 text-right font-semibold">{{ price(t.ttc) }}</dd>
+    </dl>
+}

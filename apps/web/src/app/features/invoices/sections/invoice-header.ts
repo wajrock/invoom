@@ -6,15 +6,26 @@ import {HlmButtonImports} from '@spartan-ng/helm/button';
 import {HlmDialogService} from '@spartan-ng/helm/dialog';
 import {HlmInputImports} from '@spartan-ng/helm/input';
 import {HlmLabelImports} from '@spartan-ng/helm/label';
+import {HlmSwitchImports} from '@spartan-ng/helm/switch';
+import {FrDatePipe} from '../../../shared/pipes/fr-date.pipe';
 import {DateInput} from '../../../shared/ui/date-input/date-input';
 import {CURRENCIES} from '../../../shared/utils/money';
 import {openClientDialog} from '../../clients/client-dialog/client-dialog';
 import {InvoiceEditor} from '../invoice-editor';
 
-/** Client, number, dates, currency and VAT rate. */
+/** Client and language, then number, dates, period, currency and VAT rate. */
 @Component({
     selector: 'app-invoice-header',
-    imports: [FormsModule, NgIcon, DateInput, HlmButtonImports, HlmInputImports, HlmLabelImports],
+    imports: [
+        FormsModule,
+        NgIcon,
+        FrDatePipe,
+        DateInput,
+        HlmButtonImports,
+        HlmInputImports,
+        HlmLabelImports,
+        HlmSwitchImports,
+    ],
     providers: [provideIcons({lucideUserPlus})],
     host: {class: 'contents'},
     templateUrl: './invoice-header.html',

@@ -1,9 +1,17 @@
 import {Component, inject} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {NgIcon, provideIcons} from '@ng-icons/core';
-import {lucideBookmarkPlus, lucidePlus, lucideTrash2} from '@ng-icons/lucide';
+import {
+    lucideBookmark,
+    lucideBookmarkPlus,
+    lucideChevronDown,
+    lucideHistory,
+    lucidePlus,
+    lucideTrash2,
+} from '@ng-icons/lucide';
 import {HlmButtonImports} from '@spartan-ng/helm/button';
 import {HlmDialogService} from '@spartan-ng/helm/dialog';
+import {HlmDropdownMenuImports} from '@spartan-ng/helm/dropdown-menu';
 import {HlmInputImports} from '@spartan-ng/helm/input';
 import {HlmLabelImports} from '@spartan-ng/helm/label';
 import {formatMoney, parseEuros} from '../../../shared/utils/money';
@@ -11,14 +19,15 @@ import {openServiceDialog} from '../../services/service-dialog/service-dialog';
 import type {ServiceInput} from '../../services/service.models';
 import {InvoiceEditor} from '../invoice-editor';
 import {lineTotal, type LineForm} from '../invoice-form';
-import {InvoiceTotals} from './invoice-totals';
 
-/** Invoice lines, catalog picker and totals. */
+/** Invoice lines, catalog picker and totals (in this view so they refresh as lines are typed). */
 @Component({
     selector: 'app-invoice-lines',
-    imports: [FormsModule, NgIcon, HlmButtonImports, HlmInputImports, HlmLabelImports, InvoiceTotals],
-    providers: [provideIcons({lucideBookmarkPlus, lucidePlus, lucideTrash2})],
-    host: {class: 'grid gap-3'},
+    imports: [FormsModule, NgIcon, HlmButtonImports, HlmDropdownMenuImports, HlmInputImports, HlmLabelImports],
+    providers: [
+        provideIcons({lucideBookmark, lucideBookmarkPlus, lucideChevronDown, lucideHistory, lucidePlus, lucideTrash2}),
+    ],
+    host: {class: 'grid gap-3 border-t pt-5'},
     templateUrl: './invoice-lines.html',
 })
 export class InvoiceLines {
@@ -35,9 +44,23 @@ export class InvoiceLines {
         return total === null ? '—' : this.price(total);
     }
 
-    protected pickService(id: string, select: HTMLSelectElement) {
-        select.value = '';
-        this.editor.addServiceLine(id);
+    /** Creates a catalog service (reserved to the invoice client) and adds it as a line. */
+    protected createService() {
+        const initial: ServiceInput = {
+            label: '',
+            labelEn: '',
+            detail: '',
+            detailEn: '',
+            unit: '',
+            unitEn: '',
+            unitPrice: 0,
+            clientId: this.form.clientId || null,
+        };
+        openServiceDialog(this.dialog, {initial, clients: this.editor.clients()}).subscribe((saved) => {
+            if (!saved) return;
+            this.editor.addService(saved);
+            this.editor.addServiceLine(saved.id);
+        });
     }
 
     /** Saves a line to the catalog to reuse it on other invoices. */

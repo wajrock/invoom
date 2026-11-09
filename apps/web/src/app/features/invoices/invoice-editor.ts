@@ -1,12 +1,23 @@
 import {inject, Injectable, signal} from '@angular/core';
-import {addDays, todayIso} from '../../shared/utils/dates';
-import {centsToInput} from '../../shared/utils/money';
+import {addDays, daysBetween, todayIso} from '../../shared/utils/dates';
+import {reactiveForm} from '../../shared/utils/reactive-form';
 import type {Client} from '../clients/client.models';
-import {VAT_MENTIONS, vatRegime, withVatMention, type VatRegime} from '../clients/countries';
+import {VAT_MENTIONS, vatRegime, type VatRegime} from '../clients/countries';
 import {CompanyApi} from '../company/company.api';
 import type {Payment} from '../payments/payment.models';
 import type {Service} from '../services/service.models';
 import {ServicesApi} from '../services/services.api';
+import {
+    lastInvoiceOf,
+    missingCompanyFields,
+    nextDefaults,
+    paymentDayOptions,
+    paymentPrefill,
+    servicesForClient,
+    storedInvoiceForm,
+    withClientVat,
+    type Terms,
+} from './invoice-defaults';
 import {emptyLine, invoiceTotals, lineToForm, vatRateToInput, type InvoiceForm, type LineForm} from './invoice-form';
 import type {InvoiceSettings, StoredInvoice} from './invoice.models';
 import {InvoicesApi} from './invoices.api';
@@ -20,14 +31,6 @@ export interface InvoiceDialogContext {
     /** All payments: used to copy the lines of the client's last invoice */
     payments: Payment[];
 }
-
-/** Company fields an invoice cannot do without */
-const REQUIRED_COMPANY = [
-    ['name', 'nom'],
-    ['address', 'adresse'],
-    ['siret', 'SIRET'],
-    ['iban', 'IBAN'],
-] as const;
 
 const byLabel = (a: {label: string}, b: {label: string}) => a.label.localeCompare(b.label, 'fr');
 
@@ -46,12 +49,16 @@ export class InvoiceEditor {
     readonly clients = signal<Client[]>([]);
     /** Service catalog */
     readonly services = signal<Service[]>([]);
-    readonly lines = signal<LineForm[]>([emptyLine()]);
+    /** Starts empty: lines are added by hand or from the catalog */
+    readonly lines = signal<LineForm[]>([]);
     readonly missingCompany = signal<string[]>([]);
     /** Save the terms and payment delay as defaults for the next invoices */
     readonly saveDefaults = signal(false);
+    /** Off: the default terms from the settings, with the client's VAT mention, are used as is */
+    readonly customTerms = signal(false);
 
-    readonly form: InvoiceForm = {
+    /** Shared by the dialog sections, hence signal-backed fields */
+    readonly form: InvoiceForm = reactiveForm<InvoiceForm>({
         clientId: '',
         number: '',
         issuedOn: todayIso(),
@@ -64,10 +71,11 @@ export class InvoiceEditor {
         termsFr: '',
         termsEn: '',
         eurAmount: '',
-    };
+    });
     /** Edited by hand: no longer derived from the issue date */
     numberTouched = false;
-    dueTouched = false;
+    /** Payment delay: the due date always follows the issue date */
+    paymentDays = 7;
     private settings: InvoiceSettings = {paymentDays: 7, termsFr: '', termsEn: ''};
 
     async init(ctx: InvoiceDialogContext) {
@@ -81,41 +89,27 @@ export class InvoiceEditor {
         ]);
         this.services.set(services);
         this.settings = settings;
-        this.missingCompany.set(
-            REQUIRED_COMPANY.filter(([id]) => !company.fields.find((f) => f.id === id)?.value.trim()).map(
-                ([, label]) => label,
-            ),
-        );
+        this.missingCompany.set(missingCompanyFields(company));
 
         const s = this.stored;
         const p = ctx.payment;
         if (s) {
             // Already generated: reload exactly what was entered
-            Object.assign(this.form, {
-                clientId: s.clientId,
-                number: s.number,
-                issuedOn: s.issuedOn,
-                dueOn: s.dueOn,
-                periodFrom: s.periodFrom ?? '',
-                periodTo: s.periodTo ?? '',
-                currency: s.currency,
-                vatRate: vatRateToInput(s.vatRate),
-                english: s.english,
-                termsFr: s.termsFr,
-                termsEn: s.termsEn,
-                eurAmount: s.currency !== 'EUR' ? centsToInput(p!.amount) : '',
-            });
+            Object.assign(this.form, storedInvoiceForm(s, p!.amount));
             this.lines.set(s.lines.map(lineToForm));
-            this.numberTouched = this.dueTouched = true;
+            this.numberTouched = true;
+            this.paymentDays = Math.max(0, daysBetween(s.issuedOn, s.dueOn));
+            const d = this.defaultTerms();
+            this.customTerms.set(s.termsFr !== d.fr || (s.english && s.termsEn !== d.en));
         } else {
             this.form.termsFr = settings.termsFr;
             this.form.termsEn = settings.termsEn;
             if (p) this.prefillFromPayment(p);
             else if (ctx.clientId) {
                 const client = this.clients().find((c) => c.id === ctx.clientId);
-                if (client) this.applyClient(client, true);
+                if (client) this.applyClient(client);
             }
-            this.form.dueOn = addDays(this.form.issuedOn, settings.paymentDays);
+            this.setPaymentDays(settings.paymentDays);
             if (!this.numberTouched) await this.suggestNumber();
         }
         this.ready.set(true);
@@ -126,17 +120,11 @@ export class InvoiceEditor {
         const client = this.clients().find(
             (c) => c.id === p.clientId || c.name.toLowerCase() === p.client.toLowerCase(),
         );
-        if (client) this.applyClient(client, false);
-        this.form.issuedOn = p.issuedOn;
-        this.form.currency = p.originalAmount !== null ? p.originalCurrency : 'EUR';
-        if (this.form.currency !== 'EUR') this.form.eurAmount = centsToInput(p.amount);
-        this.lines.set([
-            {...emptyLine(), label: p.label || 'Prestation', unitPrice: centsToInput(p.originalAmount ?? p.amount)},
-        ]);
-        if (p.invoiceNumber) {
-            this.form.number = p.invoiceNumber;
-            this.numberTouched = true;
-        }
+        if (client) this.applyClient(client);
+        const prefill = paymentPrefill(p);
+        Object.assign(this.form, prefill.form);
+        this.lines.set([prefill.line]);
+        this.numberTouched = !!p.invoiceNumber;
     }
 
     /** Invoice client: address book entry, or the copy frozen in an issued invoice */
@@ -164,11 +152,32 @@ export class InvoiceEditor {
         if (client) this.applyVatMention(client);
     }
 
+    /** Settings terms, with the VAT mention of the current client */
+    private defaultTerms(): Terms {
+        const terms = {fr: this.settings.termsFr, en: this.settings.termsEn};
+        const client = this.currentClient();
+        return client ? withClientVat(terms, client) : terms;
+    }
+
+    setCustomTerms(custom: boolean) {
+        this.customTerms.set(custom);
+        if (custom) return;
+        const d = this.defaultTerms();
+        this.form.termsFr = d.fr;
+        this.form.termsEn = d.en;
+    }
+
     /** French invoices must carry the VAT mention matching the client (exemption, reverse charge, export). */
     private applyVatMention(client: Client) {
-        const m = VAT_MENTIONS[vatRegime(client)];
-        this.form.termsFr = withVatMention(this.form.termsFr, m.fr);
-        this.form.termsEn = withVatMention(this.form.termsEn, m.en);
+        const terms = withClientVat({fr: this.form.termsFr, en: this.form.termsEn}, client);
+        this.form.termsFr = terms.fr;
+        this.form.termsEn = terms.en;
+    }
+
+    /** Settings to store when "keep for the next invoices" is on */
+    defaultsToSave(): InvoiceSettings {
+        const custom = this.customTerms() ? {fr: this.form.termsFr, en: this.form.termsEn} : null;
+        return nextDefaults(this.settings, this.paymentDays, custom);
     }
 
     private async suggestNumber() {
@@ -176,28 +185,29 @@ export class InvoiceEditor {
         this.form.number = number;
     }
 
-    /** Client preferences, plus the lines of their last invoice (recurring work). */
-    private applyClient(client: Client, copyLines: boolean) {
+    /** Client preferences: language, currency and VAT mention. */
+    private applyClient(client: Client) {
         this.form.clientId = client.id;
         this.form.english = client.english;
         this.form.currency = client.currency;
         this.applyVatMention(client);
-        if (!copyLines) return;
-        const last = this.ctx.payments
-            .filter((p) => p.invoice?.clientId === client.id)
-            .sort((a, b) => b.issuedOn.localeCompare(a.issuedOn))[0]?.invoice;
-        if (last) {
-            this.lines.set(last.lines.map(lineToForm));
-            this.form.vatRate = vatRateToInput(last.vatRate);
-        }
     }
 
     selectClient(id: string) {
         const client = this.clients().find((c) => c.id === id);
-        if (!client) return;
-        // Lines are only replaced while nothing has been entered
-        const pristine = !this.stored && this.lines().every((l) => !l.label.trim() && !l.unitPrice.trim());
-        this.applyClient(client, pristine);
+        if (client) this.applyClient(client);
+    }
+
+    lastInvoice(): StoredInvoice | undefined {
+        const id = this.form.clientId;
+        return id && !this.stored ? lastInvoiceOf(this.ctx.payments, id) : undefined;
+    }
+
+    copyLastInvoice() {
+        const last = this.lastInvoice();
+        if (!last) return;
+        this.lines.update((list) => [...list, ...last.lines.map(lineToForm)]);
+        this.form.vatRate = vatRateToInput(last.vatRate);
     }
 
     addClient(client: Client) {
@@ -205,11 +215,20 @@ export class InvoiceEditor {
         this.selectClient(client.id);
     }
 
+    setPaymentDays(days: number) {
+        this.paymentDays = days;
+        if (this.form.issuedOn) this.form.dueOn = addDays(this.form.issuedOn, days);
+    }
+
+    paymentDayOptions(): number[] {
+        return paymentDayOptions(this.paymentDays);
+    }
+
     async setIssuedOn(iso: string) {
         const yearChanged = iso.slice(0, 4) !== this.form.issuedOn.slice(0, 4);
         this.form.issuedOn = iso;
         if (!iso) return;
-        if (!this.dueTouched) this.form.dueOn = addDays(iso, this.settings.paymentDays);
+        this.form.dueOn = addDays(iso, this.paymentDays);
         if (yearChanged && !this.numberTouched && !this.stored) {
             try {
                 await this.suggestNumber();
@@ -219,24 +238,19 @@ export class InvoiceEditor {
         }
     }
 
-    /** Services offered: the invoice client's own ones first, then the shared ones */
     servicesFor(): Service[] {
-        const id = this.form.clientId;
-        const own = this.services().filter((s) => id && s.clientId === id);
-        return [...own, ...this.services().filter((s) => !s.clientId)];
+        return servicesForClient(this.services(), this.form.clientId);
     }
 
     addService(service: Service) {
         this.services.update((list) => [...list, service].sort(byLabel));
     }
 
-    /** Adds a catalog service as a line (replacing the initial blank line if it is the only one). */
+    /** Adds a catalog service as a new line. */
     addServiceLine(id: string) {
         const sv = this.services().find((x) => x.id === id);
         if (!sv) return;
-        const line = lineToForm({...sv, quantity: 1});
-        const pristine = (l: LineForm) => !l.label.trim() && !l.unitPrice.trim() && !l.detail.trim();
-        this.lines.update((list) => (list.length === 1 && pristine(list[0]) ? [line] : [...list, line]));
+        this.lines.update((list) => [...list, lineToForm({...sv, quantity: 1})]);
     }
 
     addLine() {

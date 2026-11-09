@@ -9,11 +9,10 @@ import {HlmDialogImports, type HlmDialogService} from '@spartan-ng/helm/dialog';
 import {HlmInputImports} from '@spartan-ng/helm/input';
 import {HlmLabelImports} from '@spartan-ng/helm/label';
 import {HlmSkeletonImports} from '@spartan-ng/helm/skeleton';
-import {HlmSwitchImports} from '@spartan-ng/helm/switch';
 import {errorMessage} from '../../../core/http/error-message';
 import {DialogFooter} from '../../../shared/ui/dialog-footer/dialog-footer';
+import {drawerOptions} from '../../../shared/ui/drawer/drawer';
 import {WarningBanner} from '../../../shared/ui/warning-banner/warning-banner';
-import {daysBetween} from '../../../shared/utils/dates';
 import {VAT_REGIME_LABELS} from '../../clients/countries';
 import {InvoiceEditor, type InvoiceDialogContext} from '../invoice-editor';
 import {buildRequest} from '../invoice-form';
@@ -23,13 +22,9 @@ import {InvoiceHeader} from '../sections/invoice-header';
 import {InvoiceLines} from '../sections/invoice-lines';
 import {InvoiceTerms} from '../sections/invoice-terms';
 
-/** Opens the invoice generator; emits true when an invoice was generated. */
+/** Opens the invoice generator in a wide right drawer; emits true when an invoice was generated. */
 export function openInvoiceDialog(dialog: HlmDialogService, context: InvoiceDialogContext) {
-    return dialog.open<boolean, InvoiceDialogContext>(InvoiceDialog, {
-        context,
-        contentClass: 'sm:max-w-3xl',
-        closeLabel: 'Fermer',
-    }).closed$;
+    return dialog.open<boolean, InvoiceDialogContext>(InvoiceDialog, drawerOptions(context, 'wide')).closed$;
 }
 
 @Component({
@@ -42,7 +37,6 @@ export function openInvoiceDialog(dialog: HlmDialogService, context: InvoiceDial
         HlmInputImports,
         HlmLabelImports,
         HlmSkeletonImports,
-        HlmSwitchImports,
         DialogFooter,
         InvoiceHeader,
         InvoiceLines,
@@ -112,11 +106,7 @@ export class InvoiceDialog {
         try {
             await this.api.generate(body);
             if (this.editor.saveDefaults()) {
-                await this.api.saveSettings({
-                    paymentDays: Math.max(0, Math.min(120, daysBetween(invoice.issuedOn, invoice.dueOn))),
-                    termsFr: invoice.termsFr,
-                    termsEn: invoice.termsEn,
-                });
+                await this.api.saveSettings(this.editor.defaultsToSave());
             }
             toast.success(
                 `Facture ${invoice.number} ${this.stored ? 'régénérée' : 'générée'}${invoice.english ? ' (FR + EN)' : ''}`,

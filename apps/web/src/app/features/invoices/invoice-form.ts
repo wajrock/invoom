@@ -99,6 +99,7 @@ export function buildRequest(
     const vatRate = parseVatRate(f.vatRate);
     if (vatRate === null) return 'Taux de TVA invalide';
 
+    if (!lineForms.length) return 'Ajoute au moins une prestation';
     const lines: InvoiceLine[] = [];
     for (const [i, l] of lineForms.entries()) {
         const quantity = parseQty(l.quantity);
