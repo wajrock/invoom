@@ -5,6 +5,7 @@
     <div class="grid h-[3.25rem] grid-cols-5">
         @for (item of tabs; track item.path) {
             <a
+                appReplaceUrl
                 [routerLink]="item.path"
                 routerLinkActive
                 #rla="routerLinkActive"

@@ -1,4 +1,5 @@
-<app-bottom-sheet label="Plus" (closed)="closed.emit()">
+<app-mobile-page label="Plus" (closed)="closed.emit()">
+    <app-logo mobilePageTitle class="h-5" />
     <div class="grid gap-3">
         @for (group of groups; track $index) {
             <div class="grid gap-1.5">
@@ -10,7 +11,11 @@
                 <ul class="bg-card divide-y overflow-hidden rounded-xl border">
                     @for (item of group.items; track item.path) {
                         <li>
-                            <a [routerLink]="item.path" class="active:bg-muted flex items-center gap-3 px-4 py-3.5">
+                            <a
+                                appReplaceUrl
+                                [routerLink]="item.path"
+                                class="active:bg-muted flex items-center gap-3 px-4 py-3.5"
+                            >
                                 <span class="bg-muted grid size-8 place-items-center rounded-lg"
                                     ><ng-icon [name]="item.icon"
                                 /></span>
@@ -49,4 +54,4 @@
             </button>
         </li>
     </ul>
-</app-bottom-sheet>
+</app-mobile-page>

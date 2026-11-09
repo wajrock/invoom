@@ -3,6 +3,7 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {NavigationEnd, Router, RouterOutlet} from '@angular/router';
 import {filter} from 'rxjs';
 import {Auth} from '../core/auth/auth.service';
+import {NavigationService} from '../core/navigation/navigation.service';
 import {MoreSheet} from './more-sheet';
 import {MORE_GROUPS} from './nav';
 import {Sidebar} from './sidebar';
@@ -16,7 +17,7 @@ import {TabBar} from './tab-bar';
         <div class="flex min-h-dvh">
             <app-sidebar (logout)="logout()" />
 
-            <div class="flex min-w-0 flex-1 flex-col md:pl-60">
+            <div class="flex min-w-0 flex-1 flex-col md:pl-63">
                 <main
                     class="mx-auto w-full max-w-6xl flex-1 px-4 pt-[calc(env(safe-area-inset-top)+1.25rem)] pb-[calc(var(--tabbar-h)+5rem)] md:px-8 md:py-8"
                 >
@@ -35,6 +36,7 @@ import {TabBar} from './tab-bar';
 export class Shell {
     private readonly auth = inject(Auth);
     private readonly router = inject(Router);
+    private readonly nav = inject(NavigationService);
 
     protected readonly moreOpen = signal(false);
     private readonly url = signal(this.router.url);
@@ -59,6 +61,6 @@ export class Shell {
     async logout() {
         this.moreOpen.set(false);
         await this.auth.logout();
-        await this.router.navigateByUrl('/login');
+        await this.nav.navigateByUrl('/login');
     }
 }
