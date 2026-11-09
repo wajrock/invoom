@@ -1,43 +1,18 @@
 @let d = deadline();
 <button
-    hlmBtn
-    variant="ghost"
-    size="icon-sm"
-    class="mt-0.5 shrink-0"
-    (click)="toggleDone.emit()"
-    [attr.aria-label]="d.done ? 'Marquer comme non réglée' : 'Marquer comme réglée'"
-    [title]="d.done ? 'Marquer comme non réglée' : 'Marquer comme réglée'"
+    type="button"
+    class="tap-row hover:bg-muted/40 flex min-w-0 flex-1 items-center gap-3 px-3.5 py-3 text-left"
+    (click)="open.emit()"
 >
-    <ng-icon [name]="d.done ? 'lucideCircleCheck' : 'lucideCircle'" [class.text-emerald-600]="d.done" class="text-lg" />
+    <app-kind-icon [kind]="d.kind" />
+    <span class="min-w-0 flex-1">
+        <span class="block truncate font-medium" [class.line-through]="d.done">{{ d.title }}</span>
+        <span class="text-muted-foreground block truncate text-xs">
+            {{ kindLabel(d) }} · {{ d.dueOn | frDate: 'short' }}
+        </span>
+    </span>
+    <span class="shrink-0 text-right">
+        <span class="block text-sm font-medium tabular-nums">{{ d.amount === null ? '—' : (d.amount | eur) }}</span>
+        <span class="block text-xs" [class]="statusClass(d)">{{ status(d) }}</span>
+    </span>
 </button>
-<div class="min-w-0 flex-1">
-    <div class="flex flex-wrap items-center gap-2">
-        <p class="font-medium" [class.line-through]="d.done">{{ d.title }}</p>
-        <span hlmBadge variant="outline">{{ kindLabel(d) }}</span>
-        @if (!d.done && late(d)) {
-            <span hlmBadge variant="destructive">En retard</span>
-        }
-    </div>
-    <p class="text-muted-foreground mt-0.5 text-sm">
-        {{ d.dueOn | frDate }}
-        @if (!d.done) {
-            · {{ rel(d.dueOn) }}
-        } @else if (d.doneAt) {
-            · réglée le {{ d.doneAt | frDate: 'short' }}
-        }
-    </p>
-    @if (d.note) {
-        <p class="text-muted-foreground mt-1 text-xs whitespace-pre-line">{{ d.note }}</p>
-    }
-</div>
-<span class="shrink-0 pt-1 text-sm font-medium tabular-nums">{{ d.amount | eur }}</span>
-@if (!d.auto) {
-    <div class="flex shrink-0">
-        <button hlmBtn variant="ghost" size="icon-sm" (click)="edit.emit()" aria-label="Modifier">
-            <ng-icon name="lucidePencil" />
-        </button>
-        <button hlmBtn variant="ghost" size="icon-sm" (click)="remove.emit()" aria-label="Supprimer">
-            <ng-icon name="lucideTrash2" />
-        </button>
-    </div>
-}
