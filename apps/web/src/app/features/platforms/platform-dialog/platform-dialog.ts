@@ -7,6 +7,7 @@ import {HlmInputImports} from '@spartan-ng/helm/input';
 import {HlmLabelImports} from '@spartan-ng/helm/label';
 import {errorMessage} from '../../../core/http/error-message';
 import {DialogFooter} from '../../../shared/ui/dialog-footer/dialog-footer';
+import {drawerOptions} from '../../../shared/ui/drawer/drawer';
 import {hostOf, type Platform, type PlatformInput} from '../platform.models';
 import {PlatformsApi} from '../platforms.api';
 
@@ -16,13 +17,9 @@ export interface PlatformDialogContext {
     categories: string[];
 }
 
-/** Opens the platform form; emits true when something was saved. */
+/** Opens the platform form in a right drawer; emits true when something was saved. */
 export function openPlatformDialog(dialog: HlmDialogService, context: PlatformDialogContext) {
-    return dialog.open<boolean, PlatformDialogContext>(PlatformDialog, {
-        context,
-        contentClass: 'sm:max-w-lg',
-        closeLabel: 'Fermer',
-    }).closed$;
+    return dialog.open<boolean, PlatformDialogContext>(PlatformDialog, drawerOptions(context)).closed$;
 }
 
 @Component({

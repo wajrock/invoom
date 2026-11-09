@@ -1,24 +1,17 @@
-import {Component, inject, signal} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {RouterOutlet} from '@angular/router';
 import {HlmToasterImports} from '@spartan-ng/helm/sonner';
 import {ThemeService} from './core/theme.service';
 
+/** Toasts sit at the top: at the bottom they cover the mobile tab bar and the drawer's save button. */
 @Component({
     selector: 'app-root',
     imports: [RouterOutlet, HlmToasterImports],
     template: `
         <router-outlet />
-        <hlm-toaster [theme]="theme.theme()" [position]="mobile() ? 'top-center' : 'bottom-right'" richColors />
+        <hlm-toaster [theme]="theme.theme()" position="top-center" richColors />
     `,
 })
 export class App {
     protected readonly theme = inject(ThemeService);
-
-    /** On mobile, toasts appear at the top so they don't cover the tab bar */
-    private readonly query = matchMedia('(width < 48rem)');
-    protected readonly mobile = signal(this.query.matches);
-
-    constructor() {
-        this.query.addEventListener('change', (e) => this.mobile.set(e.matches));
-    }
 }

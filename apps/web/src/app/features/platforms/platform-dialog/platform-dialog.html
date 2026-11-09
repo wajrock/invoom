@@ -1,41 +1,77 @@
 <hlm-dialog-header>
-    <h3 hlmDialogTitle>{{ existing ? 'Modifier la plateforme' : 'Nouvelle plateforme' }}</h3>
-    <p hlmDialogDescription>Ne stocke jamais de mot de passe ici, uniquement l’identifiant.</p>
+    <h2 hlmDialogTitle class="text-xl font-semibold tracking-tight">
+        {{ existing ? 'Modifier la plateforme' : 'Nouvelle plateforme' }}
+    </h2>
 </hlm-dialog-header>
-<form id="platform-form" class="grid gap-4" (ngSubmit)="save()">
-    <div class="grid gap-4 sm:grid-cols-2">
-        <div class="grid gap-2">
-            <label hlmLabel for="pl-name">Nom</label>
-            <input hlmInput id="pl-name" name="name" required [(ngModel)]="form.name" />
-        </div>
-        <div class="grid gap-2">
-            <label hlmLabel for="pl-cat">Catégorie</label>
-            <input hlmInput id="pl-cat" name="category" list="pl-cats" [(ngModel)]="form.category" />
-            <datalist id="pl-cats">
-                @for (c of ctx.categories; track c) {
-                    <option [value]="c"></option>
-                }
-            </datalist>
-        </div>
+
+<form
+    id="platform-form"
+    class="-mx-1 grid content-start gap-5 overflow-y-auto overscroll-contain px-1 py-1"
+    (ngSubmit)="save()"
+>
+    <div class="grid gap-2">
+        <label hlmLabel for="pl-name">Nom</label>
+        <input hlmInput id="pl-name" name="name" required placeholder="impots.gouv.fr" [(ngModel)]="form.name" />
     </div>
+
     <div class="grid gap-2">
         <label hlmLabel for="pl-url">Adresse</label>
-        <input hlmInput id="pl-url" name="url" type="url" required placeholder="https://" [(ngModel)]="form.url" />
+        <input
+            hlmInput
+            id="pl-url"
+            name="url"
+            type="url"
+            inputmode="url"
+            required
+            placeholder="https://www.impots.gouv.fr"
+            [(ngModel)]="form.url"
+        />
     </div>
+
     <div class="grid gap-2">
-        <label hlmLabel for="pl-desc">Description</label>
-        <input hlmInput id="pl-desc" name="description" [(ngModel)]="form.description" />
+        <label hlmLabel for="pl-cat">Catégorie</label>
+        <input
+            hlmInput
+            id="pl-cat"
+            name="category"
+            list="pl-cats"
+            placeholder="Impôts, URSSAF, Banque…"
+            [(ngModel)]="form.category"
+        />
+        <datalist id="pl-cats">
+            @for (c of ctx.categories; track c) {
+                <option [value]="c"></option>
+            }
+        </datalist>
     </div>
+
     <div class="grid gap-2">
-        <label hlmLabel for="pl-login">Identifiant de connexion</label>
+        <label hlmLabel for="pl-login"
+            >Identifiant <span class="text-muted-foreground font-normal">(optionnel)</span></label
+        >
         <input
             hlmInput
             id="pl-login"
             name="login"
             autocomplete="off"
-            placeholder="e-mail, n° fiscal…"
+            placeholder="E-mail, n° fiscal…"
             [(ngModel)]="form.login"
+        />
+        <p class="text-muted-foreground text-xs">Jamais de mot de passe ici.</p>
+    </div>
+
+    <div class="grid gap-2">
+        <label hlmLabel for="pl-desc"
+            >Description <span class="text-muted-foreground font-normal">(optionnelle)</span></label
+        >
+        <input
+            hlmInput
+            id="pl-desc"
+            name="description"
+            placeholder="Déclaration de revenus, CFE…"
+            [(ngModel)]="form.description"
         />
     </div>
 </form>
+
 <app-dialog-footer formId="platform-form" [saving]="saving()" (dismiss)="ref.close(false)" />

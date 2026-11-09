@@ -133,9 +133,8 @@ export function fieldError(f: CountryField, value: string): string {
 
 /** SIREN (9 digits) or SIRET (14 digits) */
 export const SIREN_FIELD: CountryField = {
-    label: 'SIREN',
+    label: 'SIREN ou SIRET',
     placeholder: '123 456 789',
-    hint: 'SIREN (9 chiffres) ou SIRET (14 chiffres) du client',
     pattern: /^(\d{9}|\d{14})$/,
     error: 'Le SIREN fait 9 chiffres (14 pour un SIRET)',
     expected: true,

@@ -86,6 +86,8 @@
     * {
         @apply border-border outline-ring/50;
     }
+    /* On html too: Safari samples the page background for the status bar and overscroll areas */
+    html,
     body {
         @apply bg-background text-foreground;
     }
@@ -156,11 +158,11 @@
     }
 }
 
-/* Comfortable touch targets; 16px fields prevent iOS zoom on focus */
+/* Touch-friendly but compact; 16px text in fields prevents iOS zoom on focus */
 @media (width < 40rem) {
     [data-slot='input'],
     .select-native {
-        height: 2.75rem;
+        height: 2.5rem;
         font-size: 1rem;
     }
     [data-slot='textarea'] {
@@ -168,8 +170,7 @@
     }
     [data-slot='dialog-footer'] > [data-slot='button'],
     [data-slot='dialog-footer'] > div > [data-slot='button'] {
-        height: 2.75rem;
-        font-size: 0.9375rem;
+        height: 2.5rem;
     }
 }
 
@@ -184,6 +185,21 @@
     }
     & h2 {
         @apply text-lg font-semibold;
+    }
+}
+
+/* Underlined tabs (settings sections, deadlines views); the active one carries aria-current or aria-selected */
+@utility tab-nav {
+    @apply mb-6 flex gap-1 overflow-x-clip border-b;
+}
+@utility tab-link {
+    @apply text-muted-foreground hover:text-foreground -mb-px flex shrink-0 items-center gap-2 border-b-2 border-transparent px-3 py-2.5 text-sm font-medium transition-colors;
+    &[aria-current='page'],
+    &[aria-selected='true'] {
+        @apply border-foreground text-foreground;
+    }
+    & ng-icon {
+        @apply text-base;
     }
 }
 

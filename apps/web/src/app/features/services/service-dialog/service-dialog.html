@@ -1,96 +1,130 @@
 <hlm-dialog-header>
-    <h3 hlmDialogTitle>{{ existing ? 'Modifier la prestation' : 'Nouvelle prestation' }}</h3>
-    <p hlmDialogDescription>Ajoutée en un clic dans tes factures ; seule la quantité reste à saisir.</p>
+    <h2 hlmDialogTitle class="text-xl font-semibold tracking-tight">
+        {{ existing ? 'Modifier la prestation' : 'Nouvelle prestation' }}
+    </h2>
 </hlm-dialog-header>
 
 <form
     id="service-form"
-    class="-mx-1 grid content-start gap-4 overflow-y-auto overscroll-contain sm:max-h-[65vh] px-1 py-1"
+    class="-mx-1 grid content-start gap-5 overflow-y-auto overscroll-contain px-1 py-1"
     (ngSubmit)="save()"
 >
-    <div class="grid gap-4 sm:grid-cols-6">
-        <div class="grid gap-2 sm:col-span-6">
-            <label hlmLabel for="s-client">Client</label>
-            <select class="select-native" id="s-client" name="clientId" [(ngModel)]="form.clientId">
-                <option [ngValue]="null">Tous les clients</option>
-                @for (c of ctx.clients; track c.id) {
-                    <option [ngValue]="c.id">{{ c.name }}</option>
+    <div class="grid gap-2">
+        <label hlmLabel for="s-label">Désignation</label>
+        <input
+            hlmInput
+            id="s-label"
+            name="label"
+            required
+            placeholder="Développement logiciel"
+            [(ngModel)]="form.label"
+        />
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+        <div class="grid gap-2">
+            <label hlmLabel for="s-price">Prix HT</label>
+            <div class="relative">
+                <input
+                    hlmInput
+                    id="s-price"
+                    name="unitPrice"
+                    inputmode="decimal"
+                    required
+                    placeholder="0,00"
+                    class="w-full pr-8"
+                    [(ngModel)]="form.unitPrice"
+                />
+                <span
+                    class="text-muted-foreground pointer-events-none absolute inset-y-0 right-3 grid place-items-center text-sm"
+                    >€</span
+                >
+            </div>
+        </div>
+        <div class="grid gap-2">
+            <label hlmLabel for="s-unit">Unité</label>
+            <input
+                hlmInput
+                id="s-unit"
+                name="unit"
+                list="s-units"
+                placeholder="jour, forfait…"
+                [(ngModel)]="form.unit"
+            />
+            <datalist id="s-units">
+                @for (u of units; track u) {
+                    <option [value]="u"></option>
                 }
-            </select>
-            <p class="text-muted-foreground text-xs">
-                Une prestation réservée n'est proposée que sur les factures de ce client.
-            </p>
-        </div>
-        <div class="grid gap-2 sm:col-span-6">
-            <label hlmLabel for="s-label">Désignation</label>
-            <input
-                hlmInput
-                id="s-label"
-                name="label"
-                required
-                placeholder="Développement logiciel"
-                [(ngModel)]="form.label"
-            />
-        </div>
-        <div class="grid gap-2 sm:col-span-3">
-            <label hlmLabel for="s-price">Prix unitaire HT</label>
-            <input
-                hlmInput
-                id="s-price"
-                name="unitPrice"
-                inputmode="decimal"
-                required
-                placeholder="0,00"
-                [(ngModel)]="form.unitPrice"
-            />
-        </div>
-        <div class="grid gap-2 sm:col-span-3">
-            <label hlmLabel for="s-unit"
-                >Unité <span class="text-muted-foreground font-normal">(optionnelle)</span></label
-            >
-            <input hlmInput id="s-unit" name="unit" placeholder="jour, semaine, forfait…" [(ngModel)]="form.unit" />
-        </div>
-        <div class="grid gap-2 sm:col-span-6">
-            <label hlmLabel for="s-detail"
-                >Détail <span class="text-muted-foreground font-normal">(optionnel)</span></label
-            >
-            <input
-                hlmInput
-                id="s-detail"
-                name="detail"
-                placeholder="Livrables, conditions…"
-                [(ngModel)]="form.detail"
-            />
+            </datalist>
         </div>
     </div>
 
-    <div class="bg-muted/40 grid gap-3 rounded-lg border p-3">
-        <span class="text-muted-foreground text-xs font-medium">Version anglaise (vide = identique au français)</span>
-        <div class="grid gap-2 sm:grid-cols-6">
-            <input
-                hlmInput
-                class="sm:col-span-4"
-                name="labelEn"
-                aria-label="Désignation (EN)"
-                [placeholder]="form.label || 'Description'"
-                [(ngModel)]="form.labelEn"
-            />
-            <input
-                hlmInput
-                class="sm:col-span-2"
-                name="unitEn"
-                aria-label="Unité (EN)"
-                [placeholder]="form.unit || 'Unit'"
-                [(ngModel)]="form.unitEn"
-            />
-        </div>
+    <div class="grid gap-2">
+        <label hlmLabel for="s-detail">Détail <span class="text-muted-foreground font-normal">(optionnel)</span></label>
         <input
             hlmInput
-            name="detailEn"
-            aria-label="Détail (EN)"
-            [placeholder]="form.detail || 'Details'"
-            [(ngModel)]="form.detailEn"
+            id="s-detail"
+            name="detail"
+            placeholder="Maintenance et évolutions de l'application web"
+            [(ngModel)]="form.detail"
         />
+    </div>
+
+    <div class="grid gap-2">
+        <label hlmLabel for="s-client">Réservée à un client</label>
+        <select class="select-native" id="s-client" name="clientId" [(ngModel)]="form.clientId">
+            <option [ngValue]="null">Non, tous les clients</option>
+            @for (c of ctx.clients; track c.id) {
+                <option [ngValue]="c.id">{{ c.name }}</option>
+            }
+        </select>
+    </div>
+
+    <div class="grid gap-4 border-t pt-5">
+        <div class="flex items-center justify-between gap-4">
+            <label hlmLabel for="s-english">Version anglaise</label>
+            <hlm-switch inputId="s-english" [checked]="english()" (checkedChange)="english.set($event)" />
+        </div>
+
+        @if (english()) {
+            <div class="grid gap-2">
+                <label hlmLabel for="s-label-en">Description</label>
+                <input
+                    hlmInput
+                    id="s-label-en"
+                    name="labelEn"
+                    required
+                    placeholder="Software development"
+                    [(ngModel)]="form.labelEn"
+                />
+            </div>
+            @if (form.detail) {
+                <div class="grid gap-2">
+                    <label hlmLabel for="s-detail-en">Details</label>
+                    <input
+                        hlmInput
+                        id="s-detail-en"
+                        name="detailEn"
+                        required
+                        placeholder="Web application maintenance and updates"
+                        [(ngModel)]="form.detailEn"
+                    />
+                </div>
+            }
+            @if (form.unit) {
+                <div class="grid gap-2">
+                    <label hlmLabel for="s-unit-en">Unit</label>
+                    <input
+                        hlmInput
+                        id="s-unit-en"
+                        name="unitEn"
+                        required
+                        placeholder="day, fixed price…"
+                        [(ngModel)]="form.unitEn"
+                    />
+                </div>
+            }
+        }
     </div>
 </form>
 

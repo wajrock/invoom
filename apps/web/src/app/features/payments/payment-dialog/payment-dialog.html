@@ -1,58 +1,111 @@
 <hlm-dialog-header>
-    <h3 hlmDialogTitle>{{ existing ? 'Modifier le paiement' : 'Encaissement manuel' }}</h3>
-    <p hlmDialogDescription>
-        @if (!existing) {
-            Pour un paiement sans facture générée ici (facture externe, acompte, historique…).
-        }
-        Le montant encaissé en euros est celui qui compte pour le CA.
-    </p>
+    <h2 hlmDialogTitle class="text-xl font-semibold tracking-tight">Modifier le paiement</h2>
 </hlm-dialog-header>
-@if (invoice) {
-    <p class="bg-muted/50 rounded-lg px-3 py-2 text-xs">
-        Facture {{ invoice.number }} générée par l'application : client, numéro et date se modifient via « Modifier la
-        facture ».
-    </p>
-}
 
 <form
     id="payment-form"
-    class="-mx-1 grid content-start gap-4 overflow-y-auto overscroll-contain sm:max-h-[65vh] px-1 py-1"
+    class="-mx-1 grid content-start gap-5 overflow-y-auto overscroll-contain px-1 py-1"
     (ngSubmit)="save()"
 >
-    <div class="grid gap-4 sm:grid-cols-2">
-        <div class="grid gap-2 sm:col-span-2">
-            <label hlmLabel for="p-client">Client</label>
-            <input
-                hlmInput
-                id="p-client"
-                name="client"
-                required
-                list="p-clients"
-                [disabled]="!!invoice"
-                [(ngModel)]="form.client"
-            />
-            <datalist id="p-clients">
-                @for (c of suggestions; track c) {
-                    <option [value]="c"></option>
+    @if (invoice) {
+        <p class="bg-muted/50 text-muted-foreground rounded-lg px-3 py-2 text-xs">
+            Facture {{ invoice.number }} créée dans Invoom : client, numéro et date se modifient depuis la facture.
+        </p>
+    }
+
+    <div class="grid gap-2">
+        <label hlmLabel for="p-client">Client</label>
+        <input
+            hlmInput
+            id="p-client"
+            name="client"
+            required
+            list="p-clients"
+            placeholder="Nom du client"
+            [disabled]="!!invoice"
+            [(ngModel)]="form.client"
+            (ngModelChange)="pickClient($event)"
+        />
+        <datalist id="p-clients">
+            @for (c of suggestions; track c) {
+                <option [value]="c"></option>
+            }
+        </datalist>
+    </div>
+
+    <div class="grid gap-2">
+        <label hlmLabel for="p-label">Objet <span class="text-muted-foreground font-normal">(optionnel)</span></label>
+        <input hlmInput id="p-label" name="label" placeholder="Mission de mars, acompte…" [(ngModel)]="form.label" />
+    </div>
+
+    <div class="grid gap-2">
+        <label hlmLabel for="p-amount">{{ foreign() ? 'Montant facturé' : 'Montant' }}</label>
+        <div class="grid grid-cols-[1fr_6rem] gap-2">
+            @if (foreign()) {
+                <input
+                    hlmInput
+                    id="p-amount"
+                    name="originalAmount"
+                    inputmode="decimal"
+                    placeholder="0,00"
+                    [(ngModel)]="form.originalAmount"
+                />
+            } @else {
+                <input
+                    hlmInput
+                    id="p-amount"
+                    name="amount"
+                    inputmode="decimal"
+                    required
+                    placeholder="0,00"
+                    [(ngModel)]="form.amount"
+                />
+            }
+            <select
+                class="select-native"
+                name="currency"
+                aria-label="Devise"
+                [ngModel]="currency()"
+                (ngModelChange)="currency.set($event)"
+            >
+                @for (c of currencies; track c) {
+                    <option [value]="c">{{ c }}</option>
                 }
-            </datalist>
+            </select>
         </div>
-        <div class="grid gap-2 sm:col-span-2">
-            <label hlmLabel for="p-label">Objet</label>
-            <input
-                hlmInput
-                id="p-label"
-                name="label"
-                placeholder="Développement, mission de mars…"
-                [(ngModel)]="form.label"
-            />
+    </div>
+
+    @if (foreign()) {
+        <div class="grid gap-2">
+            <label hlmLabel for="p-eur">Reçu en euros</label>
+            <div class="relative">
+                <input
+                    hlmInput
+                    id="p-eur"
+                    name="amount"
+                    inputmode="decimal"
+                    required
+                    placeholder="0,00"
+                    class="w-full pr-8"
+                    [(ngModel)]="form.amount"
+                />
+                <span
+                    class="text-muted-foreground pointer-events-none absolute inset-y-0 right-3 grid place-items-center text-sm"
+                    >€</span
+                >
+            </div>
+            <p class="text-muted-foreground text-xs">Le montant arrivé sur ton compte, celui qui compte pour ton CA.</p>
         </div>
+    }
+
+    <div class="grid grid-cols-2 gap-3">
         <div class="grid gap-2">
             <label hlmLabel for="p-number">N° de facture</label>
             <input
                 hlmInput
                 id="p-number"
                 name="invoiceNumber"
+                placeholder="2026-001"
                 [disabled]="!!invoice"
                 [(ngModel)]="form.invoiceNumber"
             />
@@ -67,61 +120,29 @@
                 [(ngModel)]="form.issuedOn"
             />
         </div>
-        <div class="grid gap-2">
-            <label hlmLabel for="p-amount">Montant encaissé (€)</label>
-            <input
-                hlmInput
-                id="p-amount"
-                name="amount"
-                inputmode="decimal"
-                required
-                placeholder="0,00"
-                [(ngModel)]="form.amount"
-            />
-        </div>
-        <div class="grid gap-2">
-            <label hlmLabel for="p-orig">Montant facturé (devise)</label>
-            <div class="flex gap-2">
-                <input
-                    hlmInput
-                    id="p-orig"
-                    name="originalAmount"
-                    inputmode="decimal"
-                    placeholder="optionnel"
-                    [(ngModel)]="form.originalAmount"
-                />
-                <select
-                    class="select-native w-24!"
-                    name="originalCurrency"
-                    aria-label="Devise"
-                    [(ngModel)]="form.originalCurrency"
-                >
-                    @for (c of currencies; track c) {
-                        <option [value]="c">{{ c }}</option>
-                    }
-                </select>
-            </div>
-        </div>
-        <div class="flex items-center gap-3 sm:col-span-2">
-            <hlm-switch inputId="p-paid" [checked]="paid()" (checkedChange)="togglePaid($event)" />
-            <label hlmLabel for="p-paid">Encaissé</label>
-            @if (paid()) {
-                <app-date-input
-                    name="paidOn"
-                    class="ml-auto w-44"
-                    aria-label="Date d'encaissement"
-                    required
-                    [(ngModel)]="form.paidOn"
-                />
-            }
-        </div>
-        <div class="grid gap-2 sm:col-span-2">
-            <label hlmLabel for="p-notes">Notes</label>
-            <textarea hlmTextarea id="p-notes" name="notes" rows="2" [(ngModel)]="form.notes"></textarea>
-        </div>
     </div>
 
-    <app-payment-files [(files)]="files" [(pending)]="pending" (deleted)="changed = true" />
+    <div class="grid gap-3 border-t pt-5">
+        <div class="flex items-center justify-between gap-4">
+            <label hlmLabel for="p-paid">Déjà encaissé</label>
+            <hlm-switch inputId="p-paid" [checked]="paid()" (checkedChange)="togglePaid($event)" />
+        </div>
+        @if (paid()) {
+            <div class="grid gap-2">
+                <label hlmLabel for="p-paid-on">Encaissé le</label>
+                <app-date-input inputId="p-paid-on" name="paidOn" required [(ngModel)]="form.paidOn" />
+            </div>
+        }
+    </div>
+
+    <app-payment-files class="border-t pt-5" [(files)]="files" [(pending)]="pending" (deleted)="changed = true" />
+
+    <div class="grid gap-2 border-t pt-5">
+        <label hlmLabel for="p-notes"
+            >Notes <span class="text-muted-foreground font-normal">(optionnelles)</span></label
+        >
+        <textarea hlmTextarea id="p-notes" name="notes" rows="2" [(ngModel)]="form.notes"></textarea>
+    </div>
 </form>
 
 <app-dialog-footer formId="payment-form" [saving]="saving()" (dismiss)="ref.close(changed)" />

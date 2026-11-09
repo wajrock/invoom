@@ -13,6 +13,7 @@ import {HlmTextareaImports} from '@spartan-ng/helm/textarea';
 import {errorMessage} from '../../../core/http/error-message';
 import {CURRENCIES} from '../../../shared/utils/money';
 import {DialogFooter} from '../../../shared/ui/dialog-footer/dialog-footer';
+import {drawerOptions} from '../../../shared/ui/drawer/drawer';
 import {emptyClient, type Client, type ClientExtra, type ClientInput} from '../client.models';
 import {ClientsApi} from '../clients.api';
 import {
@@ -37,13 +38,9 @@ interface FieldSlot {
 
 const ORDER_NUMBER = 'N° de commande';
 
-/** Opens the client form; emits the saved client, or undefined when cancelled. */
+/** Opens the client form in a right drawer; emits the saved client, or undefined when cancelled. */
 export function openClientDialog(dialog: HlmDialogService, context: ClientDialogContext) {
-    return dialog.open<Client | undefined, ClientDialogContext>(ClientDialog, {
-        context,
-        contentClass: 'sm:max-w-2xl',
-        closeLabel: 'Fermer',
-    }).closed$;
+    return dialog.open<Client | undefined, ClientDialogContext>(ClientDialog, drawerOptions(context)).closed$;
 }
 
 @Component({
@@ -109,6 +106,8 @@ export class ClientDialog {
         this.code.set(code);
         this.form.countryCode = code;
         if (p.code !== 'OTHER') {
+            // The listed countries all invoice in euros; only "Autre pays" asks for a currency
+            this.form.currency = 'EUR';
             this.form.country = p.nameFr;
             this.form.countryEn = p.nameEn;
         } else if (COUNTRIES.some((c) => c.nameFr === this.form.country)) {
@@ -117,6 +116,18 @@ export class ClientDialog {
         }
         // The language preference follows the country only for a new client
         if (!this.existing) this.form.english = p.english;
+    }
+
+    /** Kept for an existing client already invoiced in another currency */
+    protected showCurrency() {
+        return this.code() === 'OTHER' || this.form.currency !== 'EUR';
+    }
+
+    /** The PDF prints the address as is, so a foreign one needs the country on its last line. */
+    protected addressPlaceholder() {
+        const lines = ['Rue', 'Code postal Ville'];
+        if (this.code() !== 'FR') lines.push(this.profile().nameFr || this.form.country || 'Pays');
+        return lines.join('\n');
     }
 
     protected error(s: FieldSlot): string {

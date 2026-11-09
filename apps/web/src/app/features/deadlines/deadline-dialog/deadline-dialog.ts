@@ -9,6 +9,7 @@ import {HlmTextareaImports} from '@spartan-ng/helm/textarea';
 import {errorMessage} from '../../../core/http/error-message';
 import {DateInput} from '../../../shared/ui/date-input/date-input';
 import {DialogFooter} from '../../../shared/ui/dialog-footer/dialog-footer';
+import {drawerOptions} from '../../../shared/ui/drawer/drawer';
 import {todayIso} from '../../../shared/utils/dates';
 import {centsToInput, parseEuros} from '../../../shared/utils/money';
 import {KIND_OPTIONS, type Deadline, type DeadlineInput, type DeadlineKind} from '../deadline.models';
@@ -18,13 +19,9 @@ export interface DeadlineDialogContext {
     deadline?: Deadline;
 }
 
-/** Opens the custom deadline form; emits true when something was saved. */
+/** Opens the custom deadline form in a right drawer; emits true when something was saved. */
 export function openDeadlineDialog(dialog: HlmDialogService, context: DeadlineDialogContext) {
-    return dialog.open<boolean, DeadlineDialogContext>(DeadlineDialog, {
-        context,
-        contentClass: 'sm:max-w-lg',
-        closeLabel: 'Fermer',
-    }).closed$;
+    return dialog.open<boolean, DeadlineDialogContext>(DeadlineDialog, drawerOptions(context)).closed$;
 }
 
 @Component({

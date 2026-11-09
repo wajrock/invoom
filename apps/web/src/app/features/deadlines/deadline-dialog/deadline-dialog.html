@@ -1,13 +1,27 @@
 <hlm-dialog-header>
-    <h3 hlmDialogTitle>{{ existing ? 'Modifier l’échéance' : 'Nouvelle échéance' }}</h3>
-    <p hlmDialogDescription>Rappel personnalisé (les échéances URSSAF, CFE et impôt sont générées automatiquement).</p>
+    <h2 hlmDialogTitle class="text-xl font-semibold tracking-tight">
+        {{ existing ? 'Modifier l’échéance' : 'Nouvelle échéance' }}
+    </h2>
 </hlm-dialog-header>
-<form id="deadline-form" class="grid gap-4" (ngSubmit)="save()">
+
+<form
+    id="deadline-form"
+    class="-mx-1 grid content-start gap-5 overflow-y-auto overscroll-contain px-1 py-1"
+    (ngSubmit)="save()"
+>
     <div class="grid gap-2">
         <label hlmLabel for="d-title">Intitulé</label>
-        <input hlmInput id="d-title" name="title" required [(ngModel)]="form.title" />
+        <input
+            hlmInput
+            id="d-title"
+            name="title"
+            required
+            placeholder="Renouveler l’assurance RC Pro"
+            [(ngModel)]="form.title"
+        />
     </div>
-    <div class="grid gap-4 sm:grid-cols-3">
+
+    <div class="grid grid-cols-2 gap-3">
         <div class="grid gap-2">
             <label hlmLabel for="d-due">Date</label>
             <app-date-input inputId="d-due" name="dueOn" required [(ngModel)]="form.dueOn" />
@@ -20,21 +34,33 @@
                 }
             </select>
         </div>
-        <div class="grid gap-2">
-            <label hlmLabel for="d-amount">Montant (€)</label>
+    </div>
+
+    <div class="grid gap-2">
+        <label hlmLabel for="d-amount"
+            >Montant <span class="text-muted-foreground font-normal">(optionnel)</span></label
+        >
+        <div class="relative">
             <input
                 hlmInput
                 id="d-amount"
                 name="amount"
                 inputmode="decimal"
-                placeholder="optionnel"
+                placeholder="0,00"
+                class="w-full pr-8"
                 [(ngModel)]="form.amount"
             />
+            <span
+                class="text-muted-foreground pointer-events-none absolute inset-y-0 right-3 grid place-items-center text-sm"
+                >€</span
+            >
         </div>
     </div>
+
     <div class="grid gap-2">
-        <label hlmLabel for="d-note">Note</label>
+        <label hlmLabel for="d-note">Note <span class="text-muted-foreground font-normal">(optionnelle)</span></label>
         <textarea hlmTextarea id="d-note" name="note" rows="3" [(ngModel)]="form.note"></textarea>
     </div>
 </form>
+
 <app-dialog-footer formId="deadline-form" [saving]="saving()" (dismiss)="ref.close(false)" />
