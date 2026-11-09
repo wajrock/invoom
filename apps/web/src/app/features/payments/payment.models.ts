@@ -8,6 +8,13 @@ export const LANG_LABELS: Record<FileLang, string> = {
     other: 'Autre',
 };
 
+const LANG_ORDER: Record<FileLang, number> = {fr: 0, en: 1, other: 2};
+
+/** FR before EN, whatever the upload order */
+export function filesInOrder(files: InvoiceFile[]): InvoiceFile[] {
+    return [...files].sort((a, b) => LANG_ORDER[a.lang] - LANG_ORDER[b.lang]);
+}
+
 export interface InvoiceFile {
     id: string;
     lang: FileLang;

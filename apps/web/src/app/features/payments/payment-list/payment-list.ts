@@ -1,16 +1,14 @@
 import {Component, computed, input, output} from '@angular/core';
-import {NgIcon, provideIcons} from '@ng-icons/core';
-import {lucideCircleCheck, lucideClock} from '@ng-icons/lucide';
 import {EurPipe} from '../../../shared/pipes/eur.pipe';
 import {FrDatePipe} from '../../../shared/pipes/fr-date.pipe';
+import {Avatar} from '../../../shared/ui/avatar/avatar';
 import {groupByMonth} from '../../../shared/utils/dates';
 import type {Payment} from '../payment.models';
 
-/** Mobile list of payments, grouped by issue month. */
+/** Phone list of payments, grouped by issue month: a tap opens the payment card. */
 @Component({
     selector: 'app-payment-list',
-    imports: [NgIcon, EurPipe, FrDatePipe],
-    providers: [provideIcons({lucideCircleCheck, lucideClock})],
+    imports: [Avatar, EurPipe, FrDatePipe],
     host: {class: 'grid gap-5'},
     templateUrl: './payment-list.html',
 })

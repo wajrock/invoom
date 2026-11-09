@@ -1,7 +1,7 @@
 import {Component, computed, inject, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {NgIcon, provideIcons} from '@ng-icons/core';
-import {lucideFilePlus, lucidePlus} from '@ng-icons/lucide';
+import {lucidePlus} from '@ng-icons/lucide';
 import {toast} from '@spartan-ng/brain/sonner';
 import {HlmButtonImports} from '@spartan-ng/helm/button';
 import {HlmDialogService} from '@spartan-ng/helm/dialog';
@@ -16,17 +16,14 @@ import {todayIso} from '../../shared/utils/dates';
 import type {Client} from '../clients/client.models';
 import {ClientsApi} from '../clients/clients.api';
 import {openInvoiceDialog} from '../invoices/invoice-dialog/invoice-dialog';
+import {openPaymentDetail} from './payment-detail/payment-detail';
 import {openPaymentDialog} from './payment-dialog/payment-dialog';
-import {PaymentList} from './payment-list/payment-list';
 import {paymentInput, type Payment, type PaymentAction} from './payment.models';
-import {PaymentSheet} from './payment-sheet/payment-sheet';
+import {PaymentList} from './payment-list/payment-list';
 import {PaymentsApi} from './payments.api';
 import {PaymentsTable} from './payments-table/payments-table';
 
 type StatusFilter = 'all' | 'paid' | 'pending';
-
-/** Payment without an invoice generated here */
-const MANUAL_HINT = 'Paiement sans facture générée ici : facture externe, acompte, historique…';
 
 @Component({
     selector: 'app-payments',
@@ -41,10 +38,9 @@ const MANUAL_HINT = 'Paiement sans facture générée ici : facture externe, aco
         KpiTile,
         PageHeader,
         PaymentList,
-        PaymentSheet,
         PaymentsTable,
     ],
-    providers: [provideIcons({lucidePlus, lucideFilePlus})],
+    providers: [provideIcons({lucidePlus})],
     templateUrl: './payments.page.html',
 })
 export class PaymentsPage {
@@ -52,15 +48,12 @@ export class PaymentsPage {
     private readonly clientsApi = inject(ClientsApi);
     private readonly dialog = inject(HlmDialogService);
 
-    protected readonly manualHint = MANUAL_HINT;
     protected readonly payments = signal<Payment[] | null>(null);
     protected readonly clientList = signal<Client[]>([]);
     protected readonly error = signal('');
     protected readonly query = signal('');
     protected readonly year = signal<string>(String(new Date().getFullYear()));
     protected readonly status = signal<StatusFilter>('all');
-    /** Payment whose mobile action sheet is open */
-    protected readonly sheet = signal<Payment | null>(null);
 
     protected readonly years = computed(() => {
         const ys = new Set<number>([new Date().getFullYear()]);
@@ -112,8 +105,14 @@ export class PaymentsPage {
         }
     }
 
+    /** Payment card; its buttons lead to the other actions */
+    detail(p: Payment) {
+        openPaymentDetail(this.dialog, {payment: p}).subscribe((action) => {
+            if (action) this.run(p, action);
+        });
+    }
+
     run(p: Payment, action: PaymentAction) {
-        this.sheet.set(null);
         if (action === 'paid') void this.markPaid(p);
         else if (action === 'invoice') this.openInvoice(p);
         else if (action === 'edit') this.open(p);

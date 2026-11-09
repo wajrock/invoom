@@ -1,13 +1,17 @@
-<div hlmTableContainer class="hidden overflow-hidden rounded-xl border sm:block">
-    <table hlmTable class="[&_td]:px-3 [&_td]:py-3 [&_th]:px-3 [&_tr>*:first-child]:pl-5 [&_tr>*:last-child]:pr-4">
+<div hlmTableContainer class="overflow-x-auto overscroll-x-contain rounded-xl border">
+    <table
+        hlmTable
+        class="whitespace-nowrap [&_td]:px-3 [&_td]:py-3 [&_th]:px-3 [&_tr>*:first-child]:pl-5 [&_tr>*:last-child]:pr-4"
+    >
         <thead hlmTHead class="bg-muted/40">
             <tr hlmTr>
+                <th hlmTh>N°</th>
                 <th hlmTh>Date</th>
-                <th hlmTh>Client</th>
-                <th hlmTh class="hidden md:table-cell">N°</th>
+                <th hlmTh class="w-12">Client</th>
+                <th hlmTh class="w-full">Désignation</th>
+                <th hlmTh>Période</th>
                 <th hlmTh class="text-right">Montant</th>
                 <th hlmTh>Statut</th>
-                <th hlmTh class="hidden lg:table-cell">Encaissement</th>
                 <th hlmTh>Factures</th>
                 <th hlmTh class="w-10"><span class="sr-only">Actions</span></th>
             </tr>
@@ -18,18 +22,20 @@
                     hlmTr
                     class="cursor-pointer"
                     tabindex="0"
-                    (click)="emit(p, 'edit')"
-                    (keydown.enter)="$event.target === $event.currentTarget && emit(p, 'edit')"
+                    (click)="open.emit(p)"
+                    (keydown.enter)="$event.target === $event.currentTarget && open.emit(p)"
                 >
-                    <td hlmTd class="whitespace-nowrap">{{ p.issuedOn | frDate: 'short' }}</td>
-                    <td hlmTd class="max-w-64">
-                        <p class="truncate font-medium">{{ p.client }}</p>
-                        @if (p.label) {
-                            <p class="text-muted-foreground truncate text-xs">{{ p.label }}</p>
-                        }
+                    <td hlmTd class="whitespace-nowrap tabular-nums">{{ p.invoiceNumber || '—' }}</td>
+                    <td hlmTd class="text-muted-foreground whitespace-nowrap">{{ p.issuedOn | frDate: 'short' }}</td>
+                    <td hlmTd>
+                        <app-avatar [name]="p.client" />
+                        <span class="sr-only">{{ p.client }}</span>
                     </td>
-                    <td hlmTd class="text-muted-foreground hidden md:table-cell">
-                        {{ p.invoiceNumber || '—' }}
+                    <td hlmTd class="text-muted-foreground max-w-72 min-w-48 truncate" [title]="p.label">
+                        {{ p.label || '—' }}
+                    </td>
+                    <td hlmTd class="text-muted-foreground">
+                        {{ period(p) || '—' }}
                     </td>
                     <td hlmTd class="text-right whitespace-nowrap tabular-nums">
                         <span class="font-medium">{{ p.amount | eur }}</span>
@@ -41,7 +47,10 @@
                     </td>
                     <td hlmTd>
                         @if (p.paidOn) {
-                            <span hlmBadge class="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                            <span
+                                hlmBadge
+                                class="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                                [title]="'Encaissé le ' + (p.paidOn | frDate)"
                                 ><ng-icon name="lucideCircleCheck" /> Payée</span
                             >
                         } @else {
@@ -50,12 +59,9 @@
                             >
                         }
                     </td>
-                    <td hlmTd class="text-muted-foreground hidden whitespace-nowrap lg:table-cell">
-                        {{ p.paidOn ? (p.paidOn | frDate: 'short') : '—' }}
-                    </td>
                     <td hlmTd>
                         <div class="flex gap-1">
-                            @for (f of p.files; track f.id) {
+                            @for (f of filesInOrder(p.files); track f.id) {
                                 <a
                                     hlmBadge
                                     variant="outline"

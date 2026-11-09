@@ -16,7 +16,9 @@ import {HlmTableImports} from '@spartan-ng/helm/table';
 import {EurPipe} from '../../../shared/pipes/eur.pipe';
 import {FrDatePipe} from '../../../shared/pipes/fr-date.pipe';
 import {MoneyPipe} from '../../../shared/pipes/money.pipe';
-import {LANG_LABELS, type Payment, type PaymentAction} from '../payment.models';
+import {Avatar} from '../../../shared/ui/avatar/avatar';
+import {formatPeriod} from '../../../shared/utils/dates';
+import {filesInOrder, LANG_LABELS, type Payment, type PaymentAction} from '../payment.models';
 import {PaymentsApi} from '../payments.api';
 
 export interface PaymentActionEvent {
@@ -24,11 +26,12 @@ export interface PaymentActionEvent {
     action: PaymentAction;
 }
 
-/** Desktop list of payments; a row click edits the payment. */
+/** Payments table (tablet and desktop), scrolling sideways when narrow; a row click opens the payment card. */
 @Component({
     selector: 'app-payments-table',
     imports: [
         NgIcon,
+        Avatar,
         EurPipe,
         FrDatePipe,
         MoneyPipe,
@@ -55,6 +58,14 @@ export class PaymentsTable {
     protected readonly langLabels = LANG_LABELS;
     readonly payments = input.required<Payment[]>();
     readonly action = output<PaymentActionEvent>();
+    /** Row click: open the payment card */
+    readonly open = output<Payment>();
+
+    protected period(p: Payment) {
+        return formatPeriod(p.invoice?.periodFrom, p.invoice?.periodTo);
+    }
+
+    protected readonly filesInOrder = filesInOrder;
 
     protected emit(payment: Payment, action: PaymentAction) {
         this.action.emit({payment, action});

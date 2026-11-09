@@ -1,0 +1,73 @@
+<hlm-dialog-header>
+    <div class="flex items-center gap-3">
+        <app-avatar size="md" [name]="p.client" />
+        <div class="min-w-0">
+            <h2 hlmDialogTitle class="truncate text-xl leading-6 font-semibold tracking-tight">
+                {{ p.label || p.client }}
+            </h2>
+            <p class="text-muted-foreground truncate text-[13px] leading-4">{{ p.client }}</p>
+        </div>
+    </div>
+</hlm-dialog-header>
+
+<div class="-mx-1 grid content-start gap-6 overflow-y-auto overscroll-contain px-1 py-5">
+    <div class="bg-muted/40 flex items-center justify-between gap-3 rounded-xl p-4">
+        <div class="grid gap-1">
+            <p class="text-2xl font-semibold tracking-tight tabular-nums">{{ p.amount | eur }}</p>
+            @if (p.originalAmount !== null && p.originalCurrency !== 'EUR') {
+                <p class="text-muted-foreground text-xs tabular-nums">
+                    Facturé {{ p.originalAmount | money: p.originalCurrency }}
+                </p>
+            }
+        </div>
+        <span
+            class="shrink-0 rounded-full px-2.5 py-1 text-xs font-medium"
+            [class]="
+                p.paidOn
+                    ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
+                    : 'bg-amber-500/15 text-amber-700 dark:text-amber-400'
+            "
+        >
+            {{ p.paidOn ? 'Payée' : 'En attente' }}
+        </span>
+    </div>
+
+    <dl class="divide-y rounded-xl border text-sm">
+        @for (row of rows; track row.label) {
+            <div class="flex items-center justify-between gap-4 px-3.5 py-2.5">
+                <dt class="text-muted-foreground">{{ row.label }}</dt>
+                <dd class="text-right font-medium">{{ row.value }}</dd>
+            </div>
+        }
+    </dl>
+
+    @if (files.length) {
+        <section class="grid gap-2">
+            <h3 class="text-sm font-semibold">Factures</h3>
+            <div class="grid gap-2" [class.grid-cols-2]="files.length > 1">
+                @for (f of files; track f.id) {
+                    <a hlmBtn variant="outline" [href]="api.fileUrl(f.id)" target="_blank" rel="noopener">
+                        <ng-icon name="lucideFileText" /> Facture {{ langLabels[f.lang] }}
+                    </a>
+                }
+            </div>
+        </section>
+    }
+
+    @if (p.notes) {
+        <section class="grid gap-2">
+            <h3 class="text-sm font-semibold">Notes</h3>
+            <p class="text-muted-foreground text-sm whitespace-pre-line">{{ p.notes }}</p>
+        </section>
+    }
+</div>
+
+<app-detail-footer (remove)="close('delete')">
+    <!-- A generated invoice is edited through the invoice; other payments through the payment form -->
+    <button hlmBtn variant="outline" (click)="close(p.invoice ? 'invoice' : 'edit')">
+        <ng-icon name="lucidePencil" /> Modifier
+    </button>
+    @if (!p.paidOn) {
+        <button hlmBtn (click)="close('paid')"><ng-icon name="lucideCircleCheck" /> Encaissé</button>
+    }
+</app-detail-footer>
