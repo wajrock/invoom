@@ -10,6 +10,7 @@ import {HlmTableImports} from '@spartan-ng/helm/table';
 import {errorMessage} from '../../core/http/error-message';
 import {EurPipe} from '../../shared/pipes/eur.pipe';
 import {FrDatePipe} from '../../shared/pipes/fr-date.pipe';
+import {Avatar} from '../../shared/ui/avatar/avatar';
 import {EmptyState} from '../../shared/ui/empty-state/empty-state';
 import {ListRow} from '../../shared/ui/list-row/list-row';
 import {PageHeader} from '../../shared/ui/page-header/page-header';
@@ -17,6 +18,7 @@ import {SearchInput} from '../../shared/ui/search-input/search-input';
 import {openInvoiceDialog} from '../invoices/invoice-dialog/invoice-dialog';
 import type {Payment} from '../payments/payment.models';
 import {PaymentsApi} from '../payments/payments.api';
+import {openClientDetail} from './client-detail/client-detail';
 import {openClientDialog} from './client-dialog/client-dialog';
 import {emptyClient, type Client} from './client.models';
 import {ClientsApi} from './clients.api';
@@ -37,6 +39,7 @@ interface ClientStats {
         HlmDropdownMenuImports,
         HlmSkeletonImports,
         HlmTableImports,
+        Avatar,
         EmptyState,
         ListRow,
         PageHeader,
@@ -108,6 +111,19 @@ export class ClientsPage {
         }
     }
 
+    /** Client card; its buttons lead to the invoice, the form or the deletion */
+    detail(client: Client) {
+        const byName = client.name.toLowerCase();
+        const payments = this.payments()
+            .filter((p) => p.clientId === client.id || (!p.clientId && p.client.toLowerCase() === byName))
+            .sort((a, b) => b.issuedOn.localeCompare(a.issuedOn));
+        openClientDetail(this.dialog, {client, payments}).subscribe((action) => {
+            if (action === 'invoice') this.invoice(client);
+            else if (action === 'edit') this.edit(client);
+            else if (action === 'delete') void this.remove(client);
+        });
+    }
+
     edit(client?: Client) {
         openClientDialog(this.dialog, {client}).subscribe((saved) => {
             if (saved) void this.load();
@@ -148,10 +164,5 @@ export class ClientsPage {
         } catch (err) {
             toast.error(errorMessage(err));
         }
-    }
-
-    protected initials(name: string) {
-        const words = name.trim().split(/\s+/).filter(Boolean);
-        return ((words[0]?.[0] ?? '') + (words[1]?.[0] ?? '')).toUpperCase() || '?';
     }
 }

@@ -28,11 +28,8 @@
             @for (c of filtered(); track c.id) {
                 @let s = stats().get(c.id);
                 <li>
-                    <app-list-row (activate)="edit(c)">
-                        <span
-                            class="bg-muted text-muted-foreground grid size-10 shrink-0 place-items-center rounded-full text-sm font-semibold"
-                            >{{ initials(c.name) }}</span
-                        >
+                    <app-list-row (activate)="detail(c)">
+                        <app-avatar size="md" [name]="c.name" />
                         <span class="min-w-0 flex-1">
                             <span class="block truncate font-medium">{{ c.name }}</span>
                             <span class="text-muted-foreground block truncate text-xs">
@@ -86,14 +83,19 @@
                             hlmTr
                             class="cursor-pointer"
                             tabindex="0"
-                            (click)="edit(c)"
-                            (keydown.enter)="$event.target === $event.currentTarget && edit(c)"
+                            (click)="detail(c)"
+                            (keydown.enter)="$event.target === $event.currentTarget && detail(c)"
                         >
                             <td hlmTd class="max-w-64">
-                                <p class="truncate font-medium">{{ c.name }}</p>
-                                @if (c.email) {
-                                    <p class="text-muted-foreground truncate text-xs">{{ c.email }}</p>
-                                }
+                                <div class="flex items-center gap-2.5">
+                                    <app-avatar [name]="c.name" />
+                                    <div class="min-w-0">
+                                        <p class="truncate font-medium">{{ c.name }}</p>
+                                        @if (c.email) {
+                                            <p class="text-muted-foreground truncate text-xs">{{ c.email }}</p>
+                                        }
+                                    </div>
+                                </div>
                             </td>
                             <td hlmTd class="hidden whitespace-nowrap md:table-cell">{{ c.country || '—' }}</td>
                             <td hlmTd class="text-muted-foreground hidden font-mono text-xs lg:table-cell">

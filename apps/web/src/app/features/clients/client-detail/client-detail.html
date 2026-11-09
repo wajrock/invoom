@@ -1,0 +1,112 @@
+<hlm-dialog-header>
+    <div class="flex items-center gap-3">
+        <app-avatar size="md" [name]="client.name" />
+        <div class="min-w-0">
+            <h2 hlmDialogTitle class="truncate text-xl leading-6 font-semibold tracking-tight">{{ client.name }}</h2>
+            <p class="text-muted-foreground truncate text-[13px] leading-4">
+                {{ client.country || 'Pays non renseigné' }}
+            </p>
+        </div>
+    </div>
+</hlm-dialog-header>
+
+<div class="-mx-1 grid content-start gap-6 overflow-y-auto overscroll-contain px-1 py-5">
+    <div class="bg-muted/40 flex items-center justify-between gap-3 rounded-xl p-4">
+        <div class="grid gap-1">
+            <p class="text-2xl font-semibold tracking-tight tabular-nums">{{ total | eur }}</p>
+            <p class="text-muted-foreground text-xs">
+                Facturé · {{ payments.length }} facture{{ payments.length > 1 ? 's' : '' }}
+            </p>
+        </div>
+        @if (pending > 0) {
+            <span
+                class="shrink-0 rounded-full bg-amber-500/15 px-2.5 py-1 text-xs font-medium text-amber-700 dark:text-amber-400"
+            >
+                {{ pending | eur }} en attente
+            </span>
+        } @else if (payments.length) {
+            <span
+                class="shrink-0 rounded-full bg-emerald-500/15 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-400"
+            >
+                À jour
+            </span>
+        }
+    </div>
+
+    <dl class="divide-y rounded-xl border text-sm">
+        <div class="flex items-center justify-between gap-4 px-3.5 py-2.5">
+            <dt class="text-muted-foreground shrink-0">E-mail</dt>
+            <dd class="min-w-0 truncate text-right font-medium">
+                @if (client.email) {
+                    <a class="hover:underline" [href]="'mailto:' + client.email">{{ client.email }}</a>
+                } @else {
+                    —
+                }
+            </dd>
+        </div>
+        <div class="flex items-start justify-between gap-4 px-3.5 py-2.5">
+            <dt class="text-muted-foreground shrink-0">Adresse</dt>
+            <dd class="min-w-0 text-right font-medium whitespace-pre-line">{{ client.address || '—' }}</dd>
+        </div>
+        @for (row of identifiers(); track row.label) {
+            <div class="flex items-center justify-between gap-4 px-3.5 py-2.5">
+                <dt class="text-muted-foreground shrink-0">{{ row.label }}</dt>
+                <dd class="min-w-0 truncate text-right font-medium">{{ row.value }}</dd>
+            </div>
+        }
+        <div class="flex items-center justify-between gap-4 px-3.5 py-2.5">
+            <dt class="text-muted-foreground shrink-0">Devise</dt>
+            <dd class="text-right font-medium">{{ client.currency }}</dd>
+        </div>
+        <div class="flex items-center justify-between gap-4 px-3.5 py-2.5">
+            <dt class="text-muted-foreground shrink-0">Factures</dt>
+            <dd class="text-right font-medium">{{ client.english ? 'Français + anglais' : 'Français' }}</dd>
+        </div>
+    </dl>
+
+    <section class="grid gap-2">
+        <h3 class="text-sm font-semibold">Derniers paiements</h3>
+        @if (recent.length) {
+            <ul class="divide-y rounded-xl border">
+                @for (p of recent; track p.id) {
+                    <li class="flex items-center justify-between gap-3 px-3.5 py-2.5">
+                        <div class="min-w-0">
+                            <p class="truncate text-sm font-medium">{{ p.label || 'Sans désignation' }}</p>
+                            <p class="text-muted-foreground truncate text-xs">
+                                {{ p.invoiceNumber ? 'N° ' + p.invoiceNumber + ' · ' : ''
+                                }}{{ p.issuedOn | frDate: 'short' }}
+                            </p>
+                        </div>
+                        <div class="shrink-0 text-right">
+                            <p class="text-sm font-medium tabular-nums">{{ p.amount | eur }}</p>
+                            <p
+                                class="text-xs"
+                                [class]="
+                                    p.paidOn
+                                        ? 'text-emerald-600 dark:text-emerald-400'
+                                        : 'text-amber-600 dark:text-amber-400'
+                                "
+                            >
+                                {{ p.paidOn ? 'Payée' : 'En attente' }}
+                            </p>
+                        </div>
+                    </li>
+                }
+            </ul>
+        } @else {
+            <p class="text-muted-foreground text-sm">Aucun paiement pour ce client.</p>
+        }
+    </section>
+
+    @if (client.notes) {
+        <section class="grid gap-2">
+            <h3 class="text-sm font-semibold">Notes internes</h3>
+            <p class="text-muted-foreground text-sm whitespace-pre-line">{{ client.notes }}</p>
+        </section>
+    }
+</div>
+
+<app-detail-footer (remove)="close('delete')">
+    <button hlmBtn variant="outline" (click)="close('edit')"><ng-icon name="lucidePencil" /> Modifier</button>
+    <button hlmBtn (click)="close('invoice')"><ng-icon name="lucideFilePlus" /> Facturer</button>
+</app-detail-footer>
