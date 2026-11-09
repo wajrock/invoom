@@ -36,19 +36,27 @@ Open http://localhost:4200, create an account, and confirm it from the email cau
 
 Always use http://localhost:4200 in development: the Angular dev server reloads the page on every change. The API on :3333 only answers `/api/*` and redirects other pages to :4200; it serves the built web app only in production (`STATIC_DIR`).
 
-To test on a phone, use an HTTPS tunnel (e.g. `cloudflared tunnel --url http://localhost:4200`): passkeys require `localhost` or HTTPS.
+To test on a phone, passkeys need `localhost` or HTTPS, so go through an HTTPS tunnel:
+
+```bash
+pnpm dev:tunnel                                 # like pnpm dev, but the web app also accepts *.trycloudflare.com
+cloudflared tunnel --url http://localhost:4200  # in another terminal: prints the https://….trycloudflare.com address
+```
+
+Then sign in on the phone with "Appareil perdu ou nouvel appareil ?" (link by email, caught by Mailpit) or `pnpm --filter @invoom/api access-link --email you@example.com https://….trycloudflare.com`. A passkey belongs to one address: the tunnel gets a new one each time it starts.
 
 ## Scripts
 
-| Command          | What it does                              |
-| ---------------- | ----------------------------------------- |
-| `pnpm dev`       | API and web app in watch mode             |
-| `pnpm build`     | Production build of the web app           |
-| `pnpm test`      | Unit tests                                |
-| `pnpm typecheck` | TypeScript checks for both apps           |
-| `pnpm lint`      | ESLint (formatting included) and Prettier |
-| `pnpm lint:fix`  | Fix lint and formatting issues            |
-| `pnpm check`     | lint + typecheck + test                   |
+| Command           | What it does                                 |
+| ----------------- | -------------------------------------------- |
+| `pnpm dev`        | API and web app in watch mode                |
+| `pnpm dev:tunnel` | Same, reachable through a cloudflared tunnel |
+| `pnpm build`      | Production build of the web app              |
+| `pnpm test`       | Unit tests                                   |
+| `pnpm typecheck`  | TypeScript checks for both apps              |
+| `pnpm lint`       | ESLint (formatting included) and Prettier    |
+| `pnpm lint:fix`   | Fix lint and formatting issues               |
+| `pnpm check`      | lint + typecheck + test                      |
 
 Database migrations live in `apps/api/drizzle` and run automatically when the API starts. After changing `apps/api/src/db/schema`, run `pnpm --filter @invoom/api db:generate` and review the SQL (row-level security has to be added by hand, see the architecture notes).
 

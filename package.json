@@ -8,6 +8,7 @@
     },
     "scripts": {
         "dev": "pnpm --parallel --filter @invoom/api --filter @invoom/web dev",
+        "dev:tunnel": "pnpm --parallel --filter @invoom/api --filter @invoom/web dev:tunnel",
         "build": "pnpm --filter @invoom/web build",
         "test": "pnpm -r test",
         "typecheck": "pnpm -r typecheck",

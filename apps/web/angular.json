@@ -66,6 +66,10 @@
                         },
                         "development": {
                             "buildTarget": "web:build:development"
+                        },
+                        "tunnel": {
+                            "buildTarget": "web:build:development",
+                            "allowedHosts": [".trycloudflare.com"]
                         }
                     },
                     "defaultConfiguration": "development",
