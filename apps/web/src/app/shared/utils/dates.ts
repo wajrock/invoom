@@ -34,6 +34,19 @@ export function formatDate(iso: string | null | undefined, style: 'long' | 'shor
     });
 }
 
+/** Service period, compact: "1–31 oct. 2026", "15 oct. – 14 nov. 2026", "15 déc. 2025 – 14 janv. 2026" */
+export function formatPeriod(from: string | null | undefined, to: string | null | undefined): string {
+    if (!from && !to) return '';
+    if (!from) return `jusqu’au ${formatDate(to, 'short')}`;
+    if (!to) return `dès le ${formatDate(from, 'short')}`;
+    const [fy, fm, fd] = from.split('-').map(Number);
+    const [ty, tm] = to.split('-').map(Number);
+    const month = (iso: string) => formatDate(iso, 'short').replace(/ \d{4}$/, '');
+    if (fy === ty && fm === tm) return `${fd}–${formatDate(to, 'short')}`;
+    if (fy === ty) return `${month(from)} – ${formatDate(to, 'short')}`;
+    return `${formatDate(from, 'short')} – ${formatDate(to, 'short')}`;
+}
+
 /** Days from today to the date (negative when past) */
 export function daysUntil(iso: string): number {
     const [y, m, d] = iso.split('-').map(Number);
