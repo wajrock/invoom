@@ -32,6 +32,8 @@ pnpm --filter @invoom/api db:generate   # after editing apps/api/src/db/schema
 - **Comments** explain why, not what. Don't add comments that restate the code.
 - **Style**: Prettier config at the root (4 spaces, no bracket spacing, semicolons, single quotes, width 120). Don't disable lint rules to make code pass.
 - **Angular**: standalone components, signals, `@if/@for` control flow, `templateUrl` for templates over ~30 lines, files under ~250 lines. Reuse `shared/` components before creating new ones.
+- **Navigation**: in-app links carry `appReplaceUrl` next to `routerLink`, and code navigates through `NavigationService`, never the router directly: the installed app must not stack history entries (the iOS edge swipe would go back through them).
+- **Forms and details** open in the right drawer (`drawerOptions()` from `shared/ui/drawer`), full screen on phones; detail cards end with `app-detail-footer`.
 - **Never commit** `.env` files, real invoices (`*.pdf` at the root) or database dumps.
 
 ## Verifying changes

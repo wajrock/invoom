@@ -1,6 +1,7 @@
 import {Component, computed, effect, inject, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {RouterLink} from '@angular/router';
+import {ReplaceUrlLinks} from '../../core/navigation/replace-url-links';
 import {HlmCardImports} from '@spartan-ng/helm/card';
 import {HlmInputImports} from '@spartan-ng/helm/input';
 import {HlmLabelImports} from '@spartan-ng/helm/label';
@@ -36,6 +37,7 @@ const percent = new Intl.NumberFormat('fr-FR', {style: 'percent', maximumFractio
     imports: [
         FormsModule,
         RouterLink,
+        ReplaceUrlLinks,
         HlmCardImports,
         HlmInputImports,
         HlmLabelImports,

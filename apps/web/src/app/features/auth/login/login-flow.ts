@@ -1,5 +1,6 @@
 import {inject, Injectable, signal} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
+import {NavigationService} from '../../../core/navigation/navigation.service';
 import {errorMessage} from '../../../core/http/error-message';
 import {AuthApi} from '../auth.api';
 import type {EmailLink} from '../auth.models';
@@ -19,7 +20,7 @@ export type LoginStep = 'signin' | 'signup' | 'lost' | 'sent' | 'link' | 'codes'
 @Injectable()
 export class LoginFlow {
     private readonly api = inject(AuthApi);
-    private readonly router = inject(Router);
+    private readonly nav = inject(NavigationService);
     private readonly token = inject(ActivatedRoute).snapshot.queryParamMap.get('token');
 
     readonly step = signal<LoginStep>(this.token ? 'link' : 'signin');
@@ -70,7 +71,7 @@ export class LoginFlow {
         return this.run(async () => {
             const remaining = await this.api.loginWithRecoveryCode(code);
             // Fallback sign-in: invite the user to register a passkey on this device
-            await this.router.navigate(['/parametres/securite'], {queryParams: {recovered: remaining}});
+            await this.nav.navigate(['/parametres/securite'], {queryParams: {recovered: remaining}});
         });
     }
 
@@ -87,7 +88,7 @@ export class LoginFlow {
     }
 
     async enter() {
-        await this.router.navigateByUrl('/');
+        await this.nav.navigateByUrl('/');
     }
 
     private async run(action: () => Promise<void>): Promise<boolean> {

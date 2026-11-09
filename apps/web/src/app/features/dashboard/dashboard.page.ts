@@ -1,5 +1,6 @@
 import {Component, computed, inject, signal} from '@angular/core';
 import {RouterLink} from '@angular/router';
+import {ReplaceUrlLinks} from '../../core/navigation/replace-url-links';
 import {NgIcon, provideIcons} from '@ng-icons/core';
 import {lucideArrowRight, lucideCheck, lucideClock, lucideTrendingDown, lucideTrendingUp} from '@ng-icons/lucide';
 import {toast} from '@spartan-ng/brain/sonner';
@@ -26,6 +27,7 @@ import {monthlyChart} from './monthly-chart';
     selector: 'app-dashboard',
     imports: [
         RouterLink,
+        ReplaceUrlLinks,
         NgIcon,
         NgxEchartsDirective,
         EurPipe,
