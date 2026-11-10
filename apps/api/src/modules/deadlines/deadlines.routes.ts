@@ -8,6 +8,9 @@ import {getTaxSettings} from '../settings/settings.store.ts';
 import {deadlineSchema} from './deadline.schema.ts';
 import {listDeadlines} from './deadlines.service.ts';
 
+/** Id of a generated deadline: its period key, e.g. "urssaf:2026-Q3" */
+const AUTO_KEY = /^[a-z-]+:\d{4}(-(Q[1-4]|\d{2}))?$/;
+
 export const deadlineRoutes = (deps: Deps) => {
     const {db, cipher} = deps;
     return (
@@ -37,7 +40,7 @@ export const deadlineRoutes = (deps: Deps) => {
             .put('/status', async (c) => {
                 const {id, done} = await parseJson(c, z.object({id: z.string().min(1).max(100), done: z.boolean()}));
                 const doneAt = done ? new Date() : null;
-                if (/^[a-z-]+:\d{4}(-(Q[1-4]|\d{2}))?$/.test(id)) {
+                if (AUTO_KEY.test(id)) {
                     // Generated deadlines only store their status, keyed by period
                     await db
                         .insert(deadlines)
@@ -65,7 +68,17 @@ export const deadlineRoutes = (deps: Deps) => {
                 return c.json({ok: true});
             })
             .delete('/:id', async (c) => {
-                await db.delete(deadlines).where(and(eq(deadlines.id, uuidParam(c)), isNull(deadlines.autoKey)));
+                const id = c.req.param('id');
+                if (AUTO_KEY.test(id)) {
+                    // A generated deadline comes back on every listing: it is hidden instead, in its status row
+                    const data = cipher.encryptJson({dismissed: true});
+                    await db
+                        .insert(deadlines)
+                        .values({autoKey: id, dueOn: '1970-01-01', data})
+                        .onConflictDoUpdate({target: [deadlines.workspaceId, deadlines.autoKey], set: {data}});
+                } else {
+                    await db.delete(deadlines).where(and(eq(deadlines.id, uuidParam(c)), isNull(deadlines.autoKey)));
+                }
                 return c.body(null, 204);
             })
     );

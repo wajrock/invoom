@@ -20,7 +20,7 @@ export class DeadlinesApi {
         return this.api.put<{ok: true}>(`/api/deadlines/${id}`, d);
     }
     delete(id: string) {
-        return this.api.delete(`/api/deadlines/${id}`);
+        return this.api.delete(`/api/deadlines/${encodeURIComponent(id)}`);
     }
     setDone(id: string, done: boolean) {
         return this.api.put<{ok: true}>('/api/deadlines/status', {id, done});

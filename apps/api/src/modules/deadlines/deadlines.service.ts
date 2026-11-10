@@ -27,11 +27,15 @@ export async function listDeadlines(deps: Deps, from: string, to: string): Promi
     // A January deadline can belong to the previous year (Q4, December)
     const years = Array.from({length: toYear - fromYear + 2}, (_, i) => fromYear - 1 + i);
 
-    const doneRows = await db.select().from(deadlines).where(isNotNull(deadlines.autoKey));
-    const doneMap = new Map(doneRows.map((r) => [r.autoKey!, r.doneAt]));
+    // Generated deadlines keep their status in a row keyed by period: done date, or deleted by the user
+    const statusRows = await db.select().from(deadlines).where(isNotNull(deadlines.autoKey));
+    const doneMap = new Map(statusRows.map((r) => [r.autoKey!, r.doneAt]));
+    const dismissed = new Set(
+        statusRows.filter((r) => cipher.decryptJson<{dismissed?: boolean}>(r.data).dismissed).map((r) => r.autoKey!),
+    );
 
     const auto: DeadlineView[] = generateDeadlines(years, items, tax)
-        .filter((d) => d.dueOn >= from && d.dueOn <= to)
+        .filter((d) => d.dueOn >= from && d.dueOn <= to && !dismissed.has(d.autoKey))
         .map((d) => {
             const doneAt = doneMap.get(d.autoKey) ?? null;
             return {
