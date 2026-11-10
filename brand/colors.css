@@ -1,25 +1,15 @@
-/* Invoom brand colours. The identity is black and white; status colours are functional only. */
+/* Invoom brand colours: petrol accent and terracotta on warm neutrals; status colours are functional only. */
 :root {
-    --invoom-white: #ffffff;
-    --invoom-neutral-50: #fafafa;
-    --invoom-neutral-100: #f4f4f5;
-    --invoom-neutral-200: #e4e4e7;
-    --invoom-neutral-300: #d4d4d8;
-    --invoom-neutral-400: #a1a1aa;
-    --invoom-neutral-500: #71717a;
-    --invoom-neutral-600: #52525b;
-    --invoom-neutral-700: #3f3f46;
-    --invoom-neutral-800: #27272a;
-    --invoom-neutral-900: #18181b;
-    --invoom-black: #0a0a0b;
+    --invoom-background: #f4f4f4;
+    --invoom-card: #fafaf8;
+    --invoom-field: #fffefc;
+    --invoom-border: #e6e0d8;
+    --invoom-muted-text: #6f665d;
+    --invoom-text: #24201c;
+    --invoom-primary: #005461;
+    --invoom-highlight: #d0703c;
 
-    --invoom-paid-bg: #d1fae5;
-    --invoom-paid: #059669;
-    --invoom-paid-text: #047857;
-    --invoom-pending-bg: #fef3c7;
-    --invoom-pending: #d97706;
-    --invoom-pending-text: #b45309;
-    --invoom-late-bg: #fee2e2;
-    --invoom-late: #dc2626;
-    --invoom-late-text: #b91c1c;
+    --invoom-paid: #2e7d57;
+    --invoom-pending: #b8741a;
+    --invoom-late: #b4432f;
 }

@@ -12,19 +12,19 @@ The logo is the word **invoom** set in Poppins Bold, with the "v" replaced by th
 | `logo/invoom-logo-black.svg`, `.png` | On light backgrounds                     |
 | `symbol/invoom-symbol-*.svg`, `.png` | The boomerang alone, when space is tight |
 
-Keep clear space around the logo of at least the height of the "o". Don't recolour, stretch, rotate, outline or add effects to it.
+Keep clear space around the logo of at least the height of the "o". Use it in petrol (`#005461`), black or white only; don't stretch, rotate, outline or add effects to it.
 
 ## App icon
 
-White symbol on a black tile (`#0A0A0B`), corner radius 22.36 %, symbol at 40 % of the tile height.
+Petrol symbol (`#005461`, the app accent) on the app background (`#F4F4F4`), corner radius 22.36 %, symbol at 40 % of the tile height.
 
-| File                                              | Use                                                                          |
-| ------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `icon/invoom-icon.svg`, `-1024/512/192.png`       | Rounded icon (web manifest, stores, docs)                                    |
-| `icon/invoom-icon-square.svg`, `-square-1024.png` | Full-bleed square, for platforms that apply their own mask                   |
-| `icon/invoom-icon-maskable-512.png`               | Android maskable icon                                                        |
-| `icon/apple-touch-icon.png`                       | iOS home screen (180 × 180, iOS rounds the corners)                          |
-| `icon/favicon.svg`, `favicon.ico`                 | Browser tab: black symbol on a white tile, enlarged to stay legible at 16 px |
+| File                                              | Use                                                                 |
+| ------------------------------------------------- | ------------------------------------------------------------------- |
+| `icon/invoom-icon.svg`, `-1024/512/192.png`       | Rounded icon (web manifest, stores, docs)                           |
+| `icon/invoom-icon-square.svg`, `-square-1024.png` | Full-bleed square, for platforms that apply their own mask          |
+| `icon/invoom-icon-maskable-512.png`               | Android maskable icon                                               |
+| `icon/apple-touch-icon.png`                       | iOS home screen (180 × 180, iOS rounds the corners)                 |
+| `icon/favicon.svg`, `favicon.ico`                 | Browser tab: same colours, symbol enlarged to stay legible at 16 px |
 
 ## Social
 
@@ -36,36 +36,33 @@ White symbol on a black tile (`#0A0A0B`), corner radius 22.36 %, symbol at 40 % 
 
 ## Colours
 
-The identity is black and white only, with no accent colour. Status colours are functional: they only mark payment and deadline states.
+A warm art direction: deep petrol as the accent, answered by terracotta, on warm neutrals. Status colours are functional: they only mark payment and deadline states.
 
-| Token       | Hex       | Name     | Use                          |
-| ----------- | --------- | -------- | ---------------------------- |
-| neutral-0   | `#FFFFFF` | Blanc    | Backgrounds, symbol on black |
-| neutral-50  | `#FAFAFA` |          | Page background              |
-| neutral-100 | `#F4F4F5` | Brume    | Light surfaces               |
-| neutral-200 | `#E4E4E7` | Trait    | Borders, dividers            |
-| neutral-300 | `#D4D4D8` |          |                              |
-| neutral-400 | `#A1A1AA` |          | Secondary text on black      |
-| neutral-500 | `#71717A` | Ardoise  | Secondary text               |
-| neutral-600 | `#52525B` |          |                              |
-| neutral-700 | `#3F3F46` |          |                              |
-| neutral-800 | `#27272A` |          |                              |
-| neutral-900 | `#18181B` | Graphite | Dark surfaces                |
-| neutral-950 | `#0A0A0B` | Noir     | Brand black, logo, icon      |
+| Token      | Hex       | Use                                            |
+| ---------- | --------- | ---------------------------------------------- |
+| background | `#F4F4F4` | Page background, app icon tile                 |
+| card       | `#FAFAF8` | Cards and tables                               |
+| field      | `#FFFEFC` | Form fields                                    |
+| border     | `#E6E0D8` | Borders, dividers                              |
+| muted text | `#6F665D` | Secondary text                                 |
+| foreground | `#24201C` | Text                                           |
+| primary    | `#005461` | Accent: logo, icon symbol, buttons, key values |
+| highlight  | `#D0703C` | Second accent: charts, selection               |
 
-| Status  | Background | Signal    | Text      |
-| ------- | ---------- | --------- | --------- |
-| Paid    | `#D1FAE5`  | `#059669` | `#047857` |
-| Pending | `#FEF3C7`  | `#D97706` | `#B45309` |
-| Late    | `#FEE2E2`  | `#DC2626` | `#B91C1C` |
+| Status  | Colour    |
+| ------- | --------- |
+| Paid    | `#2E7D57` |
+| Pending | `#B8741A` |
+| Late    | `#B4432F` |
 
-The same values are available as CSS variables in `colors.css`.
+The interface tokens live in `apps/web/src/styles.css`; the same values are available as CSS variables in `colors.css`.
 
 ## Typography
 
 | Font                                                       | Use                                                      |
 | ---------------------------------------------------------- | -------------------------------------------------------- |
 | [Poppins](https://fonts.google.com/specimen/Poppins) Bold  | Logo only (already vectorised), never for text           |
+| [Fraunces](https://fonts.google.com/specimen/Fraunces)     | Page titles and key figures in the app                   |
 | [Geist](https://vercel.com/font) Regular, Medium, SemiBold | Interface, documents and invoices                        |
 | [Geist Mono](https://vercel.com/font) Medium               | Amounts, invoice numbers, IBAN: aligned, readable digits |
 
