@@ -193,13 +193,14 @@
     @apply mb-6 flex gap-1 overflow-x-clip border-b;
 }
 @utility tab-link {
-    @apply text-muted-foreground hover:text-foreground -mb-px flex shrink-0 items-center gap-2 border-b-2 border-transparent px-3 py-2.5 text-sm font-medium transition-colors;
+    @apply text-muted-foreground hover:text-foreground -mb-px flex shrink-0 items-center gap-2 border-b-2 border-transparent px-2.5 py-2.5 text-sm font-medium transition-colors sm:px-3;
     &[aria-current='page'],
     &[aria-selected='true'] {
         @apply border-foreground text-foreground;
     }
+    /* Icons give way on the smallest phones so every tab stays visible */
     & ng-icon {
-        @apply text-base;
+        @apply text-base max-[22.5rem]:hidden;
     }
 }
 

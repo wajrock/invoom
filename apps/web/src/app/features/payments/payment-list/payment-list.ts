@@ -9,7 +9,7 @@ import type {Payment} from '../payment.models';
 @Component({
     selector: 'app-payment-list',
     imports: [Avatar, EurPipe, FrDatePipe],
-    host: {class: 'grid gap-5'},
+    host: {class: 'grid grid-cols-1 gap-5'},
     templateUrl: './payment-list.html',
 })
 export class PaymentList {
