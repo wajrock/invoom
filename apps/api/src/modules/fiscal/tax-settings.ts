@@ -60,7 +60,7 @@ export const ABATTEMENT: Record<Activity, number> = {
 export function defaultRates(activity: Activity): Rates {
     switch (activity) {
         case 'bnc':
-            return {social: 0.261, vl: 0.022};
+            return {social: 0.256, vl: 0.022};
         case 'bnc_cipav':
             return {social: 0.232, vl: 0.022};
         case 'bic_services':
@@ -72,8 +72,8 @@ export function defaultRates(activity: Activity): Rates {
 
 export function defaultCeilings(activity: Activity): {caCeiling: number; tvaThreshold: number} {
     return activity === 'bic_vente'
-        ? {caCeiling: 188_700_00, tvaThreshold: 85_000_00}
-        : {caCeiling: 77_700_00, tvaThreshold: 37_500_00};
+        ? {caCeiling: 203_100_00, tvaThreshold: 85_000_00}
+        : {caCeiling: 83_600_00, tvaThreshold: 37_500_00};
 }
 
 export function defaultPeriod(activity: Activity, from: string): RatePeriod {

@@ -25,9 +25,9 @@ const base = (over: Partial<TaxSettings> = {}, period: Partial<RatePeriod> = {})
 
 test('contributions without ACRE or VL', () => {
     const c = computeCharges([{amount: 10_000_00, paidOn: '2026-02-01'}], base());
-    assert.equal(c.social, 2_610_00);
+    assert.equal(c.social, 2_560_00);
     assert.equal(c.vl, 0);
-    assert.equal(c.urssaf, 2_610_00);
+    assert.equal(c.urssaf, 2_560_00);
 });
 
 test('the entered rate is applied as is, VL on top', () => {
@@ -60,7 +60,7 @@ test('quarterly deadlines and CFE', () => {
     const first = d.find((x) => x.autoKey === 'urssaf:2025-Q3');
     assert.equal(first?.dueOn, '2025-10-31');
     assert.equal(first?.periodStart, '2025-03-10');
-    assert.equal(first?.amount, 261_00);
+    assert.equal(first?.amount, 256_00);
     assert.match(first?.title ?? '', /Première déclaration/);
     assert.equal(d.find((x) => x.autoKey === 'urssaf:2025-Q4')?.dueOn, '2026-02-02'); // 31/01 = samedi
 });
@@ -77,7 +77,7 @@ test('start on 2026-10-01: first declaration covers Oct 2026 → Mar 2027', () =
     assert.equal(urssaf[0].dueOn, '2027-04-30');
     assert.equal(urssaf[0].periodStart, '2026-10-01');
     assert.equal(urssaf[0].periodEnd, '2027-03-31');
-    assert.equal(urssaf[0].amount, Math.round(5_000_00 * 0.261));
+    assert.equal(urssaf[0].amount, Math.round(5_000_00 * 0.256));
     assert.ok(!d.some((x) => x.autoKey === 'urssaf:2026-Q4'));
     // CFE: initial declaration end of 2026, exempt in 2026, paid from 2027
     assert.ok(d.some((x) => x.autoKey === 'cfe-decl:2026' && x.dueOn === '2026-12-31'));
@@ -134,8 +134,8 @@ const withChange = (change: Partial<RatePeriod>, from = '2026-07-01'): TaxSettin
 
 test('period in force: the first one also covers everything before it', () => {
     const s = withChange({rates: {social: 0.3, vl: 0.022}});
-    assert.equal(periodAt(s, '2020-01-01').rates.social, 0.261);
-    assert.equal(periodAt(s, '2026-06-30').rates.social, 0.261);
+    assert.equal(periodAt(s, '2020-01-01').rates.social, 0.256);
+    assert.equal(periodAt(s, '2026-06-30').rates.social, 0.256);
     assert.equal(periodAt(s, '2026-07-01').rates.social, 0.3);
 });
 
@@ -149,7 +149,7 @@ test('a new rate does not change earlier payments', () => {
     // L'encaissement de mars garde son ancien montant
     assert.deepEqual(computeCharges(items.slice(0, 1), s), before);
     // Rate change mid-year: each payment keeps its own rate
-    assert.equal(computeCharges(items, s).social, 261_00 + 300_00);
+    assert.equal(computeCharges(items, s).social, 256_00 + 300_00);
 });
 
 test('VL enabled mid-year: tax is estimated only on revenue outside VL', () => {
@@ -199,19 +199,19 @@ test('migrates the legacy format without periods', () => {
 });
 
 test('simulation from the invoiced amount, without VL', () => {
-    // BNC: 26.1 % contributions, income tax 11 % on 66 % of revenue (7.26 %)
+    // BNC: 25.6 % contributions, income tax 11 % on 66 % of revenue (7.26 %)
     const sim = simulateFromGross(1_000_00, base(), '2026-03-01');
-    assert.equal(sim.social, 261_00);
+    assert.equal(sim.social, 256_00);
     assert.equal(sim.vl, 0);
     assert.equal(sim.incomeTax, 72_60);
-    assert.equal(sim.net, 666_40);
+    assert.equal(sim.net, 671_40);
 });
 
 test('simulation with the VL scheme replaces the income tax estimate', () => {
     const sim = simulateFromGross(1_000_00, base({}, {versementLiberatoire: true}), '2026-03-01');
     assert.equal(sim.vl, 22_00);
     assert.equal(sim.incomeTax, 0);
-    assert.equal(sim.net, 717_00);
+    assert.equal(sim.net, 722_00);
 });
 
 test('simulation from a target net finds the smallest amount to invoice', () => {
@@ -226,6 +226,6 @@ test('simulation from a target net finds the smallest amount to invoice', () => 
 test('simulation uses the rates in force on the given date', () => {
     const s = base({}, {});
     s.periods.push({...defaultPeriod('bnc', '2026-07-01'), rates: {social: 0.2, vl: 0.022}});
-    assert.equal(simulateFromGross(1_000_00, s, '2026-06-30').social, 261_00);
+    assert.equal(simulateFromGross(1_000_00, s, '2026-06-30').social, 256_00);
     assert.equal(simulateFromGross(1_000_00, s, '2026-07-01').social, 200_00);
 });

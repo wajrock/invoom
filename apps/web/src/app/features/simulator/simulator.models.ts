@@ -3,7 +3,7 @@ import type {Activity} from '../settings/tax-settings.models';
 /** `gross`: from the amount invoiced to the net; `net`: from a target net to the amount to invoice. */
 export type SimulationFrom = 'gross' | 'net';
 
-/** Amounts in cents, rates as fractions (0.261 = 26.1 %). */
+/** Amounts in cents, rates as fractions (0.256 = 25.6 %). */
 export interface Simulation {
     gross: number;
     social: number;
