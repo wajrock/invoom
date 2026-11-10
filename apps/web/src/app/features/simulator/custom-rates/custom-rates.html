@@ -10,19 +10,25 @@
     </div>
 
     <div class="grid gap-2">
-        <label hlmLabel for="sim-social">Cotisations sociales (%)</label>
+        <label hlmLabel for="sim-social">Cotisations sociales (%){{ standardSocial() ? '*' : '' }}</label>
         <input
             hlmInput
             id="sim-social"
             inputmode="decimal"
+            [attr.aria-describedby]="standardSocial() ? 'sim-social-hint' : null"
             [ngModel]="f.social"
             (ngModelChange)="set('social', $event)"
         />
+        @if (standardSocial(); as standard) {
+            <p id="sim-social-hint" class="text-muted-foreground text-xs">
+                * Taux réduit par l'ACRE (taux normal : {{ standard }} %).
+            </p>
+        }
     </div>
 
-    <div class="flex items-center gap-3">
-        <hlm-switch inputId="sim-vl-on" [checked]="f.vlOn" (checkedChange)="set('vlOn', $event)" />
+    <div class="flex items-center justify-between gap-3">
         <label hlmLabel for="sim-vl-on">Versement libératoire</label>
+        <hlm-switch inputId="sim-vl-on" [checked]="f.vlOn" (checkedChange)="set('vlOn', $event)" />
     </div>
 
     @if (f.vlOn) {

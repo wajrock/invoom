@@ -1,4 +1,4 @@
-import {Component, input, model} from '@angular/core';
+import {Component, computed, input, model} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {HlmInputImports} from '@spartan-ng/helm/input';
 import {HlmLabelImports} from '@spartan-ng/helm/label';
@@ -46,6 +46,14 @@ export function parseCustomRates(f: CustomRatesForm): CustomRates | null {
 export class CustomRatesFields {
     readonly value = model.required<CustomRatesForm>();
     readonly activities = input<ActivityDefaults[]>([]);
+
+    /** Standard rate of the activity when the typed one is lower: only ACRE brings it down */
+    protected readonly standardSocial = computed(() => {
+        const f = this.value();
+        const standard = this.activities().find((a) => a.activity === f.activity)?.rates.social;
+        const typed = parsePercent(f.social, DECIMALS);
+        return standard !== undefined && typed !== null && typed < standard ? percentToInput(standard, DECIMALS) : null;
+    });
 
     protected set<K extends keyof CustomRatesForm>(key: K, v: CustomRatesForm[K]) {
         this.value.update((f) => ({...f, [key]: v}));

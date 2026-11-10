@@ -58,16 +58,16 @@
                     <p class="text-muted-foreground text-sm">
                         {{ from() === 'gross' ? 'Net en poche' : 'À facturer hors TVA' }}
                     </p>
-                    <p class="text-4xl font-semibold tracking-tight tabular-nums">
+                    <p class="font-display text-primary text-4xl font-semibold tabular-nums">
                         {{ (from() === 'gross' ? r.net : r.gross) | eur }}
                     </p>
                 </div>
 
                 @if (shares(); as s) {
                     <div class="bg-muted flex h-2.5 overflow-hidden rounded-full" aria-hidden="true">
-                        <span class="bg-foreground" [style.width]="s.net"></span>
-                        <span class="bg-foreground/40" [style.width]="s.social"></span>
-                        <span class="bg-foreground/20" [style.width]="s.tax"></span>
+                        <span class="bg-primary" [style.width]="s.net"></span>
+                        <span class="bg-highlight/70" [style.width]="s.social"></span>
+                        <span class="bg-tint-ochre/50" [style.width]="s.tax"></span>
                     </div>
                 }
 
@@ -78,14 +78,14 @@
                     </div>
                     <div class="flex justify-between gap-4">
                         <dt class="flex items-center gap-2">
-                            <span class="bg-foreground/40 size-2 rounded-full"></span>
+                            <span class="bg-highlight/70 size-2 rounded-full"></span>
                             Cotisations sociales ({{ percent(r.rates.social) }})
                         </dt>
                         <dd class="tabular-nums">− {{ r.social | eur }}</dd>
                     </div>
                     <div class="flex justify-between gap-4">
                         <dt class="flex items-center gap-2">
-                            <span class="bg-foreground/20 size-2 rounded-full"></span>
+                            <span class="bg-tint-ochre/50 size-2 rounded-full"></span>
                             @if (r.versementLiberatoire) {
                                 Versement libératoire ({{ percent(r.rates.vl) }})
                             } @else {
@@ -96,16 +96,16 @@
                     </div>
                     <div class="flex justify-between gap-4 border-t pt-2.5 font-medium">
                         <dt class="flex items-center gap-2">
-                            <span class="bg-foreground size-2 rounded-full"></span>
+                            <span class="bg-primary size-2 rounded-full"></span>
                             Net en poche
                         </dt>
-                        <dd class="tabular-nums">{{ r.net | eur }}</dd>
+                        <dd class="text-primary tabular-nums">{{ r.net | eur }}</dd>
                     </div>
                 </dl>
 
                 <p class="text-muted-foreground text-xs leading-relaxed">
-                    @if (source() === 'custom') {
-                        Taux personnalisés, non enregistrés.
+                    @if (edited()) {
+                        Taux modifiés pour cette simulation, non enregistrés.
                     } @else {
                         Taux en vigueur aujourd'hui selon tes
                         <a
@@ -127,19 +127,22 @@
     </section>
 
     <section hlmCard class="lg:col-start-1">
+        <div hlmCardHeader class="max-sm:grid-cols-[1fr_auto]!">
+            <h2 hlmCardTitle class="text-lg">Taux de charges</h2>
+            @if (edited()) {
+                <button hlmBtn hlmCardAction variant="ghost" size="sm" type="button" (click)="resetRates()">
+                    Réinitialiser
+                </button>
+            }
+        </div>
         <div hlmCardContent class="grid gap-3">
-            <p class="text-sm font-medium">Taux de charges</p>
-            <app-segmented-control
-                aria-label="Taux de charges"
-                [options]="sources"
-                [value]="source()"
-                (valueChange)="setSource($event)"
-            />
-            @if (source() === 'custom' && customForm(); as f) {
-                <app-custom-rates [value]="f" (valueChange)="customForm.set($event)" [activities]="activities()" />
-                @if (customInvalid()) {
+            @if (ratesForm(); as f) {
+                <app-custom-rates [value]="f" (valueChange)="ratesForm.set($event)" [activities]="activities()" />
+                @if (ratesInvalid()) {
                     <p class="text-destructive text-sm">Les taux doivent être compris entre 0 et 100 %.</p>
                 }
+            } @else {
+                <p class="text-muted-foreground text-sm">Chargement de tes paramètres…</p>
             }
         </div>
     </section>

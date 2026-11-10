@@ -2,6 +2,7 @@ import {Component, computed, effect, inject, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {RouterLink} from '@angular/router';
 import {ReplaceUrlLinks} from '../../core/navigation/replace-url-links';
+import {HlmButtonImports} from '@spartan-ng/helm/button';
 import {HlmCardImports} from '@spartan-ng/helm/card';
 import {HlmInputImports} from '@spartan-ng/helm/input';
 import {HlmLabelImports} from '@spartan-ng/helm/label';
@@ -16,16 +17,9 @@ import {CustomRatesFields, type CustomRatesForm, formFromInputs, parseCustomRate
 import {SimulatorApi} from './simulator.api';
 import type {Simulation, SimulationFrom} from './simulator.models';
 
-type RatesSource = 'saved' | 'custom';
-
 const DIRECTIONS: SegmentOption<SimulationFrom>[] = [
     {value: 'gross', label: 'Je facture…'},
     {value: 'net', label: 'Je veux toucher…'},
-];
-
-const SOURCES: SegmentOption<RatesSource>[] = [
-    {value: 'saved', label: 'Mes paramètres'},
-    {value: 'custom', label: 'Personnalisés'},
 ];
 
 const QUICK_AMOUNTS = [500_00, 1_000_00, 2_500_00, 5_000_00];
@@ -38,6 +32,7 @@ const percent = new Intl.NumberFormat('fr-FR', {style: 'percent', maximumFractio
         FormsModule,
         RouterLink,
         ReplaceUrlLinks,
+        HlmButtonImports,
         HlmCardImports,
         HlmInputImports,
         HlmLabelImports,
@@ -58,19 +53,21 @@ export class SimulatorPage {
     protected readonly error = signal('');
     protected readonly quickAmounts = QUICK_AMOUNTS;
     protected readonly directions = DIRECTIONS;
-    protected readonly sources = SOURCES;
 
-    protected readonly source = signal<RatesSource>('saved');
-    protected readonly customForm = signal<CustomRatesForm | null>(null);
+    /** Rates as typed, pre-filled from the saved tax settings by the first simulation */
+    protected readonly ratesForm = signal<CustomRatesForm | null>(null);
+    /** The pre-filled rates, to undo the edits */
+    private readonly savedForm = signal<CustomRatesForm | null>(null);
+    /** Yearly CFE of the saved settings; the rates sent afterwards carry none */
+    private readonly savedCfe = signal(0);
     protected readonly activities = signal<ActivityDefaults[]>([]);
-    /** Parsed custom rates; null while one of them is invalid. */
-    protected readonly customRates = computed(() => {
-        const f = this.customForm();
-        return this.source() === 'custom' && f ? parseCustomRates(f) : null;
+    /** Parsed rates; null while one of them is invalid. */
+    protected readonly rates = computed(() => {
+        const f = this.ratesForm();
+        return f ? parseCustomRates(f) : null;
     });
-    protected readonly customInvalid = computed(
-        () => this.source() === 'custom' && this.customForm() !== null && this.customRates() === null,
-    );
+    protected readonly ratesInvalid = computed(() => this.ratesForm() !== null && this.rates() === null);
+    protected readonly edited = computed(() => JSON.stringify(this.ratesForm()) !== JSON.stringify(this.savedForm()));
 
     protected readonly amount = computed(() => parseEuros(this.input()));
     protected readonly invalid = computed(() => this.input().trim() !== '' && this.amount() === null);
@@ -84,7 +81,7 @@ export class SimulatorPage {
     });
 
     protected readonly exclusions = computed(() => {
-        const cfe = this.result()?.cfe ?? 0;
+        const cfe = this.savedCfe();
         return cfe > 0 ? `Hors TVA et hors CFE (${formatCents(cfe, true)} par an).` : 'Hors TVA.';
     });
 
@@ -95,13 +92,15 @@ export class SimulatorPage {
         effect((onCleanup) => {
             const amount = this.amount();
             const from = this.from();
-            const custom = this.source() === 'custom' ? this.customRates() : undefined;
+            // The first call uses the saved settings and pre-fills the form; the next ones send the form
+            const custom = this.ratesForm() ? this.rates() : undefined;
             if (amount === null || custom === null) return;
             const id = ++this.requestId;
             const timer = setTimeout(async () => {
                 try {
                     const r = await this.api.simulate(amount, from, custom);
                     if (id !== this.requestId) return;
+                    if (!custom) this.prefill(r);
                     this.result.set(r);
                     this.error.set('');
                 } catch (err) {
@@ -111,28 +110,26 @@ export class SimulatorPage {
             onCleanup(() => clearTimeout(timer));
         });
 
-        // Custom rates start from the saved ones, so only what differs needs typing
-        effect(() => {
-            if (this.source() !== 'custom' || this.customForm()) return;
-            const r = this.result();
-            const first = this.activities()[0];
-            if (r) this.customForm.set(formFromInputs(r.inputs, r.versementLiberatoire));
-            else if (first)
-                this.customForm.set(
-                    formFromInputs({...first.rates, activity: first.activity, incomeTaxRate: 0.11}, false),
-                );
-        });
+        void this.loadActivities();
     }
 
-    protected async setSource(source: RatesSource) {
-        this.source.set(source);
-        if (source === 'custom' && !this.activities().length) {
-            try {
-                this.activities.set(await this.taxApi.defaults());
-            } catch (err) {
-                this.error.set(errorMessage(err));
-            }
+    private prefill(r: Simulation) {
+        const form = formFromInputs(r.inputs, r.versementLiberatoire);
+        this.savedForm.set(form);
+        this.savedCfe.set(r.cfe);
+        this.ratesForm.set(form);
+    }
+
+    private async loadActivities() {
+        try {
+            this.activities.set(await this.taxApi.defaults());
+        } catch (err) {
+            this.error.set(errorMessage(err));
         }
+    }
+
+    protected resetRates() {
+        this.ratesForm.set(this.savedForm());
     }
 
     protected pick(cents: number) {
