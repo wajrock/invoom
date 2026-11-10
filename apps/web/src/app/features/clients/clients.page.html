@@ -38,19 +38,6 @@
                             </span>
                         </span>
                         <span class="shrink-0 text-sm font-medium tabular-nums">{{ s ? (s.total | eur) : '—' }}</span>
-                        <button
-                            listRowAction
-                            hlmBtn
-                            variant="ghost"
-                            size="icon"
-                            class="text-muted-foreground shrink-0"
-                            [hlmDropdownMenuTrigger]="menu"
-                            [hlmDropdownMenuTriggerData]="{$implicit: c}"
-                            align="end"
-                            aria-label="Actions"
-                        >
-                            <ng-icon name="lucideEllipsis" />
-                        </button>
                     </app-list-row>
                 </li>
             } @empty {
@@ -60,7 +47,7 @@
             }
         </ul>
 
-        <div hlmTableContainer class="hidden overflow-hidden rounded-xl border sm:block">
+        <div hlmTableContainer class="bg-card hidden overflow-hidden rounded-xl border sm:block">
             <table
                 hlmTable
                 class="[&_td]:px-3 [&_td]:py-3 [&_th]:px-3 [&_tr>*:first-child]:pl-5 [&_tr>*:last-child]:pr-4"

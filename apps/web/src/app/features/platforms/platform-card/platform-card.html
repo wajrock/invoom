@@ -1,5 +1,11 @@
 @let p = platform();
-<a [href]="p.url" target="_blank" rel="noopener noreferrer" class="flex items-start gap-3 p-4 pr-12">
+<a
+    [href]="p.url"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="flex items-start gap-3 p-4 sm:pr-12"
+    (click)="follow($event)"
+>
     <span class="bg-muted grid size-9 shrink-0 place-items-center overflow-hidden rounded-lg">
         @if (!broken() && host()) {
             <img
@@ -43,7 +49,7 @@
     hlmBtn
     variant="ghost"
     size="icon-sm"
-    class="absolute top-3 right-3"
+    class="absolute top-3 right-3 max-sm:hidden"
     [hlmDropdownMenuTrigger]="menu()"
     [hlmDropdownMenuTriggerData]="{$implicit: p}"
     align="end"

@@ -13,7 +13,7 @@
                 </h2>
                 <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     @for (p of g.items; track p.id) {
-                        <app-platform-card [platform]="p" [menu]="menu" />
+                        <app-platform-card [platform]="p" [menu]="menu" (open)="detail(p)" />
                     }
                 </div>
             </section>

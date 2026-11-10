@@ -32,7 +32,7 @@
                     <p class="text-muted-foreground mt-0.5 truncate text-xs">{{ n.title }}</p>
                 }
             </app-kpi-tile>
-            <app-kpi-tile variant="compact" label="À régler sous 3 mois" [value]="dueSoon() | eur">
+            <app-kpi-tile variant="compact" label="À payer sous 3 mois" [value]="dueSoon() | eur">
                 <p class="text-muted-foreground mt-0.5 text-xs">
                     {{ dueSoonCount() }} échéance{{ dueSoonCount() > 1 ? 's' : '' }}
                 </p>
@@ -59,29 +59,25 @@
             </button>
         </div>
     } @else {
-        <app-filter-bar placeholder="Rechercher…" [(query)]="query">
-            <select
-                class="select-native w-auto!"
-                aria-label="Année"
-                [ngModel]="year()"
-                (ngModelChange)="year.set($event)"
-            >
-                <option value="all">Toutes les années</option>
-                @for (y of pastYears(); track y) {
-                    <option [value]="y">{{ y }}</option>
-                }
-            </select>
-            <select
-                class="select-native w-auto!"
-                aria-label="Type"
-                [ngModel]="kind()"
-                (ngModelChange)="kind.set($event)"
-            >
-                <option value="all">Tous les types</option>
-                @for (k of kinds; track k.value) {
-                    <option [value]="k.value">{{ k.label }}</option>
-                }
-            </select>
+        <app-filter-bar placeholder="Rechercher…" [active]="filtersActive()" [(query)]="query">
+            <label class="filter-field">
+                <span>Année</span>
+                <select class="select-native sm:w-auto" [ngModel]="year()" (ngModelChange)="year.set($event)">
+                    <option value="all">Toutes les années</option>
+                    @for (y of pastYears(); track y) {
+                        <option [value]="y">{{ y }}</option>
+                    }
+                </select>
+            </label>
+            <label class="filter-field">
+                <span>Type</span>
+                <select class="select-native sm:w-auto" [ngModel]="kind()" (ngModelChange)="kind.set($event)">
+                    <option value="all">Tous les types</option>
+                    @for (k of kinds; track k.value) {
+                        <option [value]="k.value">{{ k.label }}</option>
+                    }
+                </select>
+            </label>
         </app-filter-bar>
         <p class="text-muted-foreground mb-3 text-xs">
             {{ pastFiltered().length }} échéance{{ pastFiltered().length > 1 ? 's' : '' }} · {{ pastTotal() | eur }}
@@ -113,9 +109,25 @@
         <ul class="bg-card divide-y overflow-hidden rounded-xl border" [class.border-destructive/40]="late">
             @for (d of g.items; track d.id) {
                 <li>
-                    <app-deadline-row [deadline]="d" (open)="detail(d)" />
+                    <app-deadline-row [deadline]="d" [menu]="actions" (open)="detail(d)" />
                 </li>
             }
         </ul>
     </section>
+</ng-template>
+
+<ng-template #actions let-d>
+    <hlm-dropdown-menu class="w-60">
+        <button hlmDropdownMenuItem (click)="toggle(d)">
+            <ng-icon [name]="d.done ? 'lucideCircle' : 'lucideCircleCheck'" />
+            {{ d.done ? 'Marquer comme non effectuée' : 'Marquer comme effectuée' }}
+        </button>
+        @if (!d.auto) {
+            <button hlmDropdownMenuItem (click)="open(d)"><ng-icon name="lucidePencil" /> Modifier</button>
+        }
+        <hlm-dropdown-menu-separator />
+        <button hlmDropdownMenuItem variant="destructive" (click)="remove(d)">
+            <ng-icon name="lucideTrash2" /> Supprimer
+        </button>
+    </hlm-dropdown-menu>
 </ng-template>

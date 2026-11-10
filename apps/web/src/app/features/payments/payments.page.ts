@@ -54,6 +54,9 @@ export class PaymentsPage {
     protected readonly query = signal('');
     protected readonly year = signal<string>(String(new Date().getFullYear()));
     protected readonly status = signal<StatusFilter>('all');
+    protected readonly filtersActive = computed(
+        () => this.year() !== String(new Date().getFullYear()) || this.status() !== 'all',
+    );
 
     protected readonly years = computed(() => {
         const ys = new Set<number>([new Date().getFullYear()]);

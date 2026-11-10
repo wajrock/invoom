@@ -10,6 +10,7 @@ import {errorMessage} from '../../core/http/error-message';
 import {EmptyState} from '../../shared/ui/empty-state/empty-state';
 import {PageHeader} from '../../shared/ui/page-header/page-header';
 import {PlatformCard} from './platform-card/platform-card';
+import {openPlatformDetail} from './platform-detail/platform-detail';
 import {openPlatformDialog} from './platform-dialog/platform-dialog';
 import type {Platform} from './platform.models';
 import {PlatformsApi} from './platforms.api';
@@ -59,6 +60,19 @@ export class PlatformsPage {
         const categories = [...new Set((this.platforms() ?? []).map((p) => p.category))];
         openPlatformDialog(this.dialog, {platform, categories}).subscribe((changed) => {
             if (changed) void this.load();
+        });
+    }
+
+    detail(platform: Platform) {
+        openPlatformDetail(this.dialog, {
+            platform,
+            isFirst: this.isFirst(platform),
+            isLast: this.isLast(platform),
+        }).subscribe((action) => {
+            if (action === 'edit') this.open(platform);
+            else if (action === 'delete') void this.remove(platform);
+            else if (action === 'up') void this.move(platform, -1);
+            else if (action === 'down') void this.move(platform, 1);
         });
     }
 

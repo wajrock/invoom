@@ -16,3 +16,17 @@
         <span class="block text-xs" [class]="statusClass(d)">{{ status(d) }}</span>
     </span>
 </button>
+@if (menu(); as m) {
+    <button
+        hlmBtn
+        variant="ghost"
+        size="icon-sm"
+        class="text-muted-foreground mr-2 hidden shrink-0 sm:inline-flex"
+        [hlmDropdownMenuTrigger]="m"
+        [hlmDropdownMenuTriggerData]="{$implicit: d}"
+        align="end"
+        aria-label="Actions"
+    >
+        <ng-icon name="lucideEllipsis" />
+    </button>
+}

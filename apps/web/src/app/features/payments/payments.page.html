@@ -4,18 +4,24 @@
     </button>
 </app-page-header>
 
-<app-filter-bar placeholder="Rechercher un client, un objet, un n°…" [(query)]="query">
-    <select class="select-native w-auto!" aria-label="Année" [ngModel]="year()" (ngModelChange)="year.set($event)">
-        <option value="all">Toutes les années</option>
-        @for (y of years(); track y) {
-            <option [value]="'' + y">{{ y }}</option>
-        }
-    </select>
-    <select class="select-native w-auto!" aria-label="Statut" [ngModel]="status()" (ngModelChange)="status.set($event)">
-        <option value="all">Tous</option>
-        <option value="paid">Encaissés</option>
-        <option value="pending">En attente</option>
-    </select>
+<app-filter-bar placeholder="Rechercher un client, un objet, un n°…" [active]="filtersActive()" [(query)]="query">
+    <label class="filter-field">
+        <span>Année</span>
+        <select class="select-native sm:w-auto" [ngModel]="year()" (ngModelChange)="year.set($event)">
+            <option value="all">Toutes les années</option>
+            @for (y of years(); track y) {
+                <option [value]="'' + y">{{ y }}</option>
+            }
+        </select>
+    </label>
+    <label class="filter-field">
+        <span>Statut</span>
+        <select class="select-native sm:w-auto" [ngModel]="status()" (ngModelChange)="status.set($event)">
+            <option value="all">Tous</option>
+            <option value="paid">Encaissés</option>
+            <option value="pending">En attente</option>
+        </select>
+    </label>
 </app-filter-bar>
 
 @if (payments(); as list) {

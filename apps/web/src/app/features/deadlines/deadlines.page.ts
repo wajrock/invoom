@@ -2,10 +2,20 @@ import {NgTemplateOutlet} from '@angular/common';
 import {Component, computed, inject, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {NgIcon, provideIcons} from '@ng-icons/core';
-import {lucideCalendarClock, lucideCalendarPlus, lucideHistory, lucidePlus} from '@ng-icons/lucide';
+import {
+    lucideCalendarClock,
+    lucideCalendarPlus,
+    lucideCircle,
+    lucideCircleCheck,
+    lucideHistory,
+    lucidePencil,
+    lucidePlus,
+    lucideTrash2,
+} from '@ng-icons/lucide';
 import {toast} from '@spartan-ng/brain/sonner';
 import {HlmButtonImports} from '@spartan-ng/helm/button';
 import {HlmDialogService} from '@spartan-ng/helm/dialog';
+import {HlmDropdownMenuImports} from '@spartan-ng/helm/dropdown-menu';
 import {HlmSkeletonImports} from '@spartan-ng/helm/skeleton';
 import {errorMessage} from '../../core/http/error-message';
 import {EurPipe} from '../../shared/pipes/eur.pipe';
@@ -35,6 +45,7 @@ const PAGE = 5;
         EurPipe,
         FrDatePipe,
         HlmButtonImports,
+        HlmDropdownMenuImports,
         HlmSkeletonImports,
         DeadlineRow,
         EmptyState,
@@ -42,7 +53,18 @@ const PAGE = 5;
         KpiTile,
         PageHeader,
     ],
-    providers: [provideIcons({lucidePlus, lucideCalendarPlus, lucideCalendarClock, lucideHistory})],
+    providers: [
+        provideIcons({
+            lucidePlus,
+            lucideCalendarPlus,
+            lucideCalendarClock,
+            lucideHistory,
+            lucideCircle,
+            lucideCircleCheck,
+            lucidePencil,
+            lucideTrash2,
+        }),
+    ],
     templateUrl: './deadlines.page.html',
 })
 export class DeadlinesPage {
@@ -67,6 +89,7 @@ export class DeadlinesPage {
     protected readonly query = signal('');
     protected readonly year = signal('all');
     protected readonly kind = signal<'all' | DeadlineKind>('all');
+    protected readonly filtersActive = computed(() => this.year() !== 'all' || this.kind() !== 'all');
 
     private readonly today = todayIso();
 
@@ -186,7 +209,8 @@ export class DeadlinesPage {
     }
 
     async remove(d: Deadline) {
-        if (!confirm(`Supprimer « ${d.title} » ?`)) return;
+        const warning = d.auto ? '\nElle est calculée automatiquement : elle ne reviendra pas.' : '';
+        if (!confirm(`Supprimer « ${d.title} » ?${warning}`)) return;
         try {
             await this.api.delete(d.id);
             toast.success('Échéance supprimée');

@@ -1,0 +1,86 @@
+<hlm-dialog-header>
+    <div class="flex items-center gap-3">
+        <span class="bg-muted grid size-10 shrink-0 place-items-center overflow-hidden rounded-lg">
+            @if (!broken() && host) {
+                <img
+                    [src]="favicon"
+                    alt=""
+                    width="20"
+                    height="20"
+                    referrerpolicy="no-referrer"
+                    (error)="broken.set(true)"
+                />
+            } @else {
+                <ng-icon name="lucideGlobe" class="text-muted-foreground" />
+            }
+        </span>
+        <div class="min-w-0">
+            <h2 hlmDialogTitle class="truncate text-xl leading-6 font-semibold">{{ p.name }}</h2>
+            <p class="text-muted-foreground truncate text-[13px] leading-4">{{ host }}</p>
+        </div>
+    </div>
+</hlm-dialog-header>
+
+<div class="-mx-1 grid content-start gap-6 overflow-y-auto overscroll-contain px-1 py-5">
+    <a hlmBtn variant="outline" class="w-full" [href]="p.url" target="_blank" rel="noopener noreferrer">
+        <ng-icon name="lucideExternalLink" /> Ouvrir le site
+    </a>
+
+    <dl class="divide-y rounded-xl border text-sm">
+        @if (p.login) {
+            <div class="flex items-center justify-between gap-4 px-3.5 py-1.5">
+                <dt class="text-muted-foreground shrink-0">Identifiant</dt>
+                <dd class="flex min-w-0 items-center gap-1">
+                    <span class="truncate font-mono font-medium">{{ p.login }}</span>
+                    <button
+                        hlmBtn
+                        variant="ghost"
+                        size="icon-sm"
+                        class="text-muted-foreground"
+                        aria-label="Copier l’identifiant"
+                        (click)="copy(p.login)"
+                    >
+                        <ng-icon name="lucideCopy" />
+                    </button>
+                </dd>
+            </div>
+        }
+        <div class="flex items-center justify-between gap-4 px-3.5 py-2.5">
+            <dt class="text-muted-foreground shrink-0">Catégorie</dt>
+            <dd class="min-w-0 truncate text-right font-medium">{{ p.category || 'Autre' }}</dd>
+        </div>
+        <div class="flex items-center justify-between gap-4 px-3.5 py-1.5">
+            <dt class="text-muted-foreground shrink-0">Ordre</dt>
+            <dd class="flex gap-1">
+                <button
+                    hlmBtn
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Monter"
+                    [disabled]="ctx.isFirst"
+                    (click)="close('up')"
+                >
+                    <ng-icon name="lucideArrowUp" />
+                </button>
+                <button
+                    hlmBtn
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Descendre"
+                    [disabled]="ctx.isLast"
+                    (click)="close('down')"
+                >
+                    <ng-icon name="lucideArrowDown" />
+                </button>
+            </dd>
+        </div>
+    </dl>
+
+    @if (p.description) {
+        <p class="text-muted-foreground text-sm whitespace-pre-line">{{ p.description }}</p>
+    }
+</div>
+
+<app-detail-footer (remove)="close('delete')">
+    <button hlmBtn (click)="close('edit')"><ng-icon name="lucidePencil" /> Modifier</button>
+</app-detail-footer>

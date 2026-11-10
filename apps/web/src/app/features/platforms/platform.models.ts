@@ -19,3 +19,8 @@ export function hostOf(url: string): string {
         return '';
     }
 }
+
+/** Favicon of a host, through a public favicon service */
+export function faviconOf(host: string): string {
+    return `https://icons.duckduckgo.com/ip3/${host}.ico`;
+}
