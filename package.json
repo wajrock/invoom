@@ -9,6 +9,7 @@
     "scripts": {
         "dev": "pnpm --parallel --filter @invoom/api --filter @invoom/web dev",
         "dev:tunnel": "pnpm --parallel --filter @invoom/api --filter @invoom/web dev:tunnel",
+        "push-data": "bash apps/api/scripts/push-data.sh",
         "build": "pnpm --filter @invoom/web build",
         "test": "pnpm -r test",
         "typecheck": "pnpm -r typecheck",
