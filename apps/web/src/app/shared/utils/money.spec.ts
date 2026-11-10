@@ -1,4 +1,4 @@
-import {centsToInput, parseEuros, parsePercent, percentToInput} from './money';
+import {centsToInput, formatCents, formatMoney, parseEuros, parsePercent, percentToInput} from './money';
 
 describe('money helpers', () => {
     it('parses French-formatted amounts to cents', () => {
@@ -22,5 +22,10 @@ describe('money helpers', () => {
         expect(parsePercent('20,5 %', 1)).toBe(0.205);
         expect(parsePercent('101', 1)).toBeNull();
         expect(percentToInput(0.205, 1)).toBe('20,5');
+    });
+
+    it('separates thousands with a regular no-break space, visible in every font', () => {
+        expect(formatCents(123456)).toBe('1\u00a0234,56\u00a0€');
+        expect(formatMoney(123456, 'USD')).toContain('1\u00a0234,56');
     });
 });

@@ -2,15 +2,15 @@
     <div class="flex items-center gap-3">
         <app-kind-icon [kind]="d.kind" />
         <div class="min-w-0">
-            <h2 hlmDialogTitle class="truncate text-xl leading-6 font-semibold tracking-tight">{{ d.title }}</h2>
+            <h2 hlmDialogTitle class="truncate text-xl leading-6 font-semibold">{{ d.title }}</h2>
             <p class="text-muted-foreground truncate text-[13px] leading-4">{{ kind }}</p>
         </div>
     </div>
 </hlm-dialog-header>
 
 <div class="-mx-1 grid content-start gap-6 overflow-y-auto overscroll-contain px-1 py-5">
-    <div class="bg-muted/40 flex items-center justify-between gap-3 rounded-xl p-4">
-        <p class="text-2xl font-semibold tracking-tight tabular-nums">
+    <div class="flex items-center justify-between gap-3">
+        <p class="font-display text-primary text-3xl font-semibold tabular-nums">
             {{ d.amount === null ? 'Montant libre' : (d.amount | eur) }}
         </p>
         <span class="shrink-0 rounded-full px-2.5 py-1 text-xs font-medium" [class]="status.pill">
@@ -35,12 +35,12 @@
     }
 </div>
 
-<app-detail-footer [removable]="!d.auto" (remove)="close('delete')">
+<app-detail-footer (remove)="close('delete')">
     @if (!d.auto) {
         <button hlmBtn variant="outline" (click)="close('edit')"><ng-icon name="lucidePencil" /> Modifier</button>
     }
     <button hlmBtn [variant]="d.done ? 'outline' : 'default'" (click)="close('toggle')">
         <ng-icon [name]="d.done ? 'lucideCircle' : 'lucideCircleCheck'" />
-        {{ d.done ? 'Marquer non réglée' : 'Marquer réglée' }}
+        {{ d.done ? 'Marquer non effectuée' : 'Marquer effectuée' }}
     </button>
 </app-detail-footer>

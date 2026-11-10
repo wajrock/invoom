@@ -31,16 +31,6 @@
             >
                 <ng-icon name="lucideLogOut" />
             </button>
-            <button
-                hlmBtn
-                variant="ghost"
-                size="icon-sm"
-                (click)="theme.toggle()"
-                [attr.aria-label]="themeLabel()"
-                [title]="themeLabel()"
-            >
-                <ng-icon [name]="theme.theme() === 'dark' ? 'lucideSun' : 'lucideMoon'" />
-            </button>
             <a
                 hlmBtn
                 variant="ghost"

@@ -11,7 +11,7 @@
                 #rla="routerLinkActive"
                 [routerLinkActiveOptions]="{exact: item.path === '/'}"
                 class="flex flex-col items-center justify-center gap-1 text-[10px] select-none"
-                [class]="rla.isActive ? 'text-foreground font-semibold' : 'text-muted-foreground font-medium'"
+                [class]="rla.isActive ? 'text-primary font-semibold' : 'text-muted-foreground font-medium'"
                 [attr.aria-current]="rla.isActive ? 'page' : null"
             >
                 <ng-icon [name]="item.icon" class="text-[1.375rem]" [strokeWidth]="rla.isActive ? 2.25 : 1.75" />
@@ -21,7 +21,7 @@
         <button
             type="button"
             class="flex flex-col items-center justify-center gap-1 text-[10px] select-none"
-            [class]="moreActive() || moreOpen() ? 'text-foreground font-semibold' : 'text-muted-foreground font-medium'"
+            [class]="moreActive() || moreOpen() ? 'text-primary font-semibold' : 'text-muted-foreground font-medium'"
             (click)="openMore.emit()"
             aria-haspopup="dialog"
         >

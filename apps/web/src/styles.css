@@ -4,6 +4,8 @@
 @import 'tailwindcss/utilities.css';
 
 @import '@spartan-ng/brain/hlm-tailwind-preset.css';
+/* Display font for titles and key figures, self-hosted (the CSP only allows fonts from the app itself) */
+@import '@fontsource-variable/fraunces';
 
 :root {
     color-scheme: light;
@@ -12,77 +14,82 @@
         -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
+    --chart-1: #005461;
+    --chart-2: #d0703c;
+    --chart-3: #b8741a;
+    --chart-4: #5f7a4a;
+    --chart-5: #7a4a6b;
     --radius: 0.625rem;
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.141 0.005 285.823);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.141 0.005 285.823);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.141 0.005 285.823);
-    --primary: oklch(0.21 0.006 285.885);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.967 0.001 286.375);
-    --secondary-foreground: oklch(0.21 0.006 285.885);
-    --muted: oklch(0.967 0.001 286.375);
-    --muted-foreground: oklch(0.552 0.016 285.938);
-    --accent: oklch(0.967 0.001 286.375);
-    --accent-foreground: oklch(0.21 0.006 285.885);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.92 0.004 286.32);
-    --input: oklch(0.92 0.004 286.32);
-    --ring: oklch(0.705 0.015 286.067);
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.141 0.005 285.823);
-    --sidebar-primary: oklch(0.21 0.006 285.885);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.967 0.001 286.375);
-    --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-    --sidebar-border: oklch(0.92 0.004 286.32);
-    --sidebar-ring: oklch(0.705 0.015 286.067);
+    --background: #f4f4f4;
+    --foreground: #24201c;
+    --card: #fafaf8;
+    --card-foreground: #24201c;
+    --popover: #fcfbfa;
+    --popover-foreground: #24201c;
+    --primary: #005461;
+    --primary-foreground: #fffcf8;
+    --secondary: #f0e9df;
+    --secondary-foreground: #3b3129;
+    --muted: #efebe5;
+    --muted-foreground: #6f665d;
+    --accent: #dfecea;
+    --accent-foreground: #005461;
+    --destructive: #b4432f;
+    --border: #e6e0d8;
+    --input: #ddd6cc;
+    /* Form fields: a touch lighter than cards, so they read as fields on any surface */
+    --field: #fffefc;
+    --ring: #005461;
+    --sidebar: #faf7f2;
+    --sidebar-foreground: #24201c;
+    --sidebar-primary: #005461;
+    --sidebar-primary-foreground: #fffcf8;
+    --sidebar-accent: #dfecea;
+    --sidebar-accent-foreground: #005461;
+    --sidebar-border: #e6e0d8;
+    --sidebar-ring: #005461;
+
+    /* Warm art direction: deep teal (primary) answered by terracotta, on warm neutrals */
+    --highlight: #d0703c;
+    --success: #2e7d57;
+    --warning: #b8741a;
+    /* Avatar and category tints, in the same family */
+    --tint-teal: #005461;
+    --tint-terracotta: #c0602f;
+    --tint-ochre: #a8741a;
+    --tint-sage: #5f7a4a;
+    --tint-plum: #7a4a6b;
+    --tint-slate: #4a5a6e;
+    --tint-clay: #9a5a44;
+    --tint-moss: #3f6b5c;
+}
+@theme {
+    --font-display: 'Fraunces Variable', ui-serif, Georgia, serif;
 }
 
-:root.dark {
-    color-scheme: dark;
-
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --background: oklch(0.141 0.005 285.823);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.21 0.006 285.885);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.21 0.006 285.885);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.92 0.004 286.32);
-    --primary-foreground: oklch(0.21 0.006 285.885);
-    --secondary: oklch(0.274 0.006 286.033);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.274 0.006 286.033);
-    --muted-foreground: oklch(0.705 0.015 286.067);
-    --accent: oklch(0.274 0.006 286.033);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.552 0.016 285.938);
-    --sidebar: oklch(0.21 0.006 285.885);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.985 0 0);
-    --sidebar-primary-foreground: oklch(0.21 0.006 285.885);
-    --sidebar-accent: oklch(0.274 0.006 286.033);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.552 0.016 285.938);
+@theme inline {
+    --color-field: var(--field);
+    --color-highlight: var(--highlight);
+    --color-success: var(--success);
+    --color-warning: var(--warning);
+    --color-tint-teal: var(--tint-teal);
+    --color-tint-terracotta: var(--tint-terracotta);
+    --color-tint-ochre: var(--tint-ochre);
+    --color-tint-sage: var(--tint-sage);
+    --color-tint-plum: var(--tint-plum);
+    --color-tint-slate: var(--tint-slate);
+    --color-tint-clay: var(--tint-clay);
+    --color-tint-moss: var(--tint-moss);
 }
 
 @layer base {
+    [data-slot='dialog-title'],
+    [data-slot='card-title'] {
+        @apply font-display;
+    }
+    ::selection {
+        @apply bg-highlight/25;
+    }
     * {
         @apply border-border outline-ring/50;
     }
@@ -95,7 +102,13 @@
 
 /* Native <select> styled like hlmInput fields */
 @utility select-native {
-    @apply border-input focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 h-9 w-full min-w-0 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs outline-none focus-visible:ring-3 disabled:opacity-50 md:text-sm;
+    @apply border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full min-w-0 rounded-md border bg-field py-1 pr-8 pl-2.5 text-base shadow-xs outline-none focus-visible:ring-3 disabled:opacity-50 md:text-sm;
+    /* Drawn like the other fields: iOS otherwise paints its own rounded, shaded control */
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236f665d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.625rem center;
+    background-size: 1rem;
 }
 
 @layer base {
@@ -174,17 +187,25 @@
     }
 }
 
+/* A filter of app-filter-bar: captioned in the phone menu, inline select on larger screens */
+@utility filter-field {
+    @apply grid gap-1.5 sm:contents;
+    & > span {
+        @apply text-muted-foreground text-xs font-medium sm:sr-only;
+    }
+}
+
 /* Page header: large app-style title on mobile */
 @utility page-head {
     @apply mb-5 flex flex-wrap items-center justify-between gap-3 md:mb-6 md:items-end md:gap-4;
     & h1 {
-        @apply text-[1.875rem] leading-tight font-bold tracking-tight md:text-2xl md:font-semibold;
+        @apply font-display text-[1.875rem] leading-tight font-semibold md:text-[1.75rem];
     }
     & h1 + p {
         @apply max-md:hidden;
     }
     & h2 {
-        @apply text-lg font-semibold;
+        @apply font-display text-xl font-semibold;
     }
 }
 

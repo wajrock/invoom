@@ -13,11 +13,11 @@
 
 @if (data(); as d) {
     <div class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        <app-kpi-tile [label]="'CA encaissé ' + d.year" [value]="d.summary.ca | eur: true">
+        <app-kpi-tile detailsInTooltip [label]="'CA encaissé ' + d.year" [value]="d.summary.ca | eur: true">
             @if (growth(); as g) {
                 <p
                     class="mt-1 flex items-center gap-1 text-xs"
-                    [class]="g.value >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive'"
+                    [class]="g.value >= 0 ? 'text-success' : 'text-destructive'"
                 >
                     <ng-icon [name]="g.value >= 0 ? 'lucideTrendingUp' : 'lucideTrendingDown'" />
                     {{ g.label }} vs {{ g.period }}
@@ -26,12 +26,12 @@
                 <p class="text-muted-foreground mt-1 text-xs">{{ d.previous.ca | eur: true }} en {{ d.year - 1 }}</p>
             }
         </app-kpi-tile>
-        <app-kpi-tile [label]="'URSSAF ' + d.year" [value]="d.summary.social | eur: true">
+        <app-kpi-tile detailsInTooltip [label]="'URSSAF ' + d.year" [value]="d.summary.social | eur: true">
             <p class="text-muted-foreground mt-1 text-xs">
                 Cotisations sociales · {{ rateOfCa(d, d.summary.social) }} du CA
             </p>
         </app-kpi-tile>
-        <app-kpi-tile [label]="'Impôts ' + d.year" [value]="taxes().total | eur: true">
+        <app-kpi-tile detailsInTooltip [label]="'Impôts ' + d.year" [value]="taxes().total | eur: true">
             <dl class="mt-1.5 grid gap-0.5 text-xs">
                 @for (t of taxes().lines; track t.label) {
                     <div class="flex justify-between gap-2">
@@ -41,7 +41,7 @@
                 }
             </dl>
         </app-kpi-tile>
-        <app-kpi-tile label="Net estimé" [value]="d.summary.net | eur: true">
+        <app-kpi-tile detailsInTooltip label="Net estimé" [value]="d.summary.net | eur: true">
             <p class="text-muted-foreground mt-1 text-xs">Après cotisations et impôts</p>
         </app-kpi-tile>
     </div>
@@ -49,8 +49,7 @@
     <div class="mt-4 grid gap-4 lg:grid-cols-3">
         <section hlmCard class="lg:col-span-2">
             <div hlmCardHeader>
-                <h2 hlmCardTitle>Encaissements mensuels</h2>
-                <p hlmCardDescription>{{ d.year }} comparé à {{ d.year - 1 }}</p>
+                <h2 hlmCardTitle class="text-lg">Encaissements mensuels</h2>
             </div>
             <div hlmCardContent>
                 <div echarts [options]="chart()" class="h-56 w-full sm:h-72"></div>
@@ -59,8 +58,7 @@
 
         <section hlmCard>
             <div hlmCardHeader>
-                <h2 hlmCardTitle>Seuils {{ d.year }}</h2>
-                <p hlmCardDescription>Calculés sur le CA encaissé</p>
+                <h2 hlmCardTitle class="text-lg">Seuils {{ d.year }}</h2>
             </div>
             <div hlmCardContent class="grid gap-5">
                 @for (t of thresholds(); track t.label) {
@@ -104,11 +102,17 @@
         </section>
     </div>
 
-    <div class="mt-4 grid gap-4 lg:grid-cols-3">
-        <section hlmCard class="lg:col-span-2">
-            <div hlmCardHeader>
-                <h2 hlmCardTitle>Prochaines échéances</h2>
-                <p hlmCardDescription>Non réglées, en retard ou dans les 6 mois</p>
+    <div class="mt-4 grid gap-4">
+        <section hlmCard>
+            <div hlmCardHeader class="max-sm:grid-cols-[1fr_auto]!">
+                <h2 hlmCardTitle class="text-lg">Prochaines échéances</h2>
+                <!-- Kept on the right on phones too (the global rule moves card actions below the title) -->
+                <div hlmCardAction class="max-sm:col-start-2! max-sm:row-start-1! max-sm:mt-0! max-sm:self-center!">
+                    <a hlmBtn variant="link" size="sm" appReplaceUrl routerLink="/echeances" class="px-0">
+                        <span class="sm:hidden">Tout voir</span><span class="max-sm:hidden">Toutes les échéances</span>
+                        <ng-icon name="lucideArrowRight" />
+                    </a>
+                </div>
             </div>
             <div hlmCardContent>
                 @if (d.upcoming.length === 0) {
@@ -133,42 +137,14 @@
                                     variant="ghost"
                                     size="icon-sm"
                                     (click)="markDone(dl)"
-                                    aria-label="Marquer comme réglée"
-                                    title="Marquer comme réglée"
+                                    aria-label="Marquer comme effectuée"
+                                    title="Marquer comme effectuée"
                                 >
                                     <ng-icon name="lucideCheck" />
                                 </button>
                             </li>
                         }
                     </ul>
-                }
-                <a hlmBtn variant="link" appReplaceUrl routerLink="/echeances" class="mt-2 px-0"
-                    >Toutes les échéances <ng-icon name="lucideArrowRight"
-                /></a>
-            </div>
-        </section>
-
-        <section hlmCard>
-            <div hlmCardHeader>
-                <h2 hlmCardTitle>Détail {{ d.year }}</h2>
-            </div>
-            <div hlmCardContent>
-                <dl class="grid gap-2 text-sm">
-                    @for (row of breakdown(); track row.label) {
-                        <div
-                            class="flex justify-between gap-2"
-                            [class]="row.strong ? 'border-t pt-2 font-semibold' : ''"
-                        >
-                            <dt [class.text-muted-foreground]="!row.strong">{{ row.label }}</dt>
-                            <dd class="tabular-nums">{{ row.value }}</dd>
-                        </div>
-                    }
-                </dl>
-                @if (d.settings.periodsInYear > 1) {
-                    <p class="text-muted-foreground mt-3 text-xs">
-                        Les taux ont changé en cours d’année : chaque encaissement est calculé avec les taux en vigueur
-                        à sa date.
-                    </p>
                 }
             </div>
         </section>

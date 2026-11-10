@@ -2,16 +2,16 @@ import {Component, computed, input} from '@angular/core';
 import {NgIcon, provideIcons} from '@ng-icons/core';
 import {lucideUsers} from '@ng-icons/lucide';
 
-/** Static class names so Tailwind generates them */
+/** Palette tints (styles.css), as static class names so Tailwind generates them */
 const TINTS = [
-    'bg-sky-500/15 text-sky-700 dark:text-sky-300',
-    'bg-violet-500/15 text-violet-700 dark:text-violet-300',
-    'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
-    'bg-amber-500/15 text-amber-700 dark:text-amber-300',
-    'bg-rose-500/15 text-rose-700 dark:text-rose-300',
-    'bg-teal-500/15 text-teal-700 dark:text-teal-300',
-    'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300',
-    'bg-orange-500/15 text-orange-700 dark:text-orange-300',
+    'bg-tint-teal/12 text-tint-teal',
+    'bg-tint-terracotta/12 text-tint-terracotta',
+    'bg-tint-ochre/14 text-tint-ochre',
+    'bg-tint-sage/14 text-tint-sage',
+    'bg-tint-plum/12 text-tint-plum',
+    'bg-tint-slate/12 text-tint-slate',
+    'bg-tint-clay/12 text-tint-clay',
+    'bg-tint-moss/12 text-tint-moss',
 ];
 const NEUTRAL = 'bg-muted text-muted-foreground';
 

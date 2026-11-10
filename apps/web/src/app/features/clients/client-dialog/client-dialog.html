@@ -1,5 +1,5 @@
 <hlm-dialog-header>
-    <h2 hlmDialogTitle class="text-xl font-semibold tracking-tight">
+    <h2 hlmDialogTitle class="text-xl font-semibold">
         {{ existing ? 'Modifier le client' : 'Nouveau client' }}
     </h2>
 </hlm-dialog-header>
@@ -65,7 +65,7 @@
             <label hlmLabel [for]="'c-f-' + s.key">
                 {{ s.def.label }}
                 @if (s.def.expected && !values[s.key]?.trim()) {
-                    <span class="text-xs font-normal text-amber-600">recommandé</span>
+                    <span class="text-xs font-normal text-warning">recommandé</span>
                 }
             </label>
             <input

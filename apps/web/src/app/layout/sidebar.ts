@@ -1,12 +1,11 @@
 import {Logo} from '../shared/ui/logo/logo';
 import {NgTemplateOutlet} from '@angular/common';
-import {Component, inject, output} from '@angular/core';
+import {Component, output} from '@angular/core';
 import {RouterLink, RouterLinkActive} from '@angular/router';
 import {ReplaceUrlLinks} from '../core/navigation/replace-url-links';
 import {NgIcon, provideIcons} from '@ng-icons/core';
-import {lucideLogOut, lucideMoon, lucideSun} from '@ng-icons/lucide';
+import {lucideLogOut} from '@ng-icons/lucide';
 import {HlmButtonImports} from '@spartan-ng/helm/button';
-import {ThemeService} from '../core/theme.service';
 import {NAV_GROUPS, NAV_ICONS, SETTINGS} from './nav';
 
 /** GitHub mark (simple-icons, CC0) */
@@ -17,18 +16,13 @@ const GITHUB_PATH =
 @Component({
     selector: 'app-sidebar',
     imports: [NgTemplateOutlet, RouterLink, ReplaceUrlLinks, RouterLinkActive, NgIcon, HlmButtonImports, Logo],
-    providers: [provideIcons({...NAV_ICONS, lucideLogOut, lucideMoon, lucideSun})],
+    providers: [provideIcons({...NAV_ICONS, lucideLogOut})],
     templateUrl: './sidebar.html',
 })
 export class Sidebar {
-    protected readonly theme = inject(ThemeService);
     protected readonly groups = NAV_GROUPS;
     protected readonly settings = SETTINGS;
     protected readonly repoUrl = 'https://github.com/wajrock/invoom';
     protected readonly githubPath = GITHUB_PATH;
     readonly logout = output<void>();
-
-    protected themeLabel() {
-        return this.theme.theme() === 'dark' ? 'Passer en thème clair' : 'Passer en thème sombre';
-    }
 }

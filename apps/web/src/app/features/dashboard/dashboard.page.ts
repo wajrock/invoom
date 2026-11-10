@@ -10,7 +10,6 @@ import {HlmCardImports} from '@spartan-ng/helm/card';
 import {HlmSkeletonImports} from '@spartan-ng/helm/skeleton';
 import {NgxEchartsDirective} from 'ngx-echarts';
 import {errorMessage} from '../../core/http/error-message';
-import {ThemeService} from '../../core/theme.service';
 import {EurPipe} from '../../shared/pipes/eur.pipe';
 import {FrDatePipe} from '../../shared/pipes/fr-date.pipe';
 import {KpiTile} from '../../shared/ui/kpi-tile/kpi-tile';
@@ -19,7 +18,7 @@ import {daysUntil, relativeDays} from '../../shared/utils/dates';
 import {KIND_LABELS, type Deadline} from '../deadlines/deadline.models';
 import {DeadlinesApi} from '../deadlines/deadlines.api';
 import {DashboardApi} from './dashboard.api';
-import {breakdown, growth, rateOfCa, taxes, thresholds} from './dashboard-summary';
+import {growth, rateOfCa, taxes, thresholds} from './dashboard-summary';
 import type {Dashboard} from './dashboard.models';
 import {monthlyChart} from './monthly-chart';
 
@@ -45,7 +44,6 @@ import {monthlyChart} from './monthly-chart';
 export class DashboardPage {
     private readonly api = inject(DashboardApi);
     private readonly deadlinesApi = inject(DeadlinesApi);
-    private readonly theme = inject(ThemeService);
 
     protected readonly year = signal(new Date().getFullYear());
     protected readonly data = signal<Dashboard | null>(null);
@@ -69,11 +67,7 @@ export class DashboardPage {
         const d = this.data();
         return d ? taxes(d) : {total: 0, lines: []};
     });
-    protected readonly breakdown = computed(() => {
-        const d = this.data();
-        return d ? breakdown(d) : [];
-    });
-    protected readonly chart = computed(() => monthlyChart(this.data(), this.theme.theme() === 'dark'));
+    protected readonly chart = computed(() => monthlyChart(this.data()));
 
     constructor() {
         void this.load();
@@ -96,7 +90,7 @@ export class DashboardPage {
     async markDone(dl: Deadline) {
         try {
             await this.deadlinesApi.setDone(dl.id, true);
-            toast.success('Échéance marquée comme réglée', {
+            toast.success('Échéance marquée comme effectuée', {
                 action: {label: 'Annuler', onClick: () => void this.undo(dl)},
             });
             await this.load();

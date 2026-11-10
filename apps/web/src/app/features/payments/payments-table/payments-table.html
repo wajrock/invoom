@@ -1,4 +1,4 @@
-<div hlmTableContainer class="overflow-x-auto overscroll-x-contain rounded-xl border">
+<div hlmTableContainer class="bg-card overflow-x-auto overscroll-x-contain rounded-xl border">
     <table
         hlmTable
         class="whitespace-nowrap [&_td]:px-3 [&_td]:py-3 [&_th]:px-3 [&_tr>*:first-child]:pl-5 [&_tr>*:last-child]:pr-4"
@@ -49,12 +49,12 @@
                         @if (p.paidOn) {
                             <span
                                 hlmBadge
-                                class="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                                class="bg-success/12 text-success"
                                 [title]="'Encaissé le ' + (p.paidOn | frDate)"
                                 ><ng-icon name="lucideCircleCheck" /> Payée</span
                             >
                         } @else {
-                            <span hlmBadge class="bg-amber-500/15 text-amber-700 dark:text-amber-400"
+                            <span hlmBadge class="bg-warning/15 text-warning"
                                 ><ng-icon name="lucideClock" /> En attente</span
                             >
                         }

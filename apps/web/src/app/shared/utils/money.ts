@@ -5,15 +5,21 @@ export const CURRENCIES = ['EUR', 'USD', 'GBP', 'CHF', 'CAD'];
 const eur = new Intl.NumberFormat('fr-FR', {style: 'currency', currency: 'EUR'});
 const eurRound = new Intl.NumberFormat('fr-FR', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0});
 
+/**
+ * Intl separates French thousands with a narrow no-break space, which the display font (Fraunces) draws almost
+ * invisibly ("1650 €"): a regular no-break space reads the same in every font.
+ */
+const widenSpaces = (s: string) => s.replace(/\u202f/g, '\u00a0');
+
 /** Cents → "1 234,56 €" */
 export function formatCents(cents: number | null | undefined, round = false): string {
     if (cents === null || cents === undefined) return '—';
-    return (round ? eurRound : eur).format(cents / 100);
+    return widenSpaces((round ? eurRound : eur).format(cents / 100));
 }
 
 export function formatMoney(cents: number, currency: string): string {
     try {
-        return new Intl.NumberFormat('fr-FR', {style: 'currency', currency}).format(cents / 100);
+        return widenSpaces(new Intl.NumberFormat('fr-FR', {style: 'currency', currency}).format(cents / 100));
     } catch {
         return `${(cents / 100).toFixed(2)} ${currency}`;
     }

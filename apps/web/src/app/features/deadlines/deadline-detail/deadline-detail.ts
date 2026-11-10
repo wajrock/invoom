@@ -39,7 +39,10 @@ export class DeadlineDetail {
     protected readonly status = deadlineStatus(this.d);
     protected readonly rows = [
         {label: 'Échéance', value: formatDate(this.d.dueOn)},
-        {label: 'Réglée le', value: this.d.done && this.d.doneAt ? formatDate(isoDate(new Date(this.d.doneAt))) : ''},
+        {
+            label: 'Effectuée le',
+            value: this.d.done && this.d.doneAt ? formatDate(isoDate(new Date(this.d.doneAt))) : '',
+        },
         {label: 'Type', value: this.d.auto ? `${this.kind} · calculée par Invoom` : this.kind},
     ].filter((row) => row.value);
 

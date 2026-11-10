@@ -19,7 +19,6 @@ export const MONTHS = [
 export interface SummaryRow {
     label: string;
     value: string;
-    strong?: boolean;
 }
 
 /** Change vs last year, over the same months for the current year (null when there is no reference). */
@@ -46,7 +45,7 @@ export function thresholds(d: Dashboard) {
             pct: Math.round(ratio * 100),
             bar: Math.min(100, ratio * 100),
             remaining: Math.max(0, t.limit - d.summary.ca),
-            color: ratio >= 1 ? 'bg-destructive' : ratio >= 0.8 ? 'bg-amber-500' : 'bg-primary',
+            color: ratio >= 1 ? 'bg-destructive' : ratio >= 0.8 ? 'bg-warning' : 'bg-primary',
         };
     });
 }
@@ -63,21 +62,6 @@ export function taxes(d: Dashboard): {total: number; lines: SummaryRow[]} {
     if (s.vl > 0) lines.push({label: 'Versement libératoire', value: formatCents(s.vl, true)});
     lines.push({label: 'CFE', value: s.cfeExempt ? 'exonérée' : formatCents(s.cfe, true)});
     return {total: s.incomeTaxEstimate + s.vl + s.cfe, lines};
-}
-
-/** From revenue to estimated net income */
-export function breakdown(d: Dashboard): SummaryRow[] {
-    const s = d.summary;
-    const rows: SummaryRow[] = [
-        {label: 'CA encaissé', value: formatCents(s.ca)},
-        {label: 'Cotisations sociales (URSSAF)', value: '− ' + formatCents(s.social)},
-    ];
-    if (hasIncomeTaxEstimate(d))
-        rows.push({label: 'Impôt sur le revenu (estimé)', value: '− ' + formatCents(s.incomeTaxEstimate)});
-    if (s.vl > 0) rows.push({label: 'Versement libératoire', value: '− ' + formatCents(s.vl)});
-    rows.push({label: s.cfeExempt ? 'CFE (exonérée)' : 'CFE', value: '− ' + formatCents(s.cfe)});
-    rows.push({label: 'Net estimé', value: formatCents(s.net), strong: true});
-    return rows;
 }
 
 /** Share of the revenue, e.g. "21,2 %" */

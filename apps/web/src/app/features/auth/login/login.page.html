@@ -1,14 +1,14 @@
 <div class="bg-background relative isolate min-h-dvh lg:grid lg:grid-cols-2">
     <!-- Desktop: the mosaic spans the screen and eases out before reaching the form -->
     <app-brand-pattern
-        class="text-foreground absolute inset-0 -z-10 hidden opacity-[0.05] [mask-image:linear-gradient(to_right,#000_0%,rgb(0_0_0/0.9)_20%,rgb(0_0_0/0.6)_35%,rgb(0_0_0/0.3)_47%,rgb(0_0_0/0.1)_56%,transparent_62%)] lg:block dark:opacity-[0.05]"
+        class="text-foreground absolute inset-0 -z-10 hidden opacity-[0.05] [mask-image:linear-gradient(to_right,#000_0%,rgb(0_0_0/0.9)_20%,rgb(0_0_0/0.6)_35%,rgb(0_0_0/0.3)_47%,rgb(0_0_0/0.1)_56%,transparent_62%)] lg:block"
     />
     <!-- Desktop: brand column -->
     <aside class="relative hidden overflow-hidden px-12 py-10 lg:flex lg:flex-col lg:justify-between xl:px-16">
         <app-logo class="h-9 self-start" />
 
         <div class="grid max-w-md gap-10">
-            <p class="text-4xl leading-tight font-semibold tracking-tight text-balance">
+            <p class="font-display text-4xl leading-tight font-semibold text-balance">
                 Le back-office open source des indépendants.
             </p>
             <ul class="grid gap-6">
@@ -29,14 +29,14 @@
 
     <!-- Mobile: the mosaic fades out from the top of the screen -->
     <app-brand-pattern
-        class="text-foreground absolute inset-0 -z-10 opacity-[0.06] [mask-image:radial-gradient(ellipse_100%_60%_at_50%_0%,#000_0%,rgb(0_0_0/0.7)_30%,rgb(0_0_0/0.35)_55%,rgb(0_0_0/0.1)_75%,transparent_90%)] lg:hidden dark:opacity-[0.09]"
+        class="text-foreground absolute inset-0 -z-10 opacity-[0.06] [mask-image:radial-gradient(ellipse_100%_60%_at_50%_0%,#000_0%,rgb(0_0_0/0.7)_30%,rgb(0_0_0/0.35)_55%,rgb(0_0_0/0.1)_75%,transparent_90%)] lg:hidden"
     />
 
     <main class="grid min-h-dvh content-center justify-items-center px-4 py-12 lg:px-12">
         <div class="grid w-full max-w-sm gap-8">
             <header class="grid justify-items-center gap-2 text-center">
                 <app-logo class="mb-4 h-9 lg:hidden" />
-                <h1 class="text-2xl font-semibold tracking-tight text-balance">{{ title() }}</h1>
+                <h1 class="font-display text-2xl font-semibold text-balance">{{ title() }}</h1>
                 <p class="text-muted-foreground text-sm text-balance">{{ subtitle() }}</p>
             </header>
 

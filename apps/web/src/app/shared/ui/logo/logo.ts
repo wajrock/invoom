@@ -1,9 +1,9 @@
 import {Component} from '@angular/core';
 
-/** Invoom wordmark; inherits the text colour and scales with its height. */
+/** Invoom wordmark, in the accent colour by default (a text colour class overrides it); scales with its height. */
 @Component({
     selector: 'app-logo',
-    host: {class: 'inline-flex'},
+    host: {class: 'text-primary inline-flex'},
     template: `
         <svg viewBox="0 0 306 64" fill="currentColor" class="h-full w-auto" role="img" aria-label="Invoom">
             <path

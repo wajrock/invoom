@@ -4,9 +4,10 @@ import {MONTHS} from './dashboard-summary';
 import type {Dashboard} from './dashboard.models';
 
 /** Monthly revenue bars for the year, with last year as a dashed line. */
-export function monthlyChart(d: Dashboard | null, dark: boolean): EChartsCoreOption {
-    const text = dark ? '#a1a1aa' : '#71717a';
-    const grid = dark ? 'rgba(255,255,255,0.08)' : '#e4e4e7';
+export function monthlyChart(d: Dashboard | null): EChartsCoreOption {
+    // Same values as the theme tokens in styles.css (canvas charts cannot read CSS variables)
+    const text = '#6f665d';
+    const grid = '#e6e0d8';
     const toEur = (v: number) => Math.round(v) / 100;
     return {
         animationDuration: 400,
@@ -15,9 +16,9 @@ export function monthlyChart(d: Dashboard | null, dark: boolean): EChartsCoreOpt
         tooltip: {
             trigger: 'axis',
             valueFormatter: (v: number) => formatCents(Math.round(v * 100)),
-            backgroundColor: dark ? '#27272a' : '#fff',
+            backgroundColor: '#fcfbfa',
             borderColor: grid,
-            textStyle: {color: dark ? '#fafafa' : '#18181b'},
+            textStyle: {color: '#24201c'},
         },
         xAxis: {
             type: 'category',
@@ -39,14 +40,14 @@ export function monthlyChart(d: Dashboard | null, dark: boolean): EChartsCoreOpt
                 name: String(d ? d.year : ''),
                 type: 'bar',
                 data: (d?.monthly ?? []).map(toEur),
-                itemStyle: {color: dark ? '#60a5fa' : '#2563eb', borderRadius: [4, 4, 0, 0]},
+                itemStyle: {color: '#005461', borderRadius: [4, 4, 0, 0]},
                 barMaxWidth: 28,
             },
             {
                 name: String(d ? d.year - 1 : ''),
                 type: 'line',
                 data: (d?.previousMonthly ?? []).map(toEur),
-                itemStyle: {color: dark ? '#71717a' : '#a1a1aa'},
+                itemStyle: {color: '#d0703c'},
                 lineStyle: {type: 'dashed', width: 2},
                 symbol: 'circle',
                 symbolSize: 5,

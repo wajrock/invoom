@@ -21,14 +21,7 @@
                         </span>
                         <span class="shrink-0 text-right">
                             <span class="block text-[15px] font-semibold tabular-nums">{{ p.amount | eur }}</span>
-                            <span
-                                class="block text-xs"
-                                [class]="
-                                    p.paidOn
-                                        ? 'text-emerald-600 dark:text-emerald-400'
-                                        : 'text-amber-600 dark:text-amber-400'
-                                "
-                            >
+                            <span class="block text-xs" [class]="p.paidOn ? 'text-success' : 'text-warning'">
                                 {{ p.paidOn ? 'Payée' : 'En attente' }}
                             </span>
                         </span>

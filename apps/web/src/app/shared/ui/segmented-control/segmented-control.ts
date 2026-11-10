@@ -15,7 +15,9 @@ export interface SegmentOption<T extends string> {
                 type="button"
                 class="rounded-md px-3 py-2 text-sm font-medium transition-colors"
                 [class]="
-                    value() === o.value ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                    value() === o.value
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
                 "
                 [attr.aria-pressed]="value() === o.value"
                 (click)="value.set(o.value)"

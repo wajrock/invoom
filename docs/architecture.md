@@ -73,7 +73,7 @@ Passwordless:
 ## Web (`apps/web/src/app`)
 
 ```
-core/        app-wide services: auth (service, guards, interceptor), theme, HTTP error helper
+core/        app-wide services: auth (service, guards, interceptor), navigation, HTTP error helper
 shared/      reusable UI components, pipes and utilities
 layout/      application shell: sidebar (desktop), tab bar and "Plus" sheet (mobile)
 features/    one folder per domain (auth, dashboard, payments, invoices, clients, services,

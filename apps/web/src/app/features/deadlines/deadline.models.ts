@@ -12,9 +12,9 @@ export const KIND_LABELS: Record<DeadlineKind, string> = {
 
 /** Icon and tint of each kind (static class names so Tailwind generates them) */
 export const KIND_STYLES: Record<DeadlineKind, {icon: string; tint: string}> = {
-    urssaf: {icon: 'lucideLandmark', tint: 'bg-sky-500/15 text-sky-700 dark:text-sky-300'},
-    cfe: {icon: 'lucideBuilding2', tint: 'bg-violet-500/15 text-violet-700 dark:text-violet-300'},
-    impot: {icon: 'lucidePercent', tint: 'bg-orange-500/15 text-orange-700 dark:text-orange-300'},
+    urssaf: {icon: 'lucideLandmark', tint: 'bg-tint-teal/12 text-tint-teal'},
+    cfe: {icon: 'lucideBuilding2', tint: 'bg-tint-plum/12 text-tint-plum'},
+    impot: {icon: 'lucidePercent', tint: 'bg-tint-terracotta/12 text-tint-terracotta'},
     autre: {icon: 'lucideBell', tint: 'bg-muted text-muted-foreground'},
 };
 
@@ -45,9 +45,9 @@ export interface Deadline extends DeadlineInput {
 export function deadlineStatus(d: Deadline): {label: string; text: string; pill: string} {
     if (d.done) {
         return {
-            label: 'Réglée',
-            text: 'text-emerald-600 dark:text-emerald-400',
-            pill: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400',
+            label: 'Effectuée',
+            text: 'text-success',
+            pill: 'bg-success/12 text-success',
         };
     }
     const days = daysUntil(d.dueOn);
@@ -56,7 +56,7 @@ export function deadlineStatus(d: Deadline): {label: string; text: string; pill:
     }
     return {
         label: relativeDays(d.dueOn),
-        text: days <= 30 ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground',
-        pill: days <= 30 ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400' : 'bg-muted text-muted-foreground',
+        text: days <= 30 ? 'text-warning' : 'text-muted-foreground',
+        pill: days <= 30 ? 'bg-warning/15 text-warning' : 'bg-muted text-muted-foreground',
     };
 }

@@ -1,7 +1,6 @@
-import {Component, inject} from '@angular/core';
+import {Component} from '@angular/core';
 import {RouterOutlet} from '@angular/router';
 import {HlmToasterImports} from '@spartan-ng/helm/sonner';
-import {ThemeService} from './core/theme.service';
 
 /**
  * Root: pages, toasts and the iOS status bar strip.
@@ -19,9 +18,7 @@ import {ThemeService} from './core/theme.service';
             aria-hidden="true"
             class="bg-background pointer-events-none fixed inset-x-0 top-0 z-[1001] h-[max(1px,env(safe-area-inset-top))]"
         ></div>
-        <hlm-toaster [theme]="theme.theme()" position="top-center" richColors />
+        <hlm-toaster position="top-center" richColors />
     `,
 })
-export class App {
-    protected readonly theme = inject(ThemeService);
-}
+export class App {}
