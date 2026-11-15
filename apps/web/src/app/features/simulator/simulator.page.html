@@ -130,7 +130,12 @@
         <div hlmCardHeader class="max-sm:grid-cols-[1fr_auto]!">
             <h2 hlmCardTitle class="text-lg">Taux de charges</h2>
             @if (edited()) {
-                <button hlmBtn hlmCardAction variant="ghost" size="sm" type="button" (click)="resetRates()">
+                <button
+                    type="button"
+                    hlmCardAction
+                    class="text-muted-foreground hover:text-foreground text-sm font-medium underline-offset-4 hover:underline max-sm:col-start-2! max-sm:row-start-1! max-sm:mt-0! max-sm:self-center!"
+                    (click)="resetRates()"
+                >
                     Réinitialiser
                 </button>
             }
