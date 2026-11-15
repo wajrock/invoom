@@ -240,3 +240,8 @@
 @utility tap-row {
     @apply active:bg-muted/70 cursor-pointer transition-colors;
 }
+
+/* Toasts (shared/ui/toaster) start a little below the iOS status bar, so they never slide in under it */
+[data-sonner-toaster][data-y-position='top'] {
+    top: calc(env(safe-area-inset-top) + 0.75rem) !important;
+}
