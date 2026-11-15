@@ -1,4 +1,4 @@
-import {Component, computed, input, model} from '@angular/core';
+import {Component, computed, input, linkedSignal, model} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {HlmInputImports} from '@spartan-ng/helm/input';
 import {HlmLabelImports} from '@spartan-ng/helm/label';
@@ -46,6 +46,18 @@ export function parseCustomRates(f: CustomRatesForm): CustomRates | null {
 export class CustomRatesFields {
     readonly value = model.required<CustomRatesForm>();
     readonly activities = input<ActivityDefaults[]>([]);
+    /** Rates of the saved tax settings, offered first: "Mes taux" tells them from the activity's standard ones */
+    readonly saved = input<CustomRatesForm | null>(null);
+
+    /**
+     * Entry shown in the list: the last one picked, kept while fields are edited. Whenever the form holds exactly
+     * the saved rates again (e.g. after "Réinitialiser"), it is "Mes taux".
+     */
+    protected readonly choice = linkedSignal<CustomRatesForm, 'saved' | Activity>({
+        source: this.value,
+        computation: (form, previous) =>
+            JSON.stringify(form) === JSON.stringify(this.saved()) ? 'saved' : (previous?.value ?? form.activity),
+    });
 
     /** Standard rate of the activity when the typed one is lower: only ACRE brings it down */
     protected readonly standardSocial = computed(() => {
@@ -59,8 +71,19 @@ export class CustomRatesFields {
         this.value.update((f) => ({...f, [key]: v}));
     }
 
+    protected choose(choice: 'saved' | Activity) {
+        const saved = this.saved();
+        if (choice === 'saved' && saved) this.value.set(saved);
+        else if (choice !== 'saved') this.setActivity(choice);
+        this.choice.set(choice);
+    }
+
+    protected standardRate(a: ActivityDefaults) {
+        return percentToInput(a.rates.social, DECIMALS);
+    }
+
     /** A new activity changes the allowance; start from its usual rates too. */
-    protected setActivity(activity: Activity) {
+    private setActivity(activity: Activity) {
         const d = this.activities().find((a) => a.activity === activity);
         this.value.update((f) => ({
             ...f,

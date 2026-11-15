@@ -142,7 +142,12 @@
         </div>
         <div hlmCardContent class="grid gap-3">
             @if (ratesForm(); as f) {
-                <app-custom-rates [value]="f" (valueChange)="ratesForm.set($event)" [activities]="activities()" />
+                <app-custom-rates
+                    [value]="f"
+                    (valueChange)="ratesForm.set($event)"
+                    [activities]="activities()"
+                    [saved]="savedForm()"
+                />
                 @if (ratesInvalid()) {
                     <p class="text-destructive text-sm">Les taux doivent être compris entre 0 et 100 %.</p>
                 }

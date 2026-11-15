@@ -1,24 +1,22 @@
 @let f = value();
 <div class="grid gap-4">
     <div class="grid gap-2">
-        <label hlmLabel for="sim-activity">Activité</label>
-        <select id="sim-activity" class="select-native" [ngModel]="f.activity" (ngModelChange)="setActivity($event)">
+        <label hlmLabel for="sim-social">Cotisations sociales{{ standardSocial() ? '*' : '' }}</label>
+        <!-- The rate comes first: the activity names are long and get cut on phones -->
+        <select
+            id="sim-social"
+            class="select-native"
+            [attr.aria-describedby]="standardSocial() ? 'sim-social-hint' : null"
+            [ngModel]="choice()"
+            (ngModelChange)="choose($event)"
+        >
+            @if (saved(); as mine) {
+                <option value="saved">{{ mine.social }} % · Mes taux</option>
+            }
             @for (a of activities(); track a.activity) {
-                <option [value]="a.activity">{{ a.label }}</option>
+                <option [value]="a.activity">{{ standardRate(a) }} % · {{ a.label }}</option>
             }
         </select>
-    </div>
-
-    <div class="grid gap-2">
-        <label hlmLabel for="sim-social">Cotisations sociales (%){{ standardSocial() ? '*' : '' }}</label>
-        <input
-            hlmInput
-            id="sim-social"
-            inputmode="decimal"
-            [attr.aria-describedby]="standardSocial() ? 'sim-social-hint' : null"
-            [ngModel]="f.social"
-            (ngModelChange)="set('social', $event)"
-        />
         @if (standardSocial(); as standard) {
             <p id="sim-social-hint" class="text-muted-foreground text-xs">
                 * Taux réduit par l'ACRE (taux normal : {{ standard }} %).

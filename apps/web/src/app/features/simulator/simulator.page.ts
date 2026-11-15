@@ -55,7 +55,7 @@ export class SimulatorPage {
     /** Rates as typed, pre-filled from the saved tax settings by the first simulation */
     protected readonly ratesForm = signal<CustomRatesForm | null>(null);
     /** The pre-filled rates, to undo the edits */
-    private readonly savedForm = signal<CustomRatesForm | null>(null);
+    protected readonly savedForm = signal<CustomRatesForm | null>(null);
     /** Yearly CFE of the saved settings; the rates sent afterwards carry none */
     private readonly savedCfe = signal(0);
     protected readonly activities = signal<ActivityDefaults[]>([]);
