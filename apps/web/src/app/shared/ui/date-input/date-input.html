@@ -15,23 +15,23 @@
     (input)="onInput($event)"
     (blur)="onBlur()"
 />
-<button
-    type="button"
-    class="text-muted-foreground hover:text-foreground absolute top-1/2 right-1 grid size-7 -translate-y-1/2 place-items-center rounded-md"
-    aria-label="Ouvrir le calendrier"
-    tabindex="-1"
-    [disabled]="disabled()"
-    (click)="openPicker()"
->
-    <ng-icon name="lucideCalendar" />
-</button>
-<!-- Hidden native input, only used to open the calendar -->
+<ng-icon
+    name="lucideCalendar"
+    class="text-muted-foreground pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2"
+    aria-hidden="true"
+/>
+<!--
+    Native date input, transparent, laid over the calendar icon: a tap lands on it directly. iOS Safari only opens
+    its picker on a real tap on the input (not from script); elsewhere the click also calls showPicker().
+-->
 <input
     #picker
     type="date"
     tabindex="-1"
     aria-hidden="true"
-    class="pointer-events-none absolute right-0 bottom-0 size-px opacity-0"
+    class="absolute top-1/2 right-1 size-7 -translate-y-1/2 cursor-pointer text-base opacity-0 disabled:cursor-default"
+    [disabled]="disabled()"
     [value]="value()"
+    (click)="openPicker()"
     (change)="onPick($event)"
 />

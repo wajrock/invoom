@@ -84,13 +84,12 @@ export class DateInput implements ControlValueAccessor {
         }
     }
 
+    /** Desktop browsers only open the calendar from their own indicator, which the transparent input hides */
     openPicker() {
-        const el = this.pickerEl().nativeElement;
         try {
-            el.showPicker();
+            this.pickerEl().nativeElement.showPicker();
         } catch {
-            el.focus();
-            el.click();
+            // Not supported (older Safari): the tap on the native input opens it anyway
         }
     }
 
