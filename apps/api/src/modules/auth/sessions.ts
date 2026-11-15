@@ -16,20 +16,27 @@ export interface SessionInfo {
 
 export type Sessions = ReturnType<typeof createSessions>;
 
-export function createSessions(db: Db, secureCookies: boolean) {
+/**
+ * `demo`: account used for every request without a session (local demo mode only, see demo/demo.ts), so no
+ * passkey is ever needed there.
+ */
+export function createSessions(db: Db, secureCookies: boolean, demo?: {userId: string; workspaceId: string}) {
     // __Host- cookies require HTTPS, which is only available in production
     const cookieName = secureCookies ? '__Host-invoom_session' : 'invoom_session';
 
     return {
         async current(c: Context): Promise<SessionInfo | null> {
             const token = getCookie(c, cookieName);
-            if (!token) return null;
-            const [s] = await db
-                .select()
-                .from(sessions)
-                .where(eq(sessions.id, sha256(token)));
-            if (!s || s.expiresAt < new Date()) return null;
-            return {userId: s.userId, workspaceId: s.workspaceId, expiresAt: s.expiresAt};
+            const [s] = token
+                ? await db
+                      .select()
+                      .from(sessions)
+                      .where(eq(sessions.id, sha256(token)))
+                : [];
+            if (s && s.expiresAt >= new Date()) {
+                return {userId: s.userId, workspaceId: s.workspaceId, expiresAt: s.expiresAt};
+            }
+            return demo ? {...demo, expiresAt: new Date(Date.now() + SESSION_TTL_MS)} : null;
         },
 
         async require(c: Context): Promise<SessionInfo> {

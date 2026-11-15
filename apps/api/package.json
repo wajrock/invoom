@@ -7,7 +7,7 @@
     },
     "scripts": {
         "dev": "node --watch --env-file-if-exists=.env src/main.ts",
-        "dev:tunnel": "node --watch --env-file-if-exists=.env src/main.ts",
+        "dev:demo": "INVOOM_DEMO=true node --watch --env-file-if-exists=.env src/main.ts",
         "start": "node src/main.ts",
         "typecheck": "tsc --noEmit",
         "test": "node --test 'src/**/*.test.ts'",
@@ -26,6 +26,7 @@
         "zod": "^4.6.7"
     },
     "devDependencies": {
+        "@electric-sql/pglite": "^0.5.16",
         "@types/node": "^26.6.6",
         "@types/nodemailer": "^8.0.2",
         "@types/pdfkit": "^0.17.7",

@@ -36,27 +36,40 @@ Open http://localhost:4200, create an account, and confirm it from the email cau
 
 Always use http://localhost:4200 in development: the Angular dev server reloads the page on every change. The API on :3333 only answers `/api/*` and redirects other pages to :4200; it serves the built web app only in production (`STATIC_DIR`).
 
+### Demo mode
+
+To try a feature or a fix without Docker, account or passkey:
+
+```bash
+pnpm dev:demo   # API + web app with a fictitious account, already signed in
+```
+
+The database runs inside the API ([PGlite](https://pglite.dev), the same Postgres with the same migrations and row-level security) and is stored in `apps/api/.demo`. On first start it is filled with fictitious data (clients, invoices, payments, deadlines) dated relative to today. Every visit is signed in as `demo@invoom.local`, on any address. Without passkeys there is no need for HTTPS: a phone on the same Wi-Fi opens `http://<your computer's IP>:4200` (macOS: `ipconfig getifaddr en0`), and a tunnel (see below) works too. `pnpm demo:reset` deletes the folder: the next start creates fresh data. The API refuses this mode when `NODE_ENV=production`.
+
+### Phone
+
 To test on a phone, passkeys need `localhost` or HTTPS, so go through an HTTPS tunnel:
 
 ```bash
-pnpm dev:tunnel                                 # like pnpm dev, but the web app also accepts *.trycloudflare.com
+pnpm dev                                        # the dev server also accepts *.trycloudflare.com addresses
 cloudflared tunnel --url http://localhost:4200  # in another terminal: prints the https://….trycloudflare.com address
 ```
 
-Then sign in on the phone with "Appareil perdu ou nouvel appareil ?" (link by email, caught by Mailpit) or `pnpm --filter @invoom/api access-link --email you@example.com https://….trycloudflare.com`. A passkey belongs to one address: the tunnel gets a new one each time it starts.
+With `pnpm dev:demo` the phone is signed in straight away, and the Wi-Fi address is enough. With your own account, sign in on the phone with "Appareil perdu ou nouvel appareil ?" (link by email, caught by Mailpit) or `pnpm --filter @invoom/api access-link --email you@example.com https://….trycloudflare.com`. A passkey belongs to one address: the tunnel gets a new one each time it starts.
 
 ## Scripts
 
-| Command           | What it does                                 |
-| ----------------- | -------------------------------------------- |
-| `pnpm dev`        | API and web app in watch mode                |
-| `pnpm dev:tunnel` | Same, reachable through a cloudflared tunnel |
-| `pnpm build`      | Production build of the web app              |
-| `pnpm test`       | Unit tests                                   |
-| `pnpm typecheck`  | TypeScript checks for both apps              |
-| `pnpm lint`       | ESLint (formatting included) and Prettier    |
-| `pnpm lint:fix`   | Fix lint and formatting issues               |
-| `pnpm check`      | lint + typecheck + test                      |
+| Command           | What it does                                   |
+| ----------------- | ---------------------------------------------- |
+| `pnpm dev`        | API and web app in watch mode                  |
+| `pnpm dev:demo`   | Same, with a fictitious account and local data |
+| `pnpm demo:reset` | Delete the demo data (recreated on next start) |
+| `pnpm build`      | Production build of the web app                |
+| `pnpm test`       | Unit tests                                     |
+| `pnpm typecheck`  | TypeScript checks for both apps                |
+| `pnpm lint`       | ESLint (formatting included) and Prettier      |
+| `pnpm lint:fix`   | Fix lint and formatting issues                 |
+| `pnpm check`      | lint + typecheck + test                        |
 
 Database migrations live in `apps/api/drizzle` and run automatically when the API starts. After changing `apps/api/src/db/schema`, run `pnpm --filter @invoom/api db:generate` and review the SQL (row-level security has to be added by hand, see the architecture notes).
 

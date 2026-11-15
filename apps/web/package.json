@@ -3,8 +3,7 @@
     "scripts": {
         "ng": "ng",
         "dev": "ng serve",
-        "dev:tunnel": "ng serve --configuration tunnel",
-        "dev:lan": "ng serve --host 0.0.0.0",
+        "dev:demo": "ng serve --host 0.0.0.0",
         "build": "ng build",
         "typecheck": "tsc -p tsconfig.app.json --noEmit",
         "test": "ng test --watch=false"

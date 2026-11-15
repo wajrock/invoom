@@ -3,7 +3,7 @@ import {randomBytes} from 'node:crypto';
 import {eq, sql} from 'drizzle-orm';
 import type {Deps} from '../core/deps.ts';
 import {createCipher, type Cipher} from '../core/crypto.ts';
-import type {Db} from './client.ts';
+import {rowsOf, type Db} from './client.ts';
 import {WORKSPACE_TABLES, workspaces} from './schema/index.ts';
 
 /**
@@ -61,9 +61,9 @@ export interface WorkspaceRuntime {
  * connection would bypass row-level security without being able to switch to that role.
  */
 export async function createWorkspaceRuntime(db: Db, master: Cipher): Promise<WorkspaceRuntime> {
-    const [{hasRole}] = (await db.execute(
-        sql`select exists(select 1 from pg_roles where rolname = ${APP_ROLE}) as "hasRole"`,
-    )) as unknown as {hasRole: boolean}[];
+    const [{hasRole}] = rowsOf<{hasRole: boolean}>(
+        await db.execute(sql`select exists(select 1 from pg_roles where rolname = ${APP_ROLE}) as "hasRole"`),
+    );
     let useRole = false;
     if (hasRole) {
         const tables = sql.raw(WORKSPACE_TABLES.map((t) => `"${t}"`).join(', '));
@@ -74,9 +74,9 @@ export async function createWorkspaceRuntime(db: Db, master: Cipher): Promise<Wo
         });
         useRole = true;
     } else {
-        const [me] = (await db.execute(
-            sql`select rolsuper, rolbypassrls from pg_roles where rolname = current_user`,
-        )) as unknown as {rolsuper: boolean; rolbypassrls: boolean}[];
+        const [me] = rowsOf<{rolsuper: boolean; rolbypassrls: boolean}>(
+            await db.execute(sql`select rolsuper, rolbypassrls from pg_roles where rolname = current_user`),
+        );
         if (me?.rolsuper || me?.rolbypassrls) {
             throw new Error(
                 `Isolation impossible : l'utilisateur Postgres contourne la RLS et le rôle ${APP_ROLE} n'existe pas. ` +

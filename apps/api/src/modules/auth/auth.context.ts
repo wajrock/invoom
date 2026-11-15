@@ -15,6 +15,8 @@ export interface AuthOptions {
     mailer: Mailer;
     secureCookies: boolean;
     trustProxy: boolean;
+    /** Local demo mode: account signed in without passkey (never set in production) */
+    demo?: {userId: string; workspaceId: string};
 }
 
 /** Everything the auth routes share. */
@@ -36,7 +38,7 @@ export function createAuthContext(opts: AuthOptions): AuthContext {
         workspaces: opts.workspaces,
         ip,
         limiter: createRateLimiter(opts.db, ip),
-        sessions: createSessions(opts.db, opts.secureCookies),
+        sessions: createSessions(opts.db, opts.secureCookies, opts.demo),
         challenges: createChallenges(opts.db),
         recoveryCodes: createRecoveryCodes(opts.db),
         emailLinks: createEmailLinks(opts.db, opts.mailer),

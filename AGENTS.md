@@ -8,6 +8,7 @@ Guidance for coding agents working on Invoom. Read [docs/architecture.md](docs/a
 pnpm install
 pnpm services            # Postgres + Mailpit via docker compose
 pnpm dev                 # API :3333 + web :4200
+pnpm dev:demo            # same, no Docker: fictitious account signed in, local PGlite data in apps/api/.demo
 pnpm check               # lint + typecheck + test: must pass before you finish
 pnpm lint:fix            # auto-fix formatting and lint
 pnpm --filter @invoom/api test
@@ -34,10 +35,11 @@ pnpm --filter @invoom/api db:generate   # after editing apps/api/src/db/schema
 - **Angular**: standalone components, signals, `@if/@for` control flow, `templateUrl` for templates over ~30 lines, files under ~250 lines. Reuse `shared/` components before creating new ones.
 - **Navigation**: in-app links carry `appReplaceUrl` next to `routerLink`, and code navigates through `NavigationService`, never the router directly: the installed app must not stack history entries (the iOS edge swipe would go back through them).
 - **Forms and details** open in the right drawer (`drawerOptions()` from `shared/ui/drawer`), full screen on phones; detail cards end with `app-detail-footer`.
+- **Demo mode** (`INVOOM_DEMO`) is development only: keep it refused in production, and keep PGlite a dev dependency loaded on demand. New business data should be added to the demo seed (`apps/api/src/demo/demo.ts`), through the API.
 - **Never commit** `.env` files, real invoices (`*.pdf` at the root) or database dumps.
 
 ## Verifying changes
 
 - Run `pnpm check`.
-- For UI changes, check both desktop and a 390 px wide viewport.
+- For UI changes, check both desktop and a 390 px wide viewport. `pnpm dev:demo` gives a signed-in account with realistic data.
 - For auth or isolation changes, exercise the flow with two accounts and confirm neither can read the other's data.

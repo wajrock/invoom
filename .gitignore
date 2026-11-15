@@ -6,6 +6,8 @@ coverage/
 out-tsc/
 *.log
 .env
+# Local demo database (pnpm dev:demo)
+.demo/
 .DS_Store
 .idea/
 .vscode/

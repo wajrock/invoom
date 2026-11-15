@@ -8,7 +8,8 @@
     },
     "scripts": {
         "dev": "pnpm --parallel --filter @invoom/api --filter @invoom/web dev",
-        "dev:tunnel": "pnpm --parallel --filter @invoom/api --filter @invoom/web dev:tunnel",
+        "dev:demo": "pnpm --parallel --filter @invoom/api --filter @invoom/web dev:demo",
+        "demo:reset": "rm -rf apps/api/.demo",
         "push-data": "bash apps/api/scripts/push-data.sh",
         "build": "pnpm --filter @invoom/web build",
         "test": "pnpm -r test",

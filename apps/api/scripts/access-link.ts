@@ -21,11 +21,11 @@ if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !/^https?:\/\//.test(
     process.exit(1);
 }
 
-const {db, sql} = createDb(databaseUrl);
+const {db, close} = createDb(databaseUrl);
 const [user] = await db.select().from(users).where(eq(users.email, email));
 if (!user) {
     console.error(`Aucun compte pour ${email} : l'inscription se fait depuis l'application.`);
-    await sql.end();
+    await close();
     process.exit(1);
 }
 
@@ -34,7 +34,7 @@ const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
 await db
     .insert(emailTokens)
     .values({hash: hashEmailToken(token), purpose: 'recover', email, userId: user.id, expiresAt});
-await sql.end();
+await close();
 
 console.log(
     `\nLien d'accès pour ${email} (valable jusqu'à ${expiresAt.toLocaleTimeString('fr-FR')}, usage unique) :\n`,
