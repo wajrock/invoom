@@ -333,7 +333,7 @@ export function renderInvoicePdf({invoice, client, company, lang}: RenderInput):
         ensure(bodyTop + bodyH);
         drawBand(t.terms, M, bankW);
         let py = y + bodyTop;
-        font(false, 8.5, '#3a3f4d');
+        font(false, 8.5, COLORS.text);
         for (const p of terms) {
             text(p, M + cellPad, py, {width: termsW, lineGap: 1.5});
             py += height(p, termsW, {lineGap: 1.5}) + 3;

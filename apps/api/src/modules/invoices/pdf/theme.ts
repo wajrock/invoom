@@ -1,13 +1,16 @@
 import {readFileSync} from 'node:fs';
 
+/** Same palette as the app (apps/web/src/styles.css): petrol accent on warm neutrals */
 export const COLORS = {
-    ink: '#1f2330',
-    muted: '#6b7080',
-    accent: '#4338ca',
-    /** Pastel accent (≈ 14 % on white) for secondary bands */
-    accentSoft: '#e6e4f8',
-    soft: '#f5f6f9',
-    border: '#e2e4ea',
+    ink: '#24201c',
+    muted: '#6f665d',
+    accent: '#005461',
+    /** Pastel accent for secondary bands (the app's accent surface) */
+    accentSoft: '#dfecea',
+    soft: '#f7f5f2',
+    border: '#e6e0d8',
+    /** Body text of the terms, a step lighter than ink */
+    text: '#3b3129',
     white: '#ffffff',
 };
 
