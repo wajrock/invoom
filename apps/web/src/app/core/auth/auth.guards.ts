@@ -15,3 +15,10 @@ export const guestGuard: CanActivateFn = async () => {
     const router = inject(Router);
     return !(await auth.check()) || router.parseUrl('/');
 };
+
+/** Signed in, or off to the login page, which brings the user back here afterwards */
+export const authReturnGuard: CanActivateFn = async (_route, state) => {
+    const auth = inject(Auth);
+    const router = inject(Router);
+    return (await auth.check()) || router.createUrlTree(['/login'], {queryParams: {next: state.url}});
+};

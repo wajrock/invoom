@@ -1,0 +1,55 @@
+<main class="bg-background grid min-h-dvh content-center justify-items-center px-4 py-12">
+    <div class="grid w-full max-w-sm gap-8">
+        <app-logo class="h-8 justify-self-center" />
+
+        @if (client(); as c) {
+            <div class="grid gap-2 text-center">
+                <h1 class="font-display text-2xl font-semibold text-balance">Autoriser {{ c.name }} ?</h1>
+                <p class="text-muted-foreground text-sm text-balance">
+                    {{ c.name }} pourra agir sur ton espace Invoom à ta demande.
+                </p>
+            </div>
+
+            <ul class="bg-card divide-y rounded-xl border text-sm">
+                <li class="flex gap-3 p-4">
+                    <ng-icon name="lucideBookOpen" class="text-primary mt-0.5 shrink-0" />
+                    <span
+                        >Consulter tes paiements, factures, clients, prestations, échéances et infos d'entreprise</span
+                    >
+                </li>
+                <li class="flex gap-3 p-4">
+                    <ng-icon name="lucidePencil" class="text-primary mt-0.5 shrink-0" />
+                    <span>Créer, modifier et supprimer ces éléments, dont émettre des factures</span>
+                </li>
+                <li class="flex gap-3 p-4">
+                    <ng-icon name="lucideShieldCheck" class="text-primary mt-0.5 shrink-0" />
+                    <span>Sans accès à tes passkeys ni à la sécurité du compte</span>
+                </li>
+            </ul>
+
+            <p class="text-muted-foreground text-center text-xs text-balance">
+                L'accès dure jusqu'à ce que tu le révoques dans Paramètres › Sécurité. Retour vers
+                <span class="text-foreground font-medium">{{ c.redirectHost }}</span
+                >.
+            </p>
+
+            <div class="grid gap-2">
+                <button hlmBtn [disabled]="busy()" (click)="decide(true)">
+                    @if (busy()) {
+                        <app-spinner />
+                    }
+                    Autoriser
+                </button>
+                <button hlmBtn variant="ghost" [disabled]="busy()" (click)="decide(false)">Refuser</button>
+            </div>
+            @if (error()) {
+                <p class="text-destructive text-center text-sm">{{ error() }}</p>
+            }
+        } @else if (error()) {
+            <div class="grid gap-2 text-center">
+                <h1 class="font-display text-2xl font-semibold">Demande invalide</h1>
+                <p class="text-muted-foreground text-sm">{{ error() }}</p>
+            </div>
+        }
+    </div>
+</main>

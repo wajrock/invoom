@@ -1,5 +1,5 @@
 import type {Routes} from '@angular/router';
-import {authGuard, guestGuard} from './core/auth/auth.guards';
+import {authGuard, authReturnGuard, guestGuard} from './core/auth/auth.guards';
 import {navLabel} from './layout/nav';
 import {Shell} from './layout/shell';
 
@@ -9,6 +9,13 @@ export const routes: Routes = [
         canActivate: [guestGuard],
         title: 'Connexion',
         loadComponent: () => import('./features/auth/login/login.page').then((m) => m.LoginPage),
+    },
+    {
+        // An agent (MCP client) asks for access: consent page, outside the app shell
+        path: 'autoriser',
+        canActivate: [authReturnGuard],
+        title: 'Autoriser un agent',
+        loadComponent: () => import('./features/agents/consent/consent.page').then((m) => m.ConsentPage),
     },
     {
         path: '',

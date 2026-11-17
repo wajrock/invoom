@@ -29,7 +29,7 @@ scripts/access-link.ts  admin tool: one-time access link for an account
 drizzle/                SQL migrations (generated, then hand-edited for RLS)
 ```
 
-Modules: `auth`, `clients`, `company`, `dashboard`, `deadlines`, `fiscal` (pure tax rules), `invoices` (numbering, totals, PDF), `payments` (and uploaded files), `platforms`, `services`, `settings`, `simulator` (net after charges, or amount to invoice for a target net).
+Modules: `agents` (OAuth for MCP clients and the MCP server), `auth`, `clients`, `company`, `dashboard`, `deadlines`, `fiscal` (pure tax rules), `invoices` (numbering, totals, PDF), `payments` (and uploaded files), `platforms`, `services`, `settings`, `simulator` (net after charges, or amount to invoice for a target net).
 
 ### Request lifecycle
 
@@ -64,6 +64,15 @@ Passwordless:
 - **Recovery**: 10 single-use recovery codes (80 random bits each), or an emailed link to register a new passkey.
 - Sessions are random tokens stored as SHA-256, in an `HttpOnly`, `SameSite=Strict` cookie (`__Host-` prefixed in production), valid 7 days.
 - Failed attempts lock the IP progressively (15 min doubling to 24 h) with a global cap; outgoing emails are throttled per address and per IP. Sign-up and recovery answer identically whether or not an account exists.
+
+### Agents (MCP)
+
+AI agents such as Claude reach the workspace through the MCP server at `/mcp` (Streamable HTTP, stateless), in `modules/agents`.
+
+- **OAuth 2.1**, as the MCP authorization spec expects: discovery (`/.well-known/oauth-protected-resource`, `/.well-known/oauth-authorization-server`), dynamic client registration (`/oauth/register`, HTTPS or localhost redirect addresses, capped per hour), authorization code with PKCE S256 (`/oauth/authorize` → consent page `/autoriser` in the web app, signed in with a passkey), token endpoint (`/oauth/token`).
+- **Tokens**: access tokens last 1 h; the connection (`agent_connections`) lasts until the user revokes it in Paramètres › Sécurité. Its refresh token rotates on every use; replaying an old one revokes the connection. Codes and tokens are stored as SHA-256.
+- **Scope**: an agent token only opens `/mcp`. Each tool calls the business API in-process (`app.request`) with the agent identity in the request env, which `requireAuth` accepts in place of a session; no outside request can set it, and the account routes (`/api/auth/*`: passkeys, recovery codes, connections) stay session-only.
+- **Tools** (`mcp.tools.ts`, `mcp.records.ts`): company and tax settings, yearly overview, expected income, simulator, payments and invoices, clients, services and deadlines. Amounts are cents. `create_invoice` returns a preview unless `confirm` is set, with the number, delay and VAT mention the web form would use.
 
 ### Invoices and tax rules
 

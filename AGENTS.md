@@ -35,6 +35,7 @@ pnpm --filter @invoom/api db:generate   # after editing apps/api/src/db/schema
 - **Angular**: standalone components, signals, `@if/@for` control flow, `templateUrl` for templates over ~30 lines, files under ~250 lines. Reuse `shared/` components before creating new ones.
 - **Navigation**: in-app links carry `appReplaceUrl` next to `routerLink`, and code navigates through `NavigationService`, never the router directly: the installed app must not stack history entries (the iOS edge swipe would go back through them).
 - **Forms and details** open in the right drawer (`drawerOptions()` from `shared/ui/drawer`), full screen on phones; detail cards end with `app-detail-footer`.
+- **MCP tools** (`apps/api/src/modules/agents`) call the business API in-process, never the database: they get its validation, encryption and isolation. Agent tokens must never open `/api/auth/*`. A new business feature should get its MCP tool.
 - **Demo mode** (`INVOOM_DEMO`) is development only: keep it refused in production, and keep PGlite a dev dependency loaded on demand. New business data should be added to the demo seed (`apps/api/src/demo/demo.ts`), through the API.
 - **Never commit** `.env` files, real invoices (`*.pdf` at the root) or database dumps.
 

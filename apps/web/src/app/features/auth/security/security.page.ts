@@ -15,6 +15,7 @@ import {FrDatePipe} from '../../../shared/pipes/fr-date.pipe';
 import {PageHeader} from '../../../shared/ui/page-header/page-header';
 import {Spinner} from '../../../shared/ui/spinner/spinner';
 import {WarningBanner} from '../../../shared/ui/warning-banner/warning-banner';
+import {AgentConnections} from '../../agents/agent-connections';
 import {AuthApi} from '../auth.api';
 import type {PasskeyInfo, PasskeyState} from '../auth.models';
 import {RecoveryCodes} from '../recovery-codes/recovery-codes';
@@ -23,6 +24,7 @@ import {guessDeviceName, webauthnError} from '../webauthn';
 @Component({
     selector: 'app-security',
     imports: [
+        AgentConnections,
         FormsModule,
         NgIcon,
         FrDatePipe,

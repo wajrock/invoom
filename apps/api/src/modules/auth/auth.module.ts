@@ -1,4 +1,5 @@
 import {Hono, type MiddlewareHandler} from 'hono';
+import type {AgentIdentity} from '../agents/oauth.store.ts';
 import {accountRoutes} from './account.routes.ts';
 import {createAuthContext, type AuthOptions} from './auth.context.ts';
 import {emailLinkRoutes} from './email-link.routes.ts';
@@ -11,9 +12,13 @@ export type {AuthOptions} from './auth.context.ts';
 export function createAuth(opts: AuthOptions) {
     const ctx = createAuthContext(opts);
 
-    /** Requires a session; the rest of the request then runs inside the session's workspace. */
+    /**
+     * Requires a session, or an agent already authenticated by the MCP endpoint (passed in-process through the
+     * request env, which no outside request can set); the rest of the request then runs inside its workspace.
+     */
     const requireAuth: MiddlewareHandler = async (c, next) => {
-        const session = await ctx.sessions.current(c);
+        const agent = (c.env as {agent?: AgentIdentity} | undefined)?.agent;
+        const session = agent ?? (await ctx.sessions.current(c));
         if (!session) return c.json({error: 'Non authentifié'}, 401);
         await opts.workspaces.run({workspaceId: session.workspaceId, userId: session.userId}, async () => {
             await next();
@@ -29,5 +34,5 @@ export function createAuth(opts: AuthOptions) {
         .route('/', passkeyRegisterRoutes(ctx))
         .route('/', accountRoutes(ctx));
 
-    return {routes, requireAuth};
+    return {routes, requireAuth, sessions: ctx.sessions};
 }

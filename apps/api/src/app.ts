@@ -7,6 +7,10 @@ import {join, relative, resolve} from 'node:path';
 import {createAuth, type AuthOptions} from './modules/auth/auth.module.ts';
 import type {Db} from './db/client.ts';
 import {scopedDeps} from './db/workspace-scope.ts';
+import {consentRoutes} from './modules/agents/consent.routes.ts';
+import {mcpRoutes} from './modules/agents/mcp.routes.ts';
+import {oauthRoutes} from './modules/agents/oauth.routes.ts';
+import {createOAuthStore} from './modules/agents/oauth.store.ts';
 import {clientRoutes} from './modules/clients/clients.routes.ts';
 import {companyRoutes} from './modules/company/company.routes.ts';
 import {dashboardRoutes} from './modules/dashboard/dashboard.routes.ts';
@@ -68,6 +72,9 @@ export function createApp(db: Db, opts: AppOptions) {
     const auth = createAuth({...opts, db});
     const deps = scopedDeps;
     const app = new Hono();
+    const agents = createOAuthStore(db);
+    // Forwarded headers give the public address: trusted behind a known proxy, and in development (tunnel)
+    const trustForwarded = opts.trustProxy || !opts.secureCookies;
 
     app.use(
         '*',
@@ -105,7 +112,14 @@ export function createApp(db: Db, opts: AppOptions) {
     });
 
     app.get('/api/health', (c) => c.json({ok: true}));
+    app.route('/api/auth/agents', consentRoutes(auth.sessions, agents, trustForwarded));
     app.route('/api/auth', auth.routes);
+    // Agents (MCP clients): OAuth endpoints and the MCP server, which calls the API below in-process
+    app.route('/', oauthRoutes(agents, trustForwarded));
+    app.route(
+        '/',
+        mcpRoutes(agents, (path, init, agent) => Promise.resolve(app.request(path, init, {agent})), trustForwarded),
+    );
 
     const api = new Hono();
     api.use('*', auth.requireAuth);

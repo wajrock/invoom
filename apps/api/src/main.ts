@@ -1,4 +1,5 @@
 import {serve} from '@hono/node-server';
+import type {Server} from 'node:http';
 import {createApp} from './app.ts';
 import {createDb, createLocalDb} from './db/client.ts';
 import {databaseUrl, env, isProd} from './config/env.ts';
@@ -42,9 +43,14 @@ const server = serve({fetch: app.fetch, port: env.PORT}, (info) => {
     if (demo) console.info(`Mode démo : connecté en ${DEMO_EMAIL}, données dans ${DEMO_DIR}`);
 });
 
+/**
+ * Stops at once: the web dev server's proxy keeps idle connections open, and waiting for them would keep the old
+ * process alive, so `node --watch` could never start the new one (502 until restarted by hand).
+ */
 const shutdown = () => {
     server.close();
-    void close();
+    (server as Server).closeAllConnections();
+    void close().finally(() => process.exit(0));
 };
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);

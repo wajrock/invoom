@@ -84,6 +84,12 @@ docs/         architecture and deployment notes
 AGENTS.md     instructions for coding agents
 ```
 
+## AI agents (MCP)
+
+Invoom is an MCP server: an agent such as Claude can read the activity (revenue, expected income, simulations) and manage payments, invoices, clients, services and deadlines.
+
+In Claude, add a custom connector with the address `https://<your domain>/mcp`. Claude opens an Invoom page where you approve it once with your passkey; the access lasts until you revoke it in Paramètres › Sécurité. Locally, `pnpm dev:demo` and a tunnel give a `https://….trycloudflare.com/mcp` address to try it.
+
 ## Deployment
 
 A single Docker image serves the API and the web app. See [docs/deployment.md](docs/deployment.md).

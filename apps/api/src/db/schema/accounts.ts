@@ -103,3 +103,63 @@ export const loginAttempts = pgTable('login_attempts', {
     lockedUntil: timestamp('locked_until', {withTimezone: true}),
     windowStart: timestamp('window_start', {withTimezone: true}).notNull().defaultNow(),
 });
+
+/**
+ * Agents (MCP clients such as Claude) connected through OAuth 2.1. They register themselves (dynamic client
+ * registration), the user approves them once, and they keep access until the connection is revoked.
+ */
+export const oauthClients = pgTable('oauth_clients', {
+    /** Random public identifier; agents are public clients (PKCE, no secret). */
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    redirectUris: text('redirect_uris').array().notNull(),
+    createdAt: timestamp('created_at', {withTimezone: true}).notNull().defaultNow(),
+});
+
+/** Authorization codes: SHA-256, single use, a few minutes. */
+export const oauthCodes = pgTable('oauth_codes', {
+    hash: text('hash').primaryKey(),
+    clientId: text('client_id')
+        .notNull()
+        .references(() => oauthClients.id, {onDelete: 'cascade'}),
+    userId: uuid('user_id')
+        .notNull()
+        .references(() => users.id, {onDelete: 'cascade'}),
+    workspaceId: uuid('workspace_id')
+        .notNull()
+        .references(() => workspaces.id, {onDelete: 'cascade'}),
+    redirectUri: text('redirect_uri').notNull(),
+    codeChallenge: text('code_challenge').notNull(),
+    expiresAt: timestamp('expires_at', {withTimezone: true}).notNull(),
+});
+
+/**
+ * An agent's access to a workspace, approved by the user. It lasts until revoked: the refresh token has no expiry
+ * and rotates on every use (the previous one is kept to detect a replayed, stolen token).
+ */
+export const agentConnections = pgTable('agent_connections', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    clientId: text('client_id')
+        .notNull()
+        .references(() => oauthClients.id, {onDelete: 'cascade'}),
+    userId: uuid('user_id')
+        .notNull()
+        .references(() => users.id, {onDelete: 'cascade'}),
+    workspaceId: uuid('workspace_id')
+        .notNull()
+        .references(() => workspaces.id, {onDelete: 'cascade'}),
+    /** SHA-256 of the current refresh token */
+    refreshHash: text('refresh_hash').notNull().unique(),
+    previousRefreshHash: text('previous_refresh_hash').unique(),
+    createdAt: timestamp('created_at', {withTimezone: true}).notNull().defaultNow(),
+    lastUsedAt: timestamp('last_used_at', {withTimezone: true}).notNull().defaultNow(),
+});
+
+/** Short-lived access tokens (SHA-256) of a connection; revoking it deletes them. */
+export const agentTokens = pgTable('agent_tokens', {
+    hash: text('hash').primaryKey(),
+    connectionId: uuid('connection_id')
+        .notNull()
+        .references(() => agentConnections.id, {onDelete: 'cascade'}),
+    expiresAt: timestamp('expires_at', {withTimezone: true}).notNull(),
+});

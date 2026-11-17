@@ -16,12 +16,19 @@ import {guessDeviceName, webauthnError} from '../webauthn';
  */
 export type LoginStep = 'signin' | 'signup' | 'lost' | 'sent' | 'link' | 'codes';
 
+/** Only a path of this app: never another site (open redirect) */
+function safeNext(next: string | null): string | null {
+    return next && next.startsWith('/') && !next.startsWith('//') && !next.includes('\\') ? next : null;
+}
+
 /** State shared by the login steps; provided by the login page. */
 @Injectable()
 export class LoginFlow {
     private readonly api = inject(AuthApi);
     private readonly nav = inject(NavigationService);
     private readonly token = inject(ActivatedRoute).snapshot.queryParamMap.get('token');
+    /** Page that sent the user here (e.g. an agent's consent page), back there once signed in */
+    private readonly next = safeNext(inject(ActivatedRoute).snapshot.queryParamMap.get('next'));
 
     readonly step = signal<LoginStep>(this.token ? 'link' : 'signin');
     readonly loading = signal(false);
@@ -88,7 +95,7 @@ export class LoginFlow {
     }
 
     async enter() {
-        await this.nav.navigateByUrl('/');
+        await this.nav.navigateByUrl(this.next ?? '/');
     }
 
     private async run(action: () => Promise<void>): Promise<boolean> {
