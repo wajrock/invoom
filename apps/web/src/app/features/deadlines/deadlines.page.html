@@ -1,7 +1,9 @@
 <app-page-header heading="Échéances" subtitle="URSSAF, CFE, impôt et tes rappels">
-    <button hlmBtn class="fab" (click)="open()" aria-label="Ajouter un rappel">
-        <ng-icon name="lucidePlus" /><span class="fab-label">Ajouter un rappel</span>
-    </button>
+    @if (!blank()) {
+        <button hlmBtn class="fab" (click)="open()" aria-label="Ajouter un rappel">
+            <ng-icon name="lucidePlus" /><span class="fab-label">Ajouter un rappel</span>
+        </button>
+    }
 </app-page-header>
 
 <div role="tablist" class="tab-nav" aria-label="Vues des échéances">
@@ -26,7 +28,7 @@
 
 @if (deadlines()) {
     @if (tab() === 'upcoming') {
-        <div class="mb-6 grid grid-cols-2 gap-3 sm:gap-4">
+        <div class="mb-6 grid grid-cols-2 gap-3 sm:gap-4" [class.hidden]="blank()">
             <app-kpi-tile variant="compact" label="Prochaine échéance" [value]="next() ? nextWhen() : 'Aucune'">
                 @if (next(); as n) {
                     <p class="text-muted-foreground mt-0.5 truncate text-xs">{{ n.title }}</p>
@@ -48,12 +50,31 @@
             @for (g of upcomingGroups(); track g.key) {
                 <ng-container *ngTemplateOutlet="group; context: {$implicit: g}" />
             } @empty {
-                @if (!overdue().length) {
-                    <app-empty-state [message]="'Rien à régler d’ici le ' + (horizon() | frDate) + ' 🎉'" />
+                @if (blank()) {
+                    <app-empty-state
+                        illustration="declaration"
+                        message="Aucune échéance"
+                        description="Ajoute tes propres rappels, ou active les échéances automatiques (déclarations URSSAF, CFE, impôt) dans la fiscalité."
+                    >
+                        <div class="flex flex-wrap justify-center gap-2">
+                            <button hlmBtn size="sm" (click)="open()">
+                                <ng-icon name="lucidePlus" /> Ajouter un rappel
+                            </button>
+                            <a hlmBtn variant="outline" size="sm" routerLink="/parametres/fiscalite" appReplaceUrl>
+                                Activer les échéances automatiques
+                            </a>
+                        </div>
+                    </app-empty-state>
+                } @else if (!overdue().length) {
+                    <app-empty-state
+                        illustration="calendar"
+                        [message]="'Rien à régler d’ici le ' + (horizon() | frDate)"
+                        description="Les prochaines échéances apparaîtront ici à l’approche de leur date."
+                    />
                 }
             }
         </div>
-        <div class="mt-6 flex justify-center">
+        <div class="mt-6 flex justify-center" [class.hidden]="blank()">
             <button hlmBtn variant="outline" size="sm" (click)="showMore()" [disabled]="loading()">
                 <ng-icon name="lucideCalendarPlus" /> {{ hasMore() ? 'Voir les suivantes' : 'Voir plus loin' }}
             </button>
@@ -87,7 +108,9 @@
                 <ng-container *ngTemplateOutlet="group; context: {$implicit: g}" />
             } @empty {
                 <app-empty-state
-                    [message]="'Aucune échéance dans l’historique' + (hasFilters() ? ' pour ces filtres' : '') + '.'"
+                    illustration="archive"
+                    [message]="hasFilters() ? 'Aucune échéance pour ces filtres' : 'Aucune échéance passée'"
+                    [description]="hasFilters() ? '' : 'Les échéances réglées sont conservées ici.'"
                 />
             }
         </div>

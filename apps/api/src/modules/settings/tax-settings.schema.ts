@@ -24,4 +24,6 @@ export const taxSettingsSchema = z.object({
         .min(1, 'Au moins une période de taux est requise')
         .max(100)
         .refine((ps) => new Set(ps.map((p) => p.from)).size === ps.length, 'Deux périodes ont la même date d’effet'),
+    // Left out by a client that does not know the option: the deadlines it already showed stay
+    autoDeadlines: z.boolean().default(true),
 });

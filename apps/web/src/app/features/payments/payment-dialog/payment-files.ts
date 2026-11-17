@@ -8,6 +8,7 @@ import {errorMessage} from '../../../core/http/error-message';
 import {LANG_LABELS, type FileLang, type InvoiceFile} from '../payment.models';
 import {InvoiceFileViewer} from '../invoice-file-viewer';
 import {PaymentsApi} from '../payments.api';
+import {Confirm} from '../../../shared/ui/confirm/confirm';
 
 /** File picked in the form, uploaded once the payment is saved */
 export interface PendingFile {
@@ -34,6 +35,7 @@ function formatSize(bytes: number): string {
 })
 export class PaymentFiles {
     protected readonly api = inject(PaymentsApi);
+    private readonly confirm = inject(Confirm);
     protected readonly viewer = inject(InvoiceFileViewer);
     readonly files = model.required<InvoiceFile[]>();
     readonly pending = model.required<PendingFile[]>();
@@ -78,7 +80,15 @@ export class PaymentFiles {
     }
 
     protected async removeFile(f: InvoiceFile) {
-        if (!confirm(`Supprimer « ${f.name} » ?`)) return;
+        if (
+            !(await this.confirm.ask({
+                title: 'Supprimer ce fichier ?',
+                description: `« ${f.name} » sera supprimé définitivement.`,
+                confirmLabel: 'Supprimer',
+                destructive: true,
+            }))
+        )
+            return;
         try {
             await this.api.deleteFile(f.id);
             this.files.update((list) => list.filter((x) => x.id !== f.id));

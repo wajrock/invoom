@@ -32,6 +32,22 @@
                         (checkedChange)="f.cfeExemptFirstYear = $event"
                     />
                 </div>
+                <div class="flex items-center justify-between gap-3 border-t pt-4 sm:col-span-2">
+                    <label hlmLabel for="s-auto">
+                        <span class="grid gap-0.5">
+                            Échéances automatiques
+                            <span class="text-muted-foreground text-xs font-normal">
+                                Ajoute à tes échéances les déclarations URSSAF, la CFE et l’impôt, calculés avec ces
+                                paramètres.
+                            </span>
+                        </span>
+                    </label>
+                    <hlm-switch
+                        inputId="s-auto"
+                        [checked]="f.autoDeadlines"
+                        (checkedChange)="f.autoDeadlines = $event"
+                    />
+                </div>
             </div>
         </app-settings-section>
 

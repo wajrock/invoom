@@ -1,13 +1,19 @@
 <app-page-header heading="Prestations" subtitle="Lignes de facture réutilisables, avec leur prix et leur traduction">
-    <button hlmBtn class="fab" (click)="edit()" aria-label="Nouvelle prestation">
-        <ng-icon name="lucidePlus" /><span class="fab-label">Nouvelle prestation</span>
-    </button>
+    @if (services()?.length !== 0) {
+        <button hlmBtn class="fab" (click)="edit()" aria-label="Nouvelle prestation">
+            <ng-icon name="lucidePlus" /><span class="fab-label">Nouvelle prestation</span>
+        </button>
+    }
 </app-page-header>
 
 @if (services(); as list) {
     @if (list.length === 0) {
-        <app-empty-state message="Aucune prestation enregistrée.">
-            <button hlmBtn variant="outline" (click)="edit()"><ng-icon name="lucidePlus" /> Ajouter la première</button>
+        <app-empty-state
+            illustration="services"
+            message="Aucune prestation"
+            description="Enregistre les lignes que tu factures souvent, avec leur prix et leur traduction."
+        >
+            <button hlmBtn size="sm" (click)="edit()"><ng-icon name="lucidePlus" /> Nouvelle prestation</button>
         </app-empty-state>
     } @else {
         <app-search-input class="mb-4 sm:max-w-sm" placeholder="Rechercher une prestation" [(value)]="query" />

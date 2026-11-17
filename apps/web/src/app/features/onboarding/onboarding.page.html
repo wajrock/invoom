@@ -1,0 +1,268 @@
+<div class="bg-background relative isolate min-h-dvh">
+    <app-brand-pattern
+        class="text-foreground absolute inset-0 -z-10 opacity-[0.05] [mask-image:radial-gradient(ellipse_90%_50%_at_50%_0%,#000_0%,rgb(0_0_0/0.6)_35%,rgb(0_0_0/0.15)_65%,transparent_85%)]"
+    />
+
+    <main
+        class="mx-auto grid w-full max-w-lg gap-8 px-4 pt-[calc(env(safe-area-inset-top)+2.5rem)] pb-[calc(env(safe-area-inset-bottom)+2.5rem)] sm:pt-16"
+    >
+        <app-logo class="h-8 justify-self-center" />
+
+        <header class="grid gap-4">
+            <!-- Progress: one segment per step -->
+            <div class="grid content-start gap-2">
+                <p class="text-muted-foreground text-xs font-medium">Étape {{ index() + 1 }} sur {{ steps.length }}</p>
+                <div class="grid grid-cols-3 gap-1.5" aria-hidden="true">
+                    @for (s of steps; track s.id; let i = $index) {
+                        <span
+                            class="h-1 rounded-full transition-colors"
+                            [class]="i <= index() ? 'bg-primary' : 'bg-border'"
+                        ></span>
+                    }
+                </div>
+            </div>
+            <div class="grid gap-1.5">
+                <h1 class="font-display text-2xl font-semibold text-balance">{{ step().title }}</h1>
+                <p class="text-muted-foreground text-sm text-pretty">{{ step().subtitle }}</p>
+            </div>
+        </header>
+
+        <form class="grid gap-6" (ngSubmit)="next()">
+            <div class="settings-card grid gap-4 p-4 sm:p-5">
+                @switch (step().id) {
+                    @case ('company') {
+                        <div class="grid content-start gap-2">
+                            <label hlmLabel for="ob-name">Nom ou dénomination</label>
+                            <input
+                                hlmInput
+                                id="ob-name"
+                                [forceInvalid]="!!errors().name"
+                                [attr.aria-describedby]="errors().name ? 'ob-name-error' : null"
+                                (ngModelChange)="edited('name')"
+                                name="name"
+                                autocomplete="organization"
+                                placeholder="Camille Martin"
+                                [(ngModel)]="company.name"
+                            />
+                            <app-field-error messageId="ob-name-error" [message]="errors().name" />
+                        </div>
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div class="grid content-start gap-2">
+                                <label hlmLabel for="ob-legal">Forme juridique</label>
+                                <input
+                                    hlmInput
+                                    id="ob-legal"
+                                    [forceInvalid]="!!errors().legal"
+                                    [attr.aria-describedby]="errors().legal ? 'ob-legal-error' : null"
+                                    (ngModelChange)="edited('legal')"
+                                    name="legal"
+                                    [(ngModel)]="company.legal"
+                                />
+                                <app-field-error messageId="ob-legal-error" [message]="errors().legal" />
+                            </div>
+                            <div class="grid content-start gap-2">
+                                <!-- The button spans the row: its tooltip, centred on it, then fits on a phone -->
+                                <div class="flex h-3.5 items-center gap-1">
+                                    <label hlmLabel for="ob-siret">SIRET</label>
+                                    <button
+                                        type="button"
+                                        class="text-muted-foreground hover:text-foreground -my-1 grid h-6 flex-1 justify-items-start rounded-md pl-1"
+                                        aria-label="Où trouver mon SIRET ?"
+                                        hlmTooltip="Sur ton avis de situation INSEE, ou sur annuaire-entreprises.data.gouv.fr"
+                                        position="top"
+                                    >
+                                        <ng-icon name="lucideInfo" class="text-sm" />
+                                    </button>
+                                </div>
+                                <input
+                                    hlmInput
+                                    id="ob-siret"
+                                    [forceInvalid]="!!errors().siret"
+                                    [attr.aria-describedby]="errors().siret ? 'ob-siret-error' : null"
+                                    (ngModelChange)="edited('siret', $event)"
+                                    name="siret"
+                                    inputmode="numeric"
+                                    placeholder="14 chiffres"
+                                    (blur)="tidySiret()"
+                                    [(ngModel)]="company.siret"
+                                />
+                                <app-field-error messageId="ob-siret-error" [message]="errors().siret" />
+                            </div>
+                        </div>
+                        <div class="grid content-start gap-2">
+                            <label hlmLabel for="ob-address">Adresse</label>
+                            <textarea
+                                hlmTextarea
+                                id="ob-address"
+                                [forceInvalid]="!!errors().address"
+                                [attr.aria-describedby]="errors().address ? 'ob-address-error' : null"
+                                (ngModelChange)="edited('address')"
+                                name="address"
+                                rows="2"
+                                autocomplete="street-address"
+                                [placeholder]="'Rue\nCode postal Ville'"
+                                [(ngModel)]="company.address"
+                            ></textarea>
+                            <app-field-error messageId="ob-address-error" [message]="errors().address" />
+                        </div>
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div class="grid content-start gap-2">
+                                <label hlmLabel for="ob-email">E-mail de contact</label>
+                                <input
+                                    hlmInput
+                                    id="ob-email"
+                                    [forceInvalid]="!!errors().email"
+                                    [attr.aria-describedby]="errors().email ? 'ob-email-error' : null"
+                                    (ngModelChange)="edited('email')"
+                                    name="email"
+                                    type="email"
+                                    autocomplete="email"
+                                    [(ngModel)]="company.email"
+                                />
+                                <app-field-error messageId="ob-email-error" [message]="errors().email" />
+                            </div>
+                            <div class="grid content-start gap-2">
+                                <label hlmLabel for="ob-phone">
+                                    Téléphone <span class="text-muted-foreground font-normal">(optionnel)</span>
+                                </label>
+                                <input
+                                    hlmInput
+                                    id="ob-phone"
+                                    name="phone"
+                                    type="tel"
+                                    autocomplete="tel"
+                                    [(ngModel)]="company.phone"
+                                />
+                            </div>
+                        </div>
+                    }
+                    @case ('activity') {
+                        <div class="grid content-start gap-2">
+                            <label hlmLabel for="ob-activity">Type d’activité</label>
+                            <select class="select-native" id="ob-activity" name="activity" [(ngModel)]="tax.activity">
+                                @for (a of activities(); track a.activity) {
+                                    <option [value]="a.activity">{{ a.label }}</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="grid content-start gap-2">
+                            <label hlmLabel for="ob-start">Début d’activité</label>
+                            <app-date-input
+                                inputId="ob-start"
+                                name="activityStart"
+                                [(ngModel)]="tax.activityStart"
+                                (ngModelChange)="edited('start')"
+                            />
+                            <app-field-error messageId="ob-start-error" [message]="errors().start" />
+                        </div>
+                        <div class="flex items-center justify-between gap-3 border-t pt-4">
+                            <label hlmLabel for="ob-vl">
+                                <span class="grid gap-0.5">
+                                    Versement libératoire de l’impôt
+                                    <span class="text-muted-foreground text-xs font-normal">
+                                        L’impôt sur le revenu est payé avec les cotisations, en pourcentage du chiffre
+                                        d’affaires.
+                                    </span>
+                                </span>
+                            </label>
+                            <hlm-switch
+                                inputId="ob-vl"
+                                [checked]="tax.versementLiberatoire"
+                                (checkedChange)="tax.versementLiberatoire = $event"
+                            />
+                        </div>
+                    }
+                    @case ('bank') {
+                        <div class="grid content-start gap-2">
+                            <label hlmLabel for="ob-holder">Titulaire du compte</label>
+                            <input
+                                hlmInput
+                                id="ob-holder"
+                                [forceInvalid]="!!errors().holder"
+                                [attr.aria-describedby]="errors().holder ? 'ob-holder-error' : null"
+                                (ngModelChange)="edited('holder')"
+                                name="accountHolder"
+                                autocomplete="name"
+                                [(ngModel)]="company.accountHolder"
+                            />
+                            <app-field-error messageId="ob-holder-error" [message]="errors().holder" />
+                        </div>
+                        <div class="grid content-start gap-2">
+                            <label hlmLabel for="ob-iban">IBAN</label>
+                            <input
+                                hlmInput
+                                id="ob-iban"
+                                [forceInvalid]="!!errors().iban"
+                                [attr.aria-describedby]="errors().iban ? 'ob-iban-error' : null"
+                                (ngModelChange)="edited('iban')"
+                                name="iban"
+                                placeholder="FR76 …"
+                                [(ngModel)]="company.iban"
+                            />
+                            <app-field-error messageId="ob-iban-error" [message]="errors().iban" />
+                        </div>
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div class="grid content-start gap-2">
+                                <label hlmLabel for="ob-bic">BIC / SWIFT</label>
+                                <input
+                                    hlmInput
+                                    id="ob-bic"
+                                    [forceInvalid]="!!errors().bic"
+                                    [attr.aria-describedby]="errors().bic ? 'ob-bic-error' : null"
+                                    (ngModelChange)="edited('bic')"
+                                    name="bic"
+                                    [(ngModel)]="company.bic"
+                                />
+                                <app-field-error messageId="ob-bic-error" [message]="errors().bic" />
+                            </div>
+                            <div class="grid content-start gap-2">
+                                <label hlmLabel for="ob-bank">Banque</label>
+                                <input
+                                    hlmInput
+                                    id="ob-bank"
+                                    [forceInvalid]="!!errors().bank"
+                                    [attr.aria-describedby]="errors().bank ? 'ob-bank-error' : null"
+                                    (ngModelChange)="edited('bank')"
+                                    name="bank"
+                                    placeholder="Nom de ta banque"
+                                    [(ngModel)]="company.bank"
+                                />
+                                <app-field-error messageId="ob-bank-error" [message]="errors().bank" />
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+
+            @if (error()) {
+                <p class="text-destructive text-sm" role="alert">{{ error() }}</p>
+            }
+
+            <div class="flex items-center gap-2">
+                @if (index() > 0) {
+                    <button hlmBtn type="button" variant="ghost" [disabled]="saving()" (click)="back()">
+                        <ng-icon name="lucideArrowLeft" /> Retour
+                    </button>
+                }
+                <span class="flex-1"></span>
+                <button hlmBtn type="submit" [disabled]="saving()">
+                    @if (saving()) {
+                        <app-spinner />
+                    }
+                    @if (step().id === 'bank') {
+                        Terminer
+                    } @else {
+                        Continuer <ng-icon name="lucideArrowRight" />
+                    }
+                </button>
+            </div>
+        </form>
+
+        <p class="text-muted-foreground text-center text-xs">
+            Tout reste modifiable ensuite dans les paramètres.
+            <button type="button" class="text-foreground ml-1 underline-offset-2 hover:underline" (click)="logout()">
+                Se déconnecter
+            </button>
+        </p>
+    </main>
+</div>

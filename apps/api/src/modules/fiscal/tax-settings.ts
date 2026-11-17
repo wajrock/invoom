@@ -40,6 +40,11 @@ export interface TaxSettings {
     cfeExemptFirstYear: boolean;
     /** Sorted by effective date; at least one */
     periods: RatePeriod[];
+    /**
+     * URSSAF declarations, CFE and income tax added to the deadlines from these settings. Opt-in: a new account
+     * starts with none; settings saved before the option existed keep them.
+     */
+    autoDeadlines: boolean;
 }
 
 export const ACTIVITY_LABELS: Record<Activity, string> = {
@@ -95,6 +100,7 @@ export function defaultTaxSettings(today = new Date()): TaxSettings {
         activityStart,
         cfeExemptFirstYear: true,
         periods: [defaultPeriod('bnc', activityStart)],
+        autoDeadlines: false,
     };
 }
 
@@ -125,6 +131,8 @@ export function normalizeTaxSettings(raw: TaxSettings | LegacyTaxSettings): TaxS
             activityStart: raw.activityStart,
             cfeExemptFirstYear: raw.cfeExemptFirstYear,
             periods: sortPeriods(periods),
+            // Saved before the option existed: they were generated then
+            autoDeadlines: (raw as Partial<TaxSettings>).autoDeadlines ?? true,
         };
     }
     const old = raw as LegacyTaxSettings;
@@ -144,6 +152,7 @@ export function normalizeTaxSettings(raw: TaxSettings | LegacyTaxSettings): TaxS
                 tvaThreshold: old.tvaThreshold,
             },
         ],
+        autoDeadlines: true,
     };
 }
 

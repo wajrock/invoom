@@ -25,6 +25,7 @@ import {
     type CountryCode,
     type CountryField,
 } from '../countries';
+import {guardUnsavedChanges} from '../../../shared/ui/confirm/unsaved-changes';
 
 export interface ClientDialogContext {
     client?: Client;
@@ -82,6 +83,11 @@ export class ClientDialog {
     };
     /** Free mentions (not tied to a country field) */
     protected extras: ClientExtra[] = [];
+    private readonly guard = guardUnsavedChanges<Client | undefined>(() => ({
+        form: this.form,
+        values: this.values,
+        extras: this.extras,
+    }));
 
     protected readonly slots = computed<FieldSlot[]>(() => {
         const p = this.profile();
@@ -180,7 +186,7 @@ export class ClientDialog {
         try {
             const saved = this.existing ? await this.api.update(this.existing.id, body) : await this.api.create(body);
             toast.success(this.existing ? 'Client mis à jour' : 'Client ajouté');
-            this.ref.close(saved);
+            this.guard.closeSaved(saved);
         } catch (err) {
             toast.error(errorMessage(err));
         } finally {

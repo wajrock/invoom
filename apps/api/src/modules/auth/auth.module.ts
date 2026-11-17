@@ -6,6 +6,7 @@ import {emailLinkRoutes} from './email-link.routes.ts';
 import {passkeyLoginRoutes} from './passkey-login.routes.ts';
 import {passkeyRegisterRoutes} from './passkey-register.routes.ts';
 import {sessionRoutes} from './session.routes.ts';
+import {onboardingRoutes} from '../onboarding/onboarding.routes.ts';
 
 export type {AuthOptions} from './auth.context.ts';
 
@@ -32,7 +33,8 @@ export function createAuth(opts: AuthOptions) {
         .route('/', emailLinkRoutes(ctx))
         .route('/', passkeyLoginRoutes(ctx))
         .route('/', passkeyRegisterRoutes(ctx))
-        .route('/', accountRoutes(ctx));
+        .route('/', accountRoutes(ctx))
+        .route('/', onboardingRoutes(ctx));
 
     return {routes, requireAuth, sessions: ctx.sessions};
 }

@@ -1,6 +1,6 @@
 import type {Platform} from './platform.schema.ts';
 
-/** Seeded into a workspace the first time its platforms are listed. */
+/** Usual sites a micro-entrepreneur needs, offered in one click while the list is empty. */
 export const DEFAULT_PLATFORMS: Platform[] = [
     {
         name: 'URSSAF auto-entrepreneur',

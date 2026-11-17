@@ -14,6 +14,7 @@ import {openPlatformDetail} from './platform-detail/platform-detail';
 import {openPlatformDialog} from './platform-dialog/platform-dialog';
 import type {Platform} from './platform.models';
 import {PlatformsApi} from './platforms.api';
+import {Confirm} from '../../shared/ui/confirm/confirm';
 
 @Component({
     selector: 'app-platforms',
@@ -31,6 +32,7 @@ import {PlatformsApi} from './platforms.api';
 })
 export class PlatformsPage {
     private readonly api = inject(PlatformsApi);
+    private readonly confirm = inject(Confirm);
     private readonly dialog = inject(HlmDialogService);
 
     protected readonly platforms = signal<Platform[] | null>(null);
@@ -53,6 +55,20 @@ export class PlatformsPage {
             this.platforms.set(await this.api.list());
         } catch (err) {
             this.error.set(errorMessage(err));
+        }
+    }
+
+    protected readonly adding = signal(false);
+
+    async addSuggested() {
+        this.adding.set(true);
+        try {
+            this.platforms.set(await this.api.addSuggested());
+            toast.success('Sites essentiels ajoutés');
+        } catch (err) {
+            toast.error(errorMessage(err));
+        } finally {
+            this.adding.set(false);
         }
     }
 
@@ -105,7 +121,15 @@ export class PlatformsPage {
     }
 
     async remove(p: Platform) {
-        if (!confirm(`Supprimer « ${p.name} » ?`)) return;
+        if (
+            !(await this.confirm.ask({
+                title: `Supprimer « ${p.name} » ?`,
+                description: 'La démarche sera retirée de ta liste.',
+                confirmLabel: 'Supprimer',
+                destructive: true,
+            }))
+        )
+            return;
         try {
             await this.api.delete(p.id);
             toast.success('Plateforme supprimée');

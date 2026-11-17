@@ -1,7 +1,8 @@
 import type {Routes} from '@angular/router';
-import {authGuard, authReturnGuard, guestGuard} from './core/auth/auth.guards';
+import {authGuard, authReturnGuard, guestGuard, onboardingGuard} from './core/auth/auth.guards';
 import {navLabel} from './layout/nav';
 import {Shell} from './layout/shell';
+import {unsavedChangesGuard} from './core/navigation/unsaved-changes.guard';
 
 export const routes: Routes = [
     {
@@ -9,6 +10,13 @@ export const routes: Routes = [
         canActivate: [guestGuard],
         title: 'Connexion',
         loadComponent: () => import('./features/auth/login/login.page').then((m) => m.LoginPage),
+    },
+    {
+        // First-run setup of a new account, required before the app: business details and activity
+        path: 'bienvenue',
+        canActivate: [onboardingGuard],
+        title: 'Bienvenue',
+        loadComponent: () => import('./features/onboarding/onboarding.page').then((m) => m.OnboardingPage),
     },
     {
         // An agent (MCP client) asks for access: consent page, outside the app shell
@@ -65,11 +73,13 @@ export const routes: Routes = [
                     {path: '', pathMatch: 'full', redirectTo: 'entreprise'},
                     {
                         path: 'entreprise',
+                        canDeactivate: [unsavedChangesGuard],
                         title: navLabel('/parametres/entreprise'),
                         loadComponent: () => import('./features/company/company.page').then((m) => m.CompanyPage),
                     },
                     {
                         path: 'fiscalite',
+                        canDeactivate: [unsavedChangesGuard],
                         title: navLabel('/parametres/fiscalite'),
                         loadComponent: () =>
                             import('./features/settings/tax-settings.page').then((m) => m.TaxSettingsPage),

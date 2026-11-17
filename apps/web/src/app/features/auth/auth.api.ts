@@ -73,6 +73,12 @@ export class AuthApi {
         await this.api.delete(`/api/auth/passkeys/${encodeURIComponent(id)}`);
     }
 
+    /** Deletes the account and all its data; `email` is the address typed again as confirmation */
+    async deleteAccount(email: string): Promise<void> {
+        await this.api.delete('/api/auth/account', {email});
+        this.auth.forget();
+    }
+
     async regenerateRecoveryCodes(): Promise<string[]> {
         const res = await this.api.post<{recoveryCodes: string[]}>('/api/auth/recovery-codes', {});
         return res.recoveryCodes;

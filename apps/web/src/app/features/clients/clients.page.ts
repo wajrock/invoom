@@ -22,6 +22,7 @@ import {openClientDetail} from './client-detail/client-detail';
 import {openClientDialog} from './client-dialog/client-dialog';
 import {emptyClient, type Client} from './client.models';
 import {ClientsApi} from './clients.api';
+import {Confirm} from '../../shared/ui/confirm/confirm';
 
 interface ClientStats {
     count: number;
@@ -45,11 +46,21 @@ interface ClientStats {
         PageHeader,
         SearchInput,
     ],
-    providers: [provideIcons({lucidePlus, lucidePencil, lucideTrash2, lucideEllipsis, lucideFilePlus, lucideImport})],
+    providers: [
+        provideIcons({
+            lucidePlus,
+            lucidePencil,
+            lucideTrash2,
+            lucideEllipsis,
+            lucideFilePlus,
+            lucideImport,
+        }),
+    ],
     templateUrl: './clients.page.html',
 })
 export class ClientsPage {
     private readonly clientsApi = inject(ClientsApi);
+    private readonly confirm = inject(Confirm);
     private readonly paymentsApi = inject(PaymentsApi);
     private readonly dialog = inject(HlmDialogService);
 
@@ -155,8 +166,16 @@ export class ClientsPage {
 
     async remove(c: Client) {
         const n = this.stats().get(c.id)?.count ?? 0;
-        const extra = n ? ` Ses ${n} facture(s) existante(s) restent intactes.` : '';
-        if (!confirm(`Supprimer ${c.name} du carnet ?${extra}`)) return;
+        const extra = n ? ` Ses ${n} facture(s) déjà émise(s) restent intactes.` : '';
+        if (
+            !(await this.confirm.ask({
+                title: `Supprimer ${c.name} ?`,
+                description: `Le client sera retiré du carnet.${extra}`,
+                confirmLabel: 'Supprimer',
+                destructive: true,
+            }))
+        )
+            return;
         try {
             await this.clientsApi.delete(c.id);
             toast.success('Client supprimé');

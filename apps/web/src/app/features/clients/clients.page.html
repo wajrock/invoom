@@ -1,7 +1,9 @@
 <app-page-header heading="Clients" subtitle="Coordonnées réutilisées à chaque facture">
-    <button hlmBtn class="fab" (click)="edit()" aria-label="Nouveau client">
-        <ng-icon name="lucidePlus" /><span class="fab-label">Nouveau client</span>
-    </button>
+    @if (clients()?.length !== 0) {
+        <button hlmBtn class="fab" (click)="edit()" aria-label="Nouveau client">
+            <ng-icon name="lucidePlus" /><span class="fab-label">Nouveau client</span>
+        </button>
+    }
 </app-page-header>
 
 @if (clients(); as list) {
@@ -18,8 +20,12 @@
     }
 
     @if (list.length === 0) {
-        <app-empty-state message="Aucun client enregistré.">
-            <button hlmBtn variant="outline" (click)="edit()"><ng-icon name="lucidePlus" /> Ajouter le premier</button>
+        <app-empty-state
+            illustration="clients"
+            message="Aucun client"
+            description="Enregistre les coordonnées de tes clients : elles sont reprises sur chaque facture."
+        >
+            <button hlmBtn size="sm" (click)="edit()"><ng-icon name="lucidePlus" /> Nouveau client</button>
         </app-empty-state>
     } @else {
         <app-search-input class="mb-4 sm:max-w-sm" placeholder="Rechercher un client" [(value)]="query" />

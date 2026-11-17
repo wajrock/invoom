@@ -21,6 +21,7 @@ export interface SettingsForm {
     activity: Activity;
     activityStart: string;
     cfeExemptFirstYear: boolean;
+    autoDeadlines: boolean;
     periods: PeriodForm[];
 }
 
@@ -56,6 +57,7 @@ export function settingsToForm(s: TaxSettings): SettingsForm {
         activity: s.activity,
         activityStart: s.activityStart,
         cfeExemptFirstYear: s.cfeExemptFirstYear,
+        autoDeadlines: s.autoDeadlines,
         periods: s.periods.map(periodToForm),
     };
 }

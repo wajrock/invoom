@@ -34,7 +34,8 @@ export async function listDeadlines(deps: Deps, from: string, to: string): Promi
         statusRows.filter((r) => cipher.decryptJson<{dismissed?: boolean}>(r.data).dismissed).map((r) => r.autoKey!),
     );
 
-    const auto: DeadlineView[] = generateDeadlines(years, items, tax)
+    // Opt-in (tax settings): a new account only has the reminders it adds
+    const auto: DeadlineView[] = (tax.autoDeadlines ? generateDeadlines(years, items, tax) : [])
         .filter((d) => d.dueOn >= from && d.dueOn <= to && !dismissed.has(d.autoKey))
         .map((d) => {
             const doneAt = doneMap.get(d.autoKey) ?? null;

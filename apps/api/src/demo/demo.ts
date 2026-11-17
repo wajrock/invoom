@@ -7,7 +7,7 @@ import {eq} from 'drizzle-orm';
 import type {Hono} from 'hono';
 import {fileURLToPath} from 'node:url';
 import type {Db} from '../db/client.ts';
-import {users, workspaceMembers} from '../db/schema/index.ts';
+import {users, workspaceMembers, workspaces as workspaceTable} from '../db/schema/index.ts';
 import type {WorkspaceRuntime} from '../db/workspace-scope.ts';
 import {DEFAULT_COMPANY} from '../modules/company/company.defaults.ts';
 
@@ -39,6 +39,8 @@ export async function ensureDemoAccount(db: Db, workspaces: WorkspaceRuntime): P
         const conn = tx as unknown as Db;
         const [user] = await conn.insert(users).values({email: DEMO_EMAIL}).returning({id: users.id});
         const workspaceId = await workspaces.createWorkspace(conn);
+        // Its details are seeded below: skip the first-run setup
+        await conn.update(workspaceTable).set({onboarded: true}).where(eq(workspaceTable.id, workspaceId));
         await conn.insert(workspaceMembers).values({workspaceId, userId: user.id});
         return {userId: user.id, workspaceId, created: true};
     });
@@ -72,6 +74,7 @@ export async function seedDemo(app: Hono) {
         activity: 'bnc',
         activityStart,
         cfeExemptFirstYear: true,
+        autoDeadlines: true,
         periods: [
             {
                 from: activityStart,
@@ -85,6 +88,8 @@ export async function seedDemo(app: Hono) {
             },
         ],
     });
+
+    await call('POST', '/api/platforms/suggested');
 
     const company: Record<string, string> = {
         name: 'Camille Martin',

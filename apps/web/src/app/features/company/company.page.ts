@@ -9,6 +9,8 @@ import {HlmSkeletonImports} from '@spartan-ng/helm/skeleton';
 import {HlmTextareaImports} from '@spartan-ng/helm/textarea';
 import {Auth} from '../../core/auth/auth.service';
 import {errorMessage} from '../../core/http/error-message';
+import {type HasUnsavedChanges} from '../../core/navigation/unsaved-changes.guard';
+import {Confirm} from '../../shared/ui/confirm/confirm';
 import {SettingsSection} from '../../shared/ui/settings-section/settings-section';
 import {Spinner} from '../../shared/ui/spinner/spinner';
 import {copyToClipboard} from '../../shared/utils/clipboard';
@@ -39,9 +41,10 @@ const GROUP_DESCRIPTIONS: Record<string, string> = {
     providers: [provideIcons({lucideCopy, lucidePencil, lucidePlus, lucideTrash2})],
     templateUrl: './company.page.html',
 })
-export class CompanyPage {
+export class CompanyPage implements HasUnsavedChanges {
     private readonly api = inject(CompanyApi);
     private readonly auth = inject(Auth);
+    private readonly confirm = inject(Confirm);
 
     protected readonly fields = signal<CompanyField[] | null>(null);
     /** Section being edited, by group name */
@@ -70,6 +73,14 @@ export class CompanyPage {
         } catch (err) {
             this.error.set(errorMessage(err));
         }
+    }
+
+    canLeave() {
+        return !this.hasUnsavedChanges() || this.confirm.discardChanges();
+    }
+
+    private hasUnsavedChanges() {
+        return this.editing() !== null && JSON.stringify(this.fields()) !== JSON.stringify(this.snapshot);
     }
 
     describe(group: string): string {

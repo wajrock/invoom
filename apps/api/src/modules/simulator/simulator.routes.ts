@@ -39,6 +39,7 @@ function customSettings(q: Extract<z.infer<typeof query>, {rates: 'custom'}>, to
         activity: q.activity,
         activityStart: today,
         cfeExemptFirstYear: true,
+        autoDeadlines: false,
         periods: [
             {
                 ...defaultPeriod(q.activity, today),

@@ -23,6 +23,8 @@ export interface TaxSettings {
     activityStart: string;
     cfeExemptFirstYear: boolean;
     periods: RatePeriod[];
+    /** URSSAF declarations, CFE and income tax added to the deadlines; off for a new account */
+    autoDeadlines: boolean;
 }
 
 export interface ActivityDefaults {

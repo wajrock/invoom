@@ -11,6 +11,7 @@ import {HlmLabelImports} from '@spartan-ng/helm/label';
 import {HlmSkeletonImports} from '@spartan-ng/helm/skeleton';
 import {Auth} from '../../../core/auth/auth.service';
 import {errorMessage} from '../../../core/http/error-message';
+import {NavigationService} from '../../../core/navigation/navigation.service';
 import {FrDatePipe} from '../../../shared/pipes/fr-date.pipe';
 import {SettingsSection} from '../../../shared/ui/settings-section/settings-section';
 import {Spinner} from '../../../shared/ui/spinner/spinner';
@@ -19,7 +20,8 @@ import {AgentConnections} from '../../agents/agent-connections';
 import {AuthApi} from '../auth.api';
 import type {PasskeyInfo, PasskeyState} from '../auth.models';
 import {RecoveryCodes} from '../recovery-codes/recovery-codes';
-import {guessDeviceName, webauthnError} from '../webauthn';
+import {forgetPasskeys, guessDeviceName, webauthnError} from '../webauthn';
+import {Confirm} from '../../../shared/ui/confirm/confirm';
 
 @Component({
     selector: 'app-security',
@@ -43,6 +45,8 @@ import {guessDeviceName, webauthnError} from '../webauthn';
 })
 export class SecurityPage {
     private readonly api = inject(AuthApi);
+    private readonly confirm = inject(Confirm);
+    private readonly nav = inject(NavigationService);
     protected readonly email = inject(Auth).email;
     private readonly params = inject(ActivatedRoute).snapshot.queryParamMap;
 
@@ -77,16 +81,61 @@ export class SecurityPage {
         });
     }
 
-    remove(p: PasskeyInfo) {
-        if (!confirm(`Supprimer la passkey « ${p.name} » ? Cet appareil ne pourra plus se connecter.`)) return;
+    async remove(p: PasskeyInfo) {
+        if (
+            !(await this.confirm.ask({
+                title: `Supprimer « ${p.name} » ?`,
+                description: 'Cet appareil ne pourra plus se connecter à ton compte.',
+                confirmLabel: 'Supprimer',
+                destructive: true,
+            }))
+        )
+            return;
         return this.run(async () => {
             await this.api.deletePasskey(p.id);
+            forgetPasskeys([p.id]);
             toast.success('Passkey supprimée');
         });
     }
 
-    regenerate() {
-        if (!confirm('Générer de nouveaux codes ? Les anciens ne fonctionneront plus.')) return;
+    async deleteAccount() {
+        const email = this.email();
+        if (!email) return;
+        if (
+            !(await this.confirm.ask({
+                title: 'Supprimer ton compte ?',
+                description:
+                    'Toutes tes données sont effacées définitivement : factures et fichiers, paiements, clients, prestations, échéances, infos d’entreprise et paramètres, ainsi que tes passkeys, codes de récupération et agents connectés. Rien ne pourra être récupéré.',
+                confirmLabel: 'Supprimer définitivement',
+                destructive: true,
+                confirmText: email,
+                confirmTextLabel: 'Pour confirmer, saisis ton adresse e-mail',
+            }))
+        )
+            return;
+        const passkeyIds = this.state()?.passkeys.map((p) => p.id) ?? [];
+        this.busy.set(true);
+        try {
+            await this.api.deleteAccount(email);
+            forgetPasskeys(passkeyIds);
+            toast.success('Ton compte a été supprimé');
+            await this.nav.navigateByUrl('/login');
+        } catch (err) {
+            toast.error(errorMessage(err));
+        } finally {
+            this.busy.set(false);
+        }
+    }
+
+    async regenerate() {
+        if (
+            !(await this.confirm.ask({
+                title: 'Générer de nouveaux codes ?',
+                description: 'Les codes actuels ne fonctionneront plus : garde bien les nouveaux.',
+                confirmLabel: 'Générer',
+            }))
+        )
+            return;
         return this.run(async () => {
             this.codes.set(await this.api.regenerateRecoveryCodes());
         });

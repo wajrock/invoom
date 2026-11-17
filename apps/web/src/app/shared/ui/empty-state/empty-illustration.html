@@ -1,0 +1,173 @@
+<svg viewBox="0 0 200 140" class="h-auto w-full" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="100" cy="68" r="52" class="fill-accent/70" />
+
+    @switch (name()) {
+        @case ('invoices') {
+            <rect
+                x="64"
+                y="26"
+                width="62"
+                height="82"
+                rx="8"
+                class="fill-card stroke-border"
+                stroke-width="1.5"
+                transform="rotate(-9 95 67)"
+            />
+            <rect x="74" y="20" width="64" height="86" rx="8" class="fill-card stroke-border" stroke-width="1.5" />
+            <!-- Letterhead: the brand mark, as on a real Invoom invoice -->
+            <path [attr.d]="boomerang" class="fill-primary" transform="translate(84 31) scale(0.15)" />
+            <rect x="100" y="32" width="28" height="3.5" rx="1.75" class="fill-foreground/25" />
+            <rect x="84" y="48" width="44" height="3.5" rx="1.75" class="fill-border" />
+            <rect x="84" y="57" width="34" height="3.5" rx="1.75" class="fill-border" />
+            <rect x="84" y="66" width="40" height="3.5" rx="1.75" class="fill-border" />
+            <path d="M84 79h44" class="stroke-border" stroke-width="1.5" stroke-dasharray="2 4" />
+            <rect x="102" y="87" width="26" height="8" rx="4" class="fill-highlight" />
+            <circle cx="140" cy="98" r="15" class="fill-primary stroke-card" stroke-width="4" />
+            <path
+                d="M144.5 92.5a6.5 6.5 0 1 0 0 11M133.5 96.5h8M133.5 99.5h8"
+                class="stroke-primary-foreground"
+                stroke-width="2.2"
+            />
+        }
+        @case ('clients') {
+            <rect
+                x="50"
+                y="40"
+                width="78"
+                height="54"
+                rx="10"
+                class="fill-card stroke-border"
+                stroke-width="1.5"
+                transform="rotate(-7 89 67)"
+            />
+            <rect x="66" y="48" width="86" height="58" rx="10" class="fill-card stroke-border" stroke-width="1.5" />
+            <circle cx="88" cy="70" r="12" class="fill-primary" />
+            <circle cx="88" cy="66.5" r="4.2" class="fill-primary-foreground" />
+            <path d="M80.8 77.6a7.6 7.6 0 0 1 14.4 0" class="stroke-primary-foreground" stroke-width="3" />
+            <rect x="106" y="63" width="34" height="5" rx="2.5" class="fill-foreground/25" />
+            <rect x="106" y="73" width="24" height="3.5" rx="1.75" class="fill-border" />
+            <rect x="78" y="91" width="22" height="7" rx="3.5" class="fill-accent" />
+            <rect x="104" y="91" width="16" height="7" rx="3.5" class="fill-accent" />
+            <circle cx="150" cy="50" r="11" class="fill-highlight stroke-card" stroke-width="4" />
+            <path d="M150 45.5v9M145.5 50h9" class="stroke-card" stroke-width="2.5" />
+        }
+        @case ('services') {
+            <path d="M86 70C70 70 60 58 54 46" class="stroke-highlight" stroke-width="2.5" />
+            <path
+                d="M70 70 88 46h52a8 8 0 0 1 8 8v32a8 8 0 0 1-8 8H88L70 70Z"
+                class="fill-card stroke-border"
+                stroke-width="1.5"
+            />
+            <circle cx="86" cy="70" r="4.5" class="fill-accent stroke-border" stroke-width="1.5" />
+            <path [attr.d]="boomerang" class="fill-primary" transform="translate(106.2 56) scale(0.3)" />
+            <rect x="104" y="80" width="30" height="4" rx="2" class="fill-border" />
+        }
+        @case ('sites') {
+            <rect x="48" y="24" width="104" height="78" rx="10" class="fill-card stroke-border" stroke-width="1.5" />
+            <path d="M48 40h104" class="stroke-border" stroke-width="1.5" />
+            <circle cx="58" cy="32" r="2.3" class="fill-highlight" />
+            <circle cx="65" cy="32" r="2.3" class="fill-border" />
+            <circle cx="72" cy="32" r="2.3" class="fill-border" />
+            <rect x="82" y="28.5" width="60" height="7" rx="3.5" class="fill-accent" />
+            <path d="M100 50 122 60H78l22-10Z" class="fill-primary" />
+            <rect x="82" y="62" width="5" height="18" rx="1.5" class="fill-primary/75" />
+            <rect x="91" y="62" width="5" height="18" rx="1.5" class="fill-primary/75" />
+            <rect x="104" y="62" width="5" height="18" rx="1.5" class="fill-primary/75" />
+            <rect x="113" y="62" width="5" height="18" rx="1.5" class="fill-primary/75" />
+            <rect x="77" y="82" width="46" height="5" rx="2" class="fill-primary" />
+            <rect x="73" y="89" width="54" height="4" rx="2" class="fill-primary/35" />
+            <path d="m134 80 20 9-8.5 2.8-3.8 8.6L134 80Z" class="fill-highlight stroke-card" stroke-width="2.5" />
+        }
+        @case ('declaration') {
+            <!-- A declaration form waiting for its date -->
+            <rect x="56" y="20" width="66" height="86" rx="8" class="fill-card stroke-border" stroke-width="1.5" />
+            <rect x="66" y="30" width="24" height="7" rx="3.5" class="fill-primary" />
+            @for (y of [48, 60, 72]; track y) {
+                <rect
+                    x="66"
+                    [attr.y]="y"
+                    width="7"
+                    height="7"
+                    rx="2"
+                    class="fill-card stroke-border"
+                    stroke-width="1.5"
+                />
+                <rect
+                    x="78"
+                    [attr.y]="y + 2"
+                    [attr.width]="y === 60 ? 22 : 32"
+                    height="3.5"
+                    rx="1.75"
+                    class="fill-border"
+                />
+            }
+            <rect x="66" y="86" width="46" height="11" rx="3.5" class="fill-card stroke-border" stroke-width="1.5" />
+            <rect x="94" y="89.5" width="13" height="4" rx="2" class="fill-foreground/25" />
+            <rect x="112" y="64" width="42" height="42" rx="8" class="fill-card stroke-border" stroke-width="1.5" />
+            <path d="M112 72a8 8 0 0 1 8-8h26a8 8 0 0 1 8 8v4h-42v-4Z" class="fill-primary" />
+            <rect
+                x="121"
+                y="59"
+                width="5"
+                height="11"
+                rx="2.5"
+                class="fill-foreground/70 stroke-card"
+                stroke-width="2"
+            />
+            <rect
+                x="140"
+                y="59"
+                width="5"
+                height="11"
+                rx="2.5"
+                class="fill-foreground/70 stroke-card"
+                stroke-width="2"
+            />
+            <rect x="123" y="84" width="20" height="12" rx="3.5" class="fill-highlight" />
+        }
+        @case ('archive') {
+            <!-- Settled declarations, filed away -->
+            <rect
+                x="58"
+                y="30"
+                width="64"
+                height="76"
+                rx="8"
+                class="fill-card stroke-border"
+                stroke-width="1.5"
+                transform="rotate(-8 90 68)"
+            />
+            <rect x="68" y="24" width="66" height="84" rx="8" class="fill-card stroke-border" stroke-width="1.5" />
+            @for (y of [38, 54, 70]; track y) {
+                <rect x="78" [attr.y]="y" width="9" height="9" rx="2.5" class="fill-primary" />
+                <path
+                    [attr.d]="'m80.5 ' + (y + 4.7) + ' 1.8 1.8 3.4-3.4'"
+                    class="stroke-primary-foreground"
+                    stroke-width="1.6"
+                />
+                <rect
+                    x="93"
+                    [attr.y]="y + 3"
+                    [attr.width]="y === 54 ? 22 : 30"
+                    height="3.5"
+                    rx="1.75"
+                    class="fill-border"
+                />
+            }
+            <path d="M78 90h46" class="stroke-border" stroke-width="1.5" stroke-dasharray="2 4" />
+            <rect x="104" y="95" width="20" height="6" rx="3" class="fill-highlight" />
+        }
+        @default {
+            <!-- Calendar with nothing left to settle -->
+            <rect x="56" y="26" width="84" height="78" rx="10" class="fill-card stroke-border" stroke-width="1.5" />
+            <path d="M56 36a10 10 0 0 1 10-10h64a10 10 0 0 1 10 10v10H56V36Z" class="fill-primary" />
+            <rect x="75" y="19" width="6" height="15" rx="3" class="fill-foreground/70 stroke-card" stroke-width="2" />
+            <rect x="115" y="19" width="6" height="15" rx="3" class="fill-foreground/70 stroke-card" stroke-width="2" />
+            @for (c of cells; track $index) {
+                <rect [attr.x]="c.x" [attr.y]="c.y" width="10" height="8" rx="2.5" class="fill-border" />
+            }
+            <circle cx="140" cy="98" r="15" class="fill-primary stroke-card" stroke-width="4" />
+            <path d="m133.5 98 4.5 4.5 8.5-8.5" class="stroke-primary-foreground" stroke-width="3" />
+        }
+    }
+</svg>

@@ -6,6 +6,7 @@ import {HlmButtonImports} from '@spartan-ng/helm/button';
 import {errorMessage} from '../../core/http/error-message';
 import {FrDatePipe} from '../../shared/pipes/fr-date.pipe';
 import {AgentsApi, type AgentConnection} from './agents.api';
+import {Confirm} from '../../shared/ui/confirm/confirm';
 
 /** Agents connected to the workspace (Claude…), each revocable; listed in the security settings */
 @Component({
@@ -52,6 +53,7 @@ import {AgentsApi, type AgentConnection} from './agents.api';
 })
 export class AgentConnections {
     private readonly api = inject(AgentsApi);
+    private readonly confirm = inject(Confirm);
 
     protected readonly connections = signal<AgentConnection[] | null>(null);
     protected readonly busy = signal(false);
@@ -70,7 +72,15 @@ export class AgentConnections {
     }
 
     protected async revoke(a: AgentConnection) {
-        if (!confirm(`Révoquer l'accès de ${a.name} ? Il devra être autorisé à nouveau.`)) return;
+        if (
+            !(await this.confirm.ask({
+                title: `Révoquer l’accès de ${a.name} ?`,
+                description: 'Il ne pourra plus consulter ni modifier ton espace, sauf si tu l’autorises à nouveau.',
+                confirmLabel: 'Révoquer',
+                destructive: true,
+            }))
+        )
+            return;
         this.busy.set(true);
         try {
             await this.api.revoke(a.id);

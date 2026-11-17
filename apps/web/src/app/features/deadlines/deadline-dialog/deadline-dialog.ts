@@ -14,6 +14,7 @@ import {todayIso} from '../../../shared/utils/dates';
 import {centsToInput, parseEuros} from '../../../shared/utils/money';
 import {KIND_OPTIONS, type Deadline, type DeadlineInput, type DeadlineKind} from '../deadline.models';
 import {DeadlinesApi} from '../deadlines.api';
+import {guardUnsavedChanges} from '../../../shared/ui/confirm/unsaved-changes';
 
 export interface DeadlineDialogContext {
     deadline?: Deadline;
@@ -51,6 +52,7 @@ export class DeadlineDialog {
         amount: centsToInput(this.existing?.amount),
         note: this.existing?.note ?? '',
     };
+    private readonly guard = guardUnsavedChanges<boolean>(() => this.form);
 
     async save() {
         if (!this.form.title.trim()) return void toast.error('L’intitulé est requis');
@@ -62,7 +64,7 @@ export class DeadlineDialog {
             if (this.existing) await this.api.update(this.existing.id, body);
             else await this.api.create(body);
             toast.success(this.existing ? 'Échéance mise à jour' : 'Échéance ajoutée');
-            this.ref.close(true);
+            this.guard.closeSaved(true);
         } catch (err) {
             toast.error(errorMessage(err));
         } finally {

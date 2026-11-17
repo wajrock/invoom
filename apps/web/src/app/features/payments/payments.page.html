@@ -1,39 +1,51 @@
 <app-page-header heading="Paiements" subtitle="Factures émises et encaissements">
-    <button hlmBtn class="fab" aria-label="Ajouter un paiement" (click)="openInvoice()">
-        <ng-icon name="lucidePlus" /><span class="fab-label">Ajouter un paiement</span>
-    </button>
+    @if (payments()?.length !== 0) {
+        <button hlmBtn class="fab" aria-label="Ajouter un paiement" (click)="openInvoice()">
+            <ng-icon name="lucidePlus" /><span class="fab-label">Ajouter un paiement</span>
+        </button>
+    }
 </app-page-header>
 
-<app-filter-bar placeholder="Rechercher un client, un objet, un n°…" [active]="filtersActive()" [(query)]="query">
-    <label class="filter-field">
-        <span>Année</span>
-        <select class="select-native sm:w-auto" [ngModel]="year()" (ngModelChange)="year.set($event)">
-            <option value="all">Toutes les années</option>
-            @for (y of years(); track y) {
-                <option [value]="'' + y">{{ y }}</option>
-            }
-        </select>
-    </label>
-    <label class="filter-field">
-        <span>Statut</span>
-        <select class="select-native sm:w-auto" [ngModel]="status()" (ngModelChange)="status.set($event)">
-            <option value="all">Tous</option>
-            <option value="paid">Encaissés</option>
-            <option value="pending">En attente</option>
-        </select>
-    </label>
-</app-filter-bar>
-
 @if (payments(); as list) {
-    <div class="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-        <app-kpi-tile variant="compact" label="Encaissé" [value]="totals().paid | eur" />
-        <app-kpi-tile variant="compact" label="En attente" [value]="totals().pending | eur" />
-        <app-kpi-tile variant="compact" class="hidden sm:block" label="Factures" [value]="'' + filtered().length" />
-    </div>
+    <!-- Search, filters and totals only once there is something to search or add up -->
+    @if (list.length) {
+        <app-filter-bar
+            placeholder="Rechercher un client, un objet, un n°…"
+            [active]="filtersActive()"
+            [(query)]="query"
+        >
+            <label class="filter-field">
+                <span>Année</span>
+                <select class="select-native sm:w-auto" [ngModel]="year()" (ngModelChange)="year.set($event)">
+                    <option value="all">Toutes les années</option>
+                    @for (y of years(); track y) {
+                        <option [value]="'' + y">{{ y }}</option>
+                    }
+                </select>
+            </label>
+            <label class="filter-field">
+                <span>Statut</span>
+                <select class="select-native sm:w-auto" [ngModel]="status()" (ngModelChange)="status.set($event)">
+                    <option value="all">Tous</option>
+                    <option value="paid">Encaissés</option>
+                    <option value="pending">En attente</option>
+                </select>
+            </label>
+        </app-filter-bar>
+        <div class="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+            <app-kpi-tile variant="compact" label="Encaissé" [value]="totals().paid | eur" />
+            <app-kpi-tile variant="compact" label="En attente" [value]="totals().pending | eur" />
+            <app-kpi-tile variant="compact" class="hidden sm:block" label="Factures" [value]="'' + filtered().length" />
+        </div>
+    }
 
     @if (list.length === 0) {
-        <app-empty-state message="Aucun paiement enregistré.">
-            <button hlmBtn (click)="openInvoice()"><ng-icon name="lucidePlus" /> Ajouter un paiement</button>
+        <app-empty-state
+            illustration="invoices"
+            message="Aucun paiement"
+            description="Crée une facture ou enregistre un paiement reçu pour suivre ton chiffre d’affaires."
+        >
+            <button hlmBtn size="sm" (click)="openInvoice()"><ng-icon name="lucidePlus" /> Ajouter un paiement</button>
         </app-empty-state>
     } @else if (filtered().length === 0) {
         <p class="text-muted-foreground py-10 text-center text-sm">Aucun résultat pour ces filtres.</p>

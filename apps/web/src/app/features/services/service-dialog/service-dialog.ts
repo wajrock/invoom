@@ -13,6 +13,7 @@ import {centsToInput, parseEuros} from '../../../shared/utils/money';
 import type {Client} from '../../clients/client.models';
 import type {Service, ServiceInput} from '../service.models';
 import {ServicesApi} from '../services.api';
+import {guardUnsavedChanges} from '../../../shared/ui/confirm/unsaved-changes';
 
 const UNITS = ['heure', 'jour', 'demi-journée', 'semaine', 'mois', 'forfait'];
 
@@ -62,6 +63,10 @@ export class ServiceDialog {
     protected readonly english = signal(
         this.ctx.service || this.form.label ? !!(this.form.labelEn || this.form.detailEn || this.form.unitEn) : true,
     );
+    private readonly guard = guardUnsavedChanges<Service | undefined>(() => ({
+        form: this.form,
+        english: this.english(),
+    }));
 
     async save() {
         const label = this.form.label.trim();
@@ -94,7 +99,7 @@ export class ServiceDialog {
         try {
             const saved = this.existing ? await this.api.update(this.existing.id, body) : await this.api.create(body);
             toast.success(this.existing ? 'Prestation mise à jour' : 'Prestation enregistrée');
-            this.ref.close(saved);
+            this.guard.closeSaved(saved);
         } catch (err) {
             toast.error(errorMessage(err));
         } finally {

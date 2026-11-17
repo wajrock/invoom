@@ -1,7 +1,9 @@
 <app-page-header heading="Démarches" subtitle="Accès rapide aux sites administratifs et outils">
-    <button hlmBtn class="fab" (click)="open()" aria-label="Ajouter une plateforme">
-        <ng-icon name="lucidePlus" /><span class="fab-label">Ajouter</span>
-    </button>
+    @if (platforms()?.length !== 0) {
+        <button hlmBtn class="fab" (click)="open()" aria-label="Ajouter une plateforme">
+            <ng-icon name="lucidePlus" /><span class="fab-label">Ajouter</span>
+        </button>
+    }
 </app-page-header>
 
 @if (groups(); as gs) {
@@ -18,7 +20,20 @@
                 </div>
             </section>
         } @empty {
-            <app-empty-state message="Aucune plateforme." />
+            <app-empty-state
+                illustration="sites"
+                message="Aucune démarche"
+                description="Garde sous la main les sites administratifs que tu utilises : URSSAF, impots.gouv, ta banque…"
+            >
+                <div class="flex flex-wrap justify-center gap-2">
+                    <button hlmBtn size="sm" [disabled]="adding()" (click)="addSuggested()">
+                        Ajouter les sites essentiels
+                    </button>
+                    <button hlmBtn variant="outline" size="sm" (click)="open()">
+                        <ng-icon name="lucidePlus" /> Ajouter un site
+                    </button>
+                </div>
+            </app-empty-state>
         }
     </div>
 } @else if (error()) {

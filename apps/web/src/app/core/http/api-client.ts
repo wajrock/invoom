@@ -21,7 +21,7 @@ export class ApiClient {
         return firstValueFrom(this.http.put<T>(url, body));
     }
 
-    delete<T = void>(url: string): Promise<T> {
-        return firstValueFrom(this.http.delete<T>(url));
+    delete<T = void>(url: string, body?: unknown): Promise<T> {
+        return firstValueFrom(this.http.delete<T>(url, {body}));
     }
 }

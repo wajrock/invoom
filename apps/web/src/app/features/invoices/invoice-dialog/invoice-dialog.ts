@@ -23,6 +23,8 @@ import {InvoicesApi} from '../invoices.api';
 import {InvoiceHeader} from '../sections/invoice-header';
 import {InvoiceLines} from '../sections/invoice-lines';
 import {InvoiceTerms} from '../sections/invoice-terms';
+import {Confirm} from '../../../shared/ui/confirm/confirm';
+import {guardUnsavedChanges} from '../../../shared/ui/confirm/unsaved-changes';
 
 /** Opens the invoice generator in a wide right drawer; emits true when an invoice was generated. */
 export function openInvoiceDialog(dialog: HlmDialogService, context: InvoiceDialogContext) {
@@ -51,6 +53,7 @@ export function openInvoiceDialog(dialog: HlmDialogService, context: InvoiceDial
 })
 export class InvoiceDialog {
     private readonly api = inject(InvoicesApi);
+    private readonly confirm = inject(Confirm);
     private readonly dialog = inject(HlmDialogService);
     protected readonly editor = inject(InvoiceEditor);
     protected readonly ref = inject<BrnDialogRef<boolean>>(BrnDialogRef);
@@ -60,12 +63,22 @@ export class InvoiceDialog {
     protected readonly stored = this.ctx.payment?.invoice ?? null;
     protected readonly busy = signal(false);
     protected readonly regimeLabels = VAT_REGIME_LABELS;
+    private readonly guard = guardUnsavedChanges<boolean>(() => ({
+        form: this.form,
+        lines: this.editor.lines(),
+        saveDefaults: this.editor.saveDefaults(),
+        customTerms: this.editor.customTerms(),
+    }));
 
     constructor() {
-        this.editor.init(this.ctx).catch((err: unknown) => {
-            toast.error(errorMessage(err));
-            this.ref.close(false);
-        });
+        this.editor
+            .init(this.ctx)
+            // Filled in once the clients and settings are loaded: changes count from there
+            .then(() => this.guard.markPristine())
+            .catch((err: unknown) => {
+                toast.error(errorMessage(err));
+                this.guard.closeSaved(false);
+            });
     }
 
     /** Shows the first validation error, if any */
@@ -100,7 +113,14 @@ export class InvoiceDialog {
     async save() {
         const body = this.request();
         if (!body) return;
-        if (this.stored && !confirm('Les PDF de cette facture seront remplacés par la nouvelle version. Continuer ?'))
+        if (
+            this.stored &&
+            !(await this.confirm.ask({
+                title: 'Remplacer la facture ?',
+                description: 'Les PDF de cette facture seront remplacés par la nouvelle version.',
+                confirmLabel: 'Remplacer',
+            }))
+        )
             return;
 
         const {invoice} = body;
@@ -113,7 +133,7 @@ export class InvoiceDialog {
             toast.success(
                 `Facture ${invoice.number} ${this.stored ? 'régénérée' : 'générée'}${invoice.english ? ' (FR + EN)' : ''}`,
             );
-            this.ref.close(true);
+            this.guard.closeSaved(true);
         } catch (err) {
             toast.error(errorMessage(err));
         } finally {

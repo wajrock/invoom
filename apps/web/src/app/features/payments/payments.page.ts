@@ -22,6 +22,7 @@ import {paymentInput, type Payment, type PaymentAction} from './payment.models';
 import {PaymentList} from './payment-list/payment-list';
 import {PaymentsApi} from './payments.api';
 import {PaymentsTable} from './payments-table/payments-table';
+import {Confirm} from '../../shared/ui/confirm/confirm';
 
 type StatusFilter = 'all' | 'paid' | 'pending';
 
@@ -45,6 +46,7 @@ type StatusFilter = 'all' | 'paid' | 'pending';
 })
 export class PaymentsPage {
     private readonly paymentsApi = inject(PaymentsApi);
+    private readonly confirm = inject(Confirm);
     private readonly clientsApi = inject(ClientsApi);
     private readonly dialog = inject(HlmDialogService);
 
@@ -152,7 +154,15 @@ export class PaymentsPage {
 
     private async remove(p: Payment) {
         const files = p.files.length ? ` et ses ${p.files.length} fichier(s)` : '';
-        if (!confirm(`Supprimer le paiement de ${p.client}${files} ? Cette action est définitive.`)) return;
+        if (
+            !(await this.confirm.ask({
+                title: 'Supprimer ce paiement ?',
+                description: `Le paiement de ${p.client}${files} sera supprimé définitivement.`,
+                confirmLabel: 'Supprimer',
+                destructive: true,
+            }))
+        )
+            return;
         try {
             await this.paymentsApi.delete(p.id);
             toast.success('Paiement supprimé');

@@ -25,6 +25,8 @@ import {
 import {RatePeriodEditor} from './rate-period-editor/rate-period-editor';
 import {TaxSettingsApi} from './tax-settings.api';
 import type {ActivityDefaults, RatePeriod, TaxSettings} from './tax-settings.models';
+import {type HasUnsavedChanges} from '../../core/navigation/unsaved-changes.guard';
+import {Confirm} from '../../shared/ui/confirm/confirm';
 
 @Component({
     selector: 'app-tax-settings',
@@ -44,8 +46,9 @@ import type {ActivityDefaults, RatePeriod, TaxSettings} from './tax-settings.mod
     providers: [provideIcons({lucidePlus, lucideChevronDown, lucideHistory})],
     templateUrl: './tax-settings.page.html',
 })
-export class TaxSettingsPage {
+export class TaxSettingsPage implements HasUnsavedChanges {
     private readonly api = inject(TaxSettingsApi);
+    private readonly confirm = inject(Confirm);
 
     protected readonly form = signal<SettingsForm | null>(null);
     protected readonly defaults = signal<ActivityDefaults[]>([]);
@@ -55,6 +58,8 @@ export class TaxSettingsPage {
     /** Bumped to re-sort after a period is added or removed (periods are mutated in place) */
     private readonly version = signal(0);
     private saved: TaxSettings | null = null;
+    /** Form as loaded or last saved, to tell whether it holds changes */
+    private pristine = '';
 
     /** Most recent first */
     protected readonly sortedPeriods = computed(() => {
@@ -78,17 +83,40 @@ export class TaxSettingsPage {
     async load() {
         try {
             const [settings, defaults] = await Promise.all([this.api.get(), this.api.defaults()]);
-            this.saved = settings;
             this.defaults.set(defaults);
-            this.form.set(settingsToForm(settings));
+            this.setSaved(settings);
         } catch (err) {
             this.error.set(errorMessage(err));
         }
     }
 
-    reset() {
-        if (this.saved) this.form.set(settingsToForm(this.saved));
+    private setSaved(settings: TaxSettings) {
+        this.saved = settings;
+        const form = settingsToForm(settings);
+        this.form.set(form);
+        this.pristine = JSON.stringify(form);
         this.openKey.set(null);
+    }
+
+    canLeave() {
+        return !this.hasUnsavedChanges() || this.confirm.discardChanges();
+    }
+
+    private hasUnsavedChanges() {
+        const f = this.form();
+        return !!f && JSON.stringify(f) !== this.pristine;
+    }
+
+    async reset() {
+        if (!this.saved || !this.hasUnsavedChanges()) return;
+        const ok = await this.confirm.ask({
+            title: 'Annuler les modifications ?',
+            description: 'Les paramètres reviennent à leur dernier enregistrement.',
+            confirmLabel: 'Annuler les modifications',
+            cancelLabel: 'Continuer',
+            destructive: true,
+        });
+        if (ok) this.setSaved(this.saved);
     }
 
     toggleOpen(p: PeriodForm) {
@@ -113,13 +141,17 @@ export class TaxSettingsPage {
         this.openKey.set(p.key);
     }
 
-    removePeriod(p: PeriodForm) {
+    async removePeriod(p: PeriodForm) {
         const f = this.form();
         if (!f || f.periods.length <= 1) return;
         if (
-            !confirm(
-                `Supprimer la période du ${formatDate(p.from)} ? Les encaissements concernés seront recalculés avec la période précédente.`,
-            )
+            !(await this.confirm.ask({
+                title: `Supprimer la période du ${formatDate(p.from)} ?`,
+                description:
+                    'Les encaissements concernés seront recalculés avec la période précédente, une fois enregistré.',
+                confirmLabel: 'Supprimer',
+                destructive: true,
+            }))
         )
             return;
         f.periods = f.periods.filter((x) => x !== p);
@@ -154,13 +186,12 @@ export class TaxSettingsPage {
             activity: f.activity,
             activityStart: f.activityStart,
             cfeExemptFirstYear: f.cfeExemptFirstYear,
+            autoDeadlines: f.autoDeadlines,
             periods,
         };
         this.saving.set(true);
         try {
-            this.saved = await this.api.save(body);
-            this.form.set(settingsToForm(this.saved));
-            this.openKey.set(null);
+            this.setSaved(await this.api.save(body));
             toast.success('Paramètres enregistrés');
         } catch (err) {
             toast.error(errorMessage(err));

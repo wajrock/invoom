@@ -20,6 +20,7 @@ import {openServiceDetail} from './service-detail/service-detail';
 import {openServiceDialog} from './service-dialog/service-dialog';
 import type {Service} from './service.models';
 import {ServicesApi} from './services.api';
+import {Confirm} from '../../shared/ui/confirm/confirm';
 
 @Component({
     selector: 'app-services',
@@ -41,6 +42,7 @@ import {ServicesApi} from './services.api';
 })
 export class ServicesPage {
     private readonly servicesApi = inject(ServicesApi);
+    private readonly confirm = inject(Confirm);
     private readonly clientsApi = inject(ClientsApi);
     private readonly dialog = inject(HlmDialogService);
 
@@ -97,7 +99,14 @@ export class ServicesPage {
     }
 
     async remove(s: Service) {
-        if (!confirm(`Supprimer la prestation « ${s.label} » ? Les factures déjà émises ne sont pas modifiées.`))
+        if (
+            !(await this.confirm.ask({
+                title: `Supprimer « ${s.label} » ?`,
+                description: 'La prestation sera retirée du catalogue. Les factures déjà émises ne sont pas modifiées.',
+                confirmLabel: 'Supprimer',
+                destructive: true,
+            }))
+        )
             return;
         try {
             await this.servicesApi.delete(s.id);

@@ -1,6 +1,6 @@
 import {eq} from 'drizzle-orm';
 import {Hono} from 'hono';
-import {users} from '../../db/schema/index.ts';
+import {users, workspaces as workspaceTable} from '../../db/schema/index.ts';
 import {scopedDeps} from '../../db/workspace-scope.ts';
 import {getCompany} from '../company/company.store.ts';
 import type {AuthContext} from './auth.context.ts';
@@ -11,7 +11,17 @@ export const sessionRoutes = ({db, sessions, workspaces}: AuthContext) =>
             const session = await sessions.current(c);
             if (!session) return c.json({authenticated: false, email: null});
             const [user] = await db.select({email: users.email}).from(users).where(eq(users.id, session.userId));
-            return c.json({authenticated: true, email: user?.email ?? null, expiresAt: session.expiresAt});
+            const [ws] = await db
+                .select({onboarded: workspaceTable.onboarded})
+                .from(workspaceTable)
+                .where(eq(workspaceTable.id, session.workspaceId));
+            return c.json({
+                authenticated: true,
+                email: user?.email ?? null,
+                expiresAt: session.expiresAt,
+                // The app sends a new workspace to the first-run setup until this is true
+                onboarded: ws?.onboarded ?? false,
+            });
         })
         /** Signed-in account as the menu shows it: its business name (encrypted, read in the workspace) and email */
         .get('/account', async (c) => {

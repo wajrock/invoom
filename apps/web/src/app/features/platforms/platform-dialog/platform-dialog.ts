@@ -10,6 +10,7 @@ import {DialogFooter} from '../../../shared/ui/dialog-footer/dialog-footer';
 import {drawerOptions} from '../../../shared/ui/drawer/drawer';
 import {hostOf, type Platform, type PlatformInput} from '../platform.models';
 import {PlatformsApi} from '../platforms.api';
+import {guardUnsavedChanges} from '../../../shared/ui/confirm/unsaved-changes';
 
 export interface PlatformDialogContext {
     platform?: Platform;
@@ -41,6 +42,7 @@ export class PlatformDialog {
         description: this.existing?.description ?? '',
         login: this.existing?.login ?? '',
     };
+    private readonly guard = guardUnsavedChanges<boolean>(() => this.form);
 
     async save() {
         let url = this.form.url.trim();
@@ -57,7 +59,7 @@ export class PlatformDialog {
             if (this.existing) await this.api.update(this.existing.id, body);
             else await this.api.create(body);
             toast.success(this.existing ? 'Plateforme mise à jour' : 'Plateforme ajoutée');
-            this.ref.close(true);
+            this.guard.closeSaved(true);
         } catch (err) {
             toast.error(errorMessage(err));
         } finally {

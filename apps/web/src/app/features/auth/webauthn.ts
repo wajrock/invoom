@@ -20,3 +20,20 @@ export function guessDeviceName(): string {
     if (/Windows/.test(ua)) return 'PC Windows';
     return 'Cet appareil';
 }
+
+/**
+ * Tells the device's password manager that these passkeys no longer exist on the server, so it stops offering them
+ * (WebAuthn Signal API). Best effort: only recent browsers support it, and the user can always remove them by hand.
+ */
+export function forgetPasskeys(credentialIds: string[]) {
+    if (typeof PublicKeyCredential === 'undefined') return;
+    const signal = (
+        PublicKeyCredential as unknown as {
+            signalUnknownCredential?: (o: {rpId: string; credentialId: string}) => Promise<void>;
+        }
+    ).signalUnknownCredential;
+    if (!signal) return;
+    for (const credentialId of credentialIds) {
+        signal.call(PublicKeyCredential, {rpId: location.hostname, credentialId}).catch(() => undefined);
+    }
+}

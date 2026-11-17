@@ -1,6 +1,8 @@
 import {NgTemplateOutlet} from '@angular/common';
 import {Component, computed, inject, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
+import {RouterLink} from '@angular/router';
+import {ReplaceUrlLinks} from '../../core/navigation/replace-url-links';
 import {NgIcon, provideIcons} from '@ng-icons/core';
 import {
     lucideCalendarClock,
@@ -30,6 +32,8 @@ import {openDeadlineDialog} from './deadline-dialog/deadline-dialog';
 import {KIND_OPTIONS, type Deadline, type DeadlineKind} from './deadline.models';
 import {DeadlineRow} from './deadline-row/deadline-row';
 import {DeadlinesApi} from './deadlines.api';
+import {TaxSettingsApi} from '../settings/tax-settings.api';
+import {Confirm} from '../../shared/ui/confirm/confirm';
 
 type Tab = 'upcoming' | 'past';
 
@@ -39,6 +43,8 @@ const PAGE = 5;
 @Component({
     selector: 'app-deadlines',
     imports: [
+        RouterLink,
+        ReplaceUrlLinks,
         FormsModule,
         NgTemplateOutlet,
         NgIcon,
@@ -69,6 +75,8 @@ const PAGE = 5;
 })
 export class DeadlinesPage {
     private readonly api = inject(DeadlinesApi);
+    private readonly confirm = inject(Confirm);
+    private readonly taxApi = inject(TaxSettingsApi);
     private readonly dialog = inject(HlmDialogService);
 
     protected readonly tabs: {value: Tab; label: string; icon: string}[] = [
@@ -81,6 +89,10 @@ export class DeadlinesPage {
     protected readonly deadlines = signal<Deadline[] | null>(null);
     protected readonly error = signal('');
     protected readonly loading = signal(false);
+    /** Generated deadlines (URSSAF, CFE, tax) are opt-in in the tax settings; null until known */
+    protected readonly autoDeadlines = signal<boolean | null>(null);
+    /** Nothing at all yet: the add button moves from the header into the empty state */
+    protected readonly blank = computed(() => this.autoDeadlines() === false && this.deadlines()?.length === 0);
     /** Months shown in the "À venir" tab */
     private readonly months = signal(12);
     protected readonly horizon = computed(() => inMonths(this.months()));
@@ -153,6 +165,10 @@ export class DeadlinesPage {
 
     constructor() {
         void this.load();
+        this.taxApi.get().then(
+            (t) => this.autoDeadlines.set(t.autoDeadlines),
+            () => this.autoDeadlines.set(true),
+        );
     }
 
     async load() {
@@ -209,8 +225,17 @@ export class DeadlinesPage {
     }
 
     async remove(d: Deadline) {
-        const warning = d.auto ? '\nElle est calculée automatiquement : elle ne reviendra pas.' : '';
-        if (!confirm(`Supprimer « ${d.title} » ?${warning}`)) return;
+        if (
+            !(await this.confirm.ask({
+                title: `Supprimer « ${d.title} » ?`,
+                description: d.auto
+                    ? 'Elle est calculée automatiquement à partir de tes paramètres : elle ne reviendra pas.'
+                    : 'L’échéance sera supprimée définitivement.',
+                confirmLabel: 'Supprimer',
+                destructive: true,
+            }))
+        )
+            return;
         try {
             await this.api.delete(d.id);
             toast.success('Échéance supprimée');

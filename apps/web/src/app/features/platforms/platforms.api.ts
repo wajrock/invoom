@@ -18,6 +18,10 @@ export class PlatformsApi {
     delete(id: string) {
         return this.api.delete(`/api/platforms/${id}`);
     }
+    /** Adds the usual sites (URSSAF, impots.gouv…) */
+    addSuggested() {
+        return this.api.post<Platform[]>('/api/platforms/suggested', {});
+    }
     reorder(ids: string[]) {
         return this.api.put<Platform[]>('/api/platforms/order', {ids});
     }

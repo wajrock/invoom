@@ -106,6 +106,23 @@
     >
         <app-agent-connections />
     </app-settings-section>
+
+    <app-settings-section
+        heading="Supprimer le compte"
+        description="Efface définitivement ton compte et toutes ses données, passkeys comprises. Pense à télécharger les factures que tu dois conserver."
+    >
+        <button
+            sectionAction
+            hlmBtn
+            variant="destructive"
+            size="sm"
+            class="shrink-0"
+            [disabled]="busy() || !email()"
+            (click)="deleteAccount()"
+        >
+            Supprimer mon compte
+        </button>
+    </app-settings-section>
 } @else if (error()) {
     <p class="text-destructive text-sm">{{ error() }}</p>
 } @else {

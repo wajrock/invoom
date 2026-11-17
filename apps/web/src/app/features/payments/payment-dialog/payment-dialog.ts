@@ -17,6 +17,7 @@ import type {Client} from '../../clients/client.models';
 import type {InvoiceFile, Payment, PaymentInput} from '../payment.models';
 import {PaymentsApi} from '../payments.api';
 import {PaymentFiles, type PendingFile} from './payment-files';
+import {guardUnsavedChanges} from '../../../shared/ui/confirm/unsaved-changes';
 
 export interface PaymentDialogContext {
     payment?: Payment;
@@ -77,6 +78,13 @@ export class PaymentDialog {
     protected readonly saving = signal(false);
     /** A file was deleted: the list must be reloaded even if the dialog is cancelled */
     protected changed = false;
+    private readonly guard = guardUnsavedChanges<boolean>(() => ({
+        form: this.form,
+        currency: this.currency(),
+        paid: this.paid(),
+        // Files already stored are deleted right away; only those waiting for the save count
+        pending: this.pending().length,
+    }));
 
     /** Picking a known client applies its invoicing currency (new payments only). */
     pickClient(name: string) {
@@ -136,7 +144,7 @@ export class PaymentDialog {
             }
             if (failures.length) toast.error(`Paiement enregistré, mais échec d'envoi : ${failures.join(' ; ')}`);
             else toast.success(this.existing ? 'Paiement mis à jour' : 'Paiement ajouté');
-            this.ref.close(true);
+            this.guard.closeSaved(true);
         } catch (err) {
             toast.error(errorMessage(err));
         } finally {

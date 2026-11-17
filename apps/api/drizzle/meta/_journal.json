@@ -15,6 +15,13 @@
       "when": 1794933572726,
       "tag": "0001_agent_connections",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794951179137,
+      "tag": "0002_onboarding",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,4 @@
-import {integer, pgTable, primaryKey, text, timestamp, uuid} from 'drizzle-orm/pg-core';
+import {boolean, integer, pgTable, primaryKey, text, timestamp, uuid} from 'drizzle-orm/pg-core';
 import {bytea} from './columns.ts';
 
 export const users = pgTable('users', {
@@ -13,6 +13,8 @@ export const workspaces = pgTable('workspaces', {
     id: uuid('id').primaryKey().defaultRandom(),
     /** Workspace data key, encrypted with the master key. */
     dataKey: bytea('data_key').notNull(),
+    /** The owner went through the first-run setup (business details, activity); the app requires it */
+    onboarded: boolean('onboarded').notNull().default(false),
     createdAt: timestamp('created_at', {withTimezone: true}).notNull().defaultNow(),
 });
 
