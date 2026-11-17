@@ -18,8 +18,15 @@ import {FrDatePipe} from '../../../shared/pipes/fr-date.pipe';
 import {MoneyPipe} from '../../../shared/pipes/money.pipe';
 import {Avatar} from '../../../shared/ui/avatar/avatar';
 import {formatPeriod} from '../../../shared/utils/dates';
-import {filesInOrder, LANG_LABELS, type Payment, type PaymentAction} from '../payment.models';
-import {PaymentsApi} from '../payments.api';
+import {
+    filesInOrder,
+    invoiceNumberLabel,
+    invoiceTitle,
+    LANG_LABELS,
+    type Payment,
+    type PaymentAction,
+} from '../payment.models';
+import {InvoiceFileViewer} from '../invoice-file-viewer';
 
 export interface PaymentActionEvent {
     payment: Payment;
@@ -54,8 +61,10 @@ export interface PaymentActionEvent {
     templateUrl: './payments-table.html',
 })
 export class PaymentsTable {
-    protected readonly api = inject(PaymentsApi);
+    protected readonly viewer = inject(InvoiceFileViewer);
     protected readonly langLabels = LANG_LABELS;
+    protected readonly invoiceTitle = invoiceTitle;
+    protected readonly numberLabel = invoiceNumberLabel;
     readonly payments = input.required<Payment[]>();
     readonly action = output<PaymentActionEvent>();
     /** Row click: open the payment card */

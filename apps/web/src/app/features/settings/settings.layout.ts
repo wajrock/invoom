@@ -5,14 +5,17 @@ import {NgIcon, provideIcons} from '@ng-icons/core';
 import {NAV_ICONS, SETTINGS_TABS} from '../../layout/nav';
 import {PageHeader} from '../../shared/ui/page-header/page-header';
 
-/** Settings page: one tab per section (company, tax, security). */
+/**
+ * Settings page: one tab per section (company, tax, appearance, security). Tabs rather than a side menu: next to
+ * the app sidebar, a second column would leave the settings too narrow.
+ */
 @Component({
     selector: 'app-settings-layout',
     imports: [RouterLink, ReplaceUrlLinks, RouterLinkActive, RouterOutlet, NgIcon, PageHeader],
     providers: [provideIcons(NAV_ICONS)],
     template: `
         <app-page-header heading="Paramètres" />
-        <nav class="tab-nav" aria-label="Sections des paramètres">
+        <nav class="tab-nav mb-8!" aria-label="Sections des paramètres">
             @for (tab of tabs; track tab.path) {
                 <a
                     class="tab-link"

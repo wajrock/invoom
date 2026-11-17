@@ -15,6 +15,17 @@ export function filesInOrder(files: InvoiceFile[]): InvoiceFile[] {
     return [...files].sort((a, b) => LANG_ORDER[a.lang] - LANG_ORDER[b.lang]);
 }
 
+/** "2026-011" → "#2026-011", as printed on the invoice */
+export function invoiceNumberLabel(number: string): string {
+    return number.startsWith('#') ? number : `#${number}`;
+}
+
+/** Viewer title of an invoice file, in its language: "Facture #2026-011" / "Invoice #2026-011" */
+export function invoiceTitle(p: {invoiceNumber: string; label: string}, f: InvoiceFile): string {
+    const what = f.lang === 'en' ? 'Invoice' : 'Facture';
+    return p.invoiceNumber ? `${what} ${invoiceNumberLabel(p.invoiceNumber)}` : `${what} · ${p.label}`;
+}
+
 export interface InvoiceFile {
     id: string;
     lang: FileLang;

@@ -9,6 +9,7 @@ import {
     lucideReceiptEuro,
     lucideSettings,
     lucideShieldCheck,
+    lucideSlidersHorizontal,
     lucideUsers,
 } from '@ng-icons/lucide';
 
@@ -32,6 +33,7 @@ export const NAV_ICONS = {
     lucideCalendarClock,
     lucideUsers,
     lucidePackage,
+    lucideSlidersHorizontal,
     lucideCalculator,
     lucideLandmark,
     lucideSettings,
@@ -41,36 +43,38 @@ export const NAV_ICONS = {
 };
 
 export const NAV_GROUPS: NavGroup[] = [
-    {items: [{path: '/', label: 'Tableau de bord', short: 'Accueil', icon: 'lucideLayoutDashboard'}]},
     {
-        label: 'Activité',
-        items: [
-            {path: '/paiements', label: 'Paiements', icon: 'lucideReceiptEuro'},
-            {path: '/echeances', label: 'Échéances', icon: 'lucideCalendarClock'},
-        ],
+        items: [{path: '/', label: 'Tableau de bord', short: 'Accueil', icon: 'lucideLayoutDashboard'}],
     },
     {
         label: 'Facturation',
         items: [
+            {path: '/paiements', label: 'Paiements', icon: 'lucideReceiptEuro'},
             {path: '/clients', label: 'Clients', icon: 'lucideUsers'},
             {path: '/prestations', label: 'Prestations', icon: 'lucidePackage'},
         ],
     },
     {
-        label: 'Outils',
+        // Obligations towards the administrations: what is due, and the sites where it is done
+        label: 'Administratif',
         items: [
-            {path: '/simulateur', label: 'Simulateur', icon: 'lucideCalculator'},
+            {path: '/echeances', label: 'Échéances', icon: 'lucideCalendarClock'},
             {path: '/demarches', label: 'Démarches', icon: 'lucideLandmark'},
         ],
     },
+    {
+        label: 'Outils',
+        items: [{path: '/simulateur', label: 'Simulateur', icon: 'lucideCalculator'}],
+    },
 ];
 
-/** Set once and rarely changed: kept out of the main menu, with its own tabs. */
+/** Set once and rarely changed: in the account menu (desktop) and last on the "Plus" page, with its own tabs. */
 export const SETTINGS: NavItem = {path: '/parametres', label: 'Paramètres', icon: 'lucideSettings'};
 
 export const SETTINGS_TABS: NavItem[] = [
     {path: '/parametres/entreprise', label: 'Entreprise', icon: 'lucideBuilding2'},
     {path: '/parametres/fiscalite', label: 'Fiscalité', icon: 'lucidePercent'},
+    {path: '/parametres/preferences', label: 'Préférences', icon: 'lucideSlidersHorizontal'},
     {path: '/parametres/securite', label: 'Sécurité', icon: 'lucideShieldCheck'},
 ];
 

@@ -25,7 +25,9 @@
                     (click)="open.emit(p)"
                     (keydown.enter)="$event.target === $event.currentTarget && open.emit(p)"
                 >
-                    <td hlmTd class="whitespace-nowrap tabular-nums">{{ p.invoiceNumber || '—' }}</td>
+                    <td hlmTd class="whitespace-nowrap tabular-nums">
+                        {{ p.invoiceNumber ? numberLabel(p.invoiceNumber) : '—' }}
+                    </td>
                     <td hlmTd class="text-muted-foreground whitespace-nowrap">{{ p.issuedOn | frDate: 'short' }}</td>
                     <td hlmTd>
                         <app-avatar [name]="p.client" />
@@ -60,19 +62,16 @@
                         }
                     </td>
                     <td hlmTd>
-                        <div class="flex gap-1">
+                        <div class="-ml-2 flex">
                             @for (f of filesInOrder(p.files); track f.id) {
-                                <a
-                                    hlmBadge
-                                    variant="outline"
-                                    [href]="api.fileUrl(f.id)"
-                                    target="_blank"
-                                    rel="noopener"
+                                <button
+                                    type="button"
+                                    class="text-muted-foreground hover:bg-accent hover:text-accent-foreground inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs font-medium transition-colors"
                                     [title]="f.name"
-                                    (click)="$event.stopPropagation()"
+                                    (click)="$event.stopPropagation(); viewer.open(f, invoiceTitle(p, f))"
                                 >
                                     <ng-icon name="lucideFileText" /> {{ langLabels[f.lang] }}
-                                </a>
+                                </button>
                             } @empty {
                                 <span class="text-muted-foreground text-xs">—</span>
                             }

@@ -10,6 +10,7 @@ import {HlmCardImports} from '@spartan-ng/helm/card';
 import {HlmSkeletonImports} from '@spartan-ng/helm/skeleton';
 import {NgxEchartsDirective} from 'ngx-echarts';
 import {errorMessage} from '../../core/http/error-message';
+import {ThemeService} from '../../core/theme.service';
 import {EurPipe} from '../../shared/pipes/eur.pipe';
 import {FrDatePipe} from '../../shared/pipes/fr-date.pipe';
 import {KpiTile} from '../../shared/ui/kpi-tile/kpi-tile';
@@ -67,7 +68,12 @@ export class DashboardPage {
         const d = this.data();
         return d ? taxes(d) : {total: 0, lines: []};
     });
-    protected readonly chart = computed(() => monthlyChart(this.data()));
+    private readonly theme = inject(ThemeService);
+    protected readonly chart = computed(() => {
+        // Redrawn in the new colours when the theme changes
+        this.theme.theme();
+        return monthlyChart(this.data());
+    });
 
     constructor() {
         void this.load();

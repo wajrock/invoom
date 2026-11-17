@@ -75,6 +75,13 @@ export const routes: Routes = [
                             import('./features/settings/tax-settings.page').then((m) => m.TaxSettingsPage),
                     },
                     {
+                        path: 'preferences',
+                        title: navLabel('/parametres/preferences'),
+                        loadComponent: () =>
+                            import('./features/settings/preferences.page').then((m) => m.PreferencesPage),
+                    },
+                    {path: 'apparence', redirectTo: 'preferences'},
+                    {
                         path: 'securite',
                         title: navLabel('/parametres/securite'),
                         loadComponent: () =>

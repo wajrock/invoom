@@ -5,12 +5,12 @@ import {lucideChevronDown, lucideHistory, lucidePlus} from '@ng-icons/lucide';
 import {toast} from '@spartan-ng/brain/sonner';
 import {HlmBadgeImports} from '@spartan-ng/helm/badge';
 import {HlmButtonImports} from '@spartan-ng/helm/button';
-import {HlmCardImports} from '@spartan-ng/helm/card';
 import {HlmLabelImports} from '@spartan-ng/helm/label';
 import {HlmSkeletonImports} from '@spartan-ng/helm/skeleton';
 import {HlmSwitchImports} from '@spartan-ng/helm/switch';
 import {errorMessage} from '../../core/http/error-message';
 import {DateInput} from '../../shared/ui/date-input/date-input';
+import {SettingsSection} from '../../shared/ui/settings-section/settings-section';
 import {Spinner} from '../../shared/ui/spinner/spinner';
 import {formatDate, todayIso} from '../../shared/utils/dates';
 import {
@@ -34,11 +34,11 @@ import type {ActivityDefaults, RatePeriod, TaxSettings} from './tax-settings.mod
         DateInput,
         HlmBadgeImports,
         HlmButtonImports,
-        HlmCardImports,
         HlmLabelImports,
         HlmSkeletonImports,
         HlmSwitchImports,
         RatePeriodEditor,
+        SettingsSection,
         Spinner,
     ],
     providers: [provideIcons({lucidePlus, lucideChevronDown, lucideHistory})],

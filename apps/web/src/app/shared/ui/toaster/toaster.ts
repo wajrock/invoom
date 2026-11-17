@@ -1,4 +1,5 @@
-import {Component} from '@angular/core';
+import {Component, inject} from '@angular/core';
+import {ThemeService} from '../../../core/theme.service';
 import {HlmToasterImports} from '@spartan-ng/helm/sonner';
 
 /**
@@ -10,9 +11,10 @@ import {HlmToasterImports} from '@spartan-ng/helm/sonner';
 @Component({
     selector: 'app-toaster',
     imports: [HlmToasterImports],
-    template: `<hlm-toaster position="top-center" [style]="style" [toastOptions]="options" />`,
+    template: `<hlm-toaster position="top-center" [theme]="theme.theme()" [style]="style" [toastOptions]="options" />`,
 })
 export class Toaster {
+    protected readonly theme = inject(ThemeService);
     protected readonly style = {
         '--normal-bg': 'var(--background)',
         '--normal-text': 'var(--foreground)',

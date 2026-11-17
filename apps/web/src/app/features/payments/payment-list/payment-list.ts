@@ -3,7 +3,7 @@ import {EurPipe} from '../../../shared/pipes/eur.pipe';
 import {FrDatePipe} from '../../../shared/pipes/fr-date.pipe';
 import {Avatar} from '../../../shared/ui/avatar/avatar';
 import {groupByMonth} from '../../../shared/utils/dates';
-import type {Payment} from '../payment.models';
+import {invoiceNumberLabel, type Payment} from '../payment.models';
 
 /** Phone list of payments, grouped by issue month: a tap opens the payment card. */
 @Component({
@@ -13,6 +13,7 @@ import type {Payment} from '../payment.models';
     templateUrl: './payment-list.html',
 })
 export class PaymentList {
+    protected readonly numberLabel = invoiceNumberLabel;
     readonly payments = input.required<Payment[]>();
     readonly pick = output<Payment>();
     protected readonly groups = computed(() => groupByMonth(this.payments(), (p) => p.issuedOn));

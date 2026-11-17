@@ -15,7 +15,7 @@
                         <span class="min-w-0 flex-1">
                             <span class="block truncate text-[15px] font-medium">{{ p.label || p.client }}</span>
                             <span class="text-muted-foreground block truncate text-xs">
-                                {{ p.invoiceNumber ? 'N° ' + p.invoiceNumber : 'Sans facture' }}
+                                {{ p.invoiceNumber ? numberLabel(p.invoiceNumber) : 'Sans facture' }}
                                 · {{ p.issuedOn | frDate: 'short' }}
                             </span>
                         </span>

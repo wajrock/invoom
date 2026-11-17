@@ -10,8 +10,15 @@ import {Avatar} from '../../../shared/ui/avatar/avatar';
 import {DetailFooter} from '../../../shared/ui/detail-footer/detail-footer';
 import {drawerOptions} from '../../../shared/ui/drawer/drawer';
 import {formatDate, formatPeriod} from '../../../shared/utils/dates';
-import {filesInOrder, LANG_LABELS, type Payment, type PaymentAction} from '../payment.models';
-import {PaymentsApi} from '../payments.api';
+import {
+    filesInOrder,
+    invoiceNumberLabel,
+    invoiceTitle,
+    LANG_LABELS,
+    type Payment,
+    type PaymentAction,
+} from '../payment.models';
+import {InvoiceFileViewer} from '../invoice-file-viewer';
 
 export interface PaymentDetailContext {
     payment: Payment;
@@ -31,15 +38,16 @@ export function openPaymentDetail(dialog: HlmDialogService, context: PaymentDeta
     templateUrl: './payment-detail.html',
 })
 export class PaymentDetail {
-    protected readonly api = inject(PaymentsApi);
+    protected readonly viewer = inject(InvoiceFileViewer);
     protected readonly ref = inject<BrnDialogRef<PaymentAction | undefined>>(BrnDialogRef);
     protected readonly p = injectBrnDialogContext<PaymentDetailContext>().payment;
 
     protected readonly langLabels = LANG_LABELS;
+    protected readonly invoiceTitle = invoiceTitle;
     protected readonly files = filesInOrder(this.p.files);
     /** Invoice and cash-in details, only those known */
     protected readonly rows = [
-        {label: 'N° de facture', value: this.p.invoiceNumber},
+        {label: 'N° de facture', value: this.p.invoiceNumber && invoiceNumberLabel(this.p.invoiceNumber)},
         {label: 'Émise le', value: formatDate(this.p.issuedOn)},
         {label: 'À régler avant le', value: this.p.invoice ? formatDate(this.p.invoice.dueOn) : ''},
         {label: 'Période', value: formatPeriod(this.p.invoice?.periodFrom, this.p.invoice?.periodTo)},

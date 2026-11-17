@@ -62,7 +62,69 @@
     --tint-slate: #4a5a6e;
     --tint-clay: #9a5a44;
     --tint-moss: #3f6b5c;
+    /* Dimmed layer behind dialogs and drawers */
+    --overlay: rgb(0 0 0 / 10%);
 }
+
+/*
+ * Dark palette, on <html data-theme="dark">: set by public/theme-init.js and ThemeService from the choice made in
+ * the app, or from the device setting. A neutral near-black (#121212) rather than pure black and an off-white text,
+ * a softer contrast for tired eyes; the accent is a lighter petrol so it stays readable on dark surfaces.
+ */
+:root[data-theme='dark'] {
+    color-scheme: dark;
+
+    --chart-1: #5aa9b2;
+    --chart-2: #e08a5a;
+    --chart-3: #d9a046;
+    --chart-4: #9bb585;
+    --chart-5: #c08bb0;
+    --background: #121212;
+    --foreground: #e6e6e6;
+    --card: #1a1a1a;
+    --card-foreground: #e6e6e6;
+    --popover: #1f1f1f;
+    --popover-foreground: #e6e6e6;
+    --primary: #5aa9b2;
+    --primary-foreground: #0e1d20;
+    --secondary: #242424;
+    --secondary-foreground: #dedede;
+    --muted: #232323;
+    --muted-foreground: #a0a0a0;
+    --accent: #1e3236;
+    --accent-foreground: #8fcad1;
+    --destructive: #e0735f;
+    --border: #2c2c2c;
+    --input: #383838;
+    /* Fields sit a little darker than cards, inset rather than raised */
+    --field: #151515;
+    --ring: #5aa9b2;
+    --sidebar: #171717;
+    --sidebar-foreground: #e6e6e6;
+    --sidebar-primary: #5aa9b2;
+    --sidebar-primary-foreground: #0e1d20;
+    --sidebar-accent: #1e3236;
+    --sidebar-accent-foreground: #8fcad1;
+    --sidebar-border: #2c2c2c;
+    --sidebar-ring: #5aa9b2;
+    --overlay: rgb(0 0 0 / 45%);
+
+    --highlight: #e08a5a;
+    --success: #5cb88a;
+    --warning: #d9a046;
+    --tint-teal: #5aa9b2;
+    --tint-terracotta: #e08a5a;
+    --tint-ochre: #d9a046;
+    --tint-sage: #9bb585;
+    --tint-plum: #c08bb0;
+    --tint-slate: #9aa9bf;
+    --tint-clay: #cf9580;
+    --tint-moss: #7fb3a1;
+}
+:root[data-theme='dark'] .select-native {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
 @theme {
     --font-display: 'Fraunces Variable', ui-serif, Georgia, serif;
 }
@@ -195,6 +257,11 @@
     }
 }
 
+/* Card holding the settings of an app-settings-section */
+@utility settings-card {
+    @apply bg-card overflow-hidden rounded-xl border;
+}
+
 /* Page header: large app-style title on mobile */
 @utility page-head {
     @apply mb-5 flex flex-wrap items-center justify-between gap-3 md:mb-6 md:items-end md:gap-4;
@@ -219,9 +286,9 @@
     &[aria-selected='true'] {
         @apply border-foreground text-foreground;
     }
-    /* Icons give way on the smallest phones so every tab stays visible */
+    /* Icons give way on phones so every tab stays visible */
     & ng-icon {
-        @apply text-base max-[22.5rem]:hidden;
+        @apply text-base max-sm:hidden;
     }
 }
 

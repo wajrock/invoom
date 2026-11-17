@@ -6,7 +6,7 @@ import type {ClassValue} from 'clsx';
 
 export const hlmDialogOverlayClass = hlm(
     // Phones open dialogs as full pages: no dimmed layer, which iOS would pick up to tint the status bar
-    'data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 isolate bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs max-sm:bg-transparent max-sm:supports-backdrop-filter:backdrop-blur-none',
+    'data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 isolate bg-(--overlay) duration-100 supports-backdrop-filter:backdrop-blur-xs max-sm:bg-transparent max-sm:supports-backdrop-filter:backdrop-blur-none',
 );
 
 @Directive({

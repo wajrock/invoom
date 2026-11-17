@@ -1,12 +1,12 @@
 import {Logo} from '../shared/ui/logo/logo';
+import {AccountMenu} from './account-menu';
 import {NgTemplateOutlet} from '@angular/common';
 import {Component, output} from '@angular/core';
 import {RouterLink, RouterLinkActive} from '@angular/router';
 import {ReplaceUrlLinks} from '../core/navigation/replace-url-links';
 import {NgIcon, provideIcons} from '@ng-icons/core';
-import {lucideLogOut} from '@ng-icons/lucide';
 import {HlmButtonImports} from '@spartan-ng/helm/button';
-import {NAV_GROUPS, NAV_ICONS, SETTINGS} from './nav';
+import {NAV_GROUPS, NAV_ICONS} from './nav';
 
 /** GitHub mark (simple-icons, CC0) */
 const GITHUB_PATH =
@@ -15,13 +15,21 @@ const GITHUB_PATH =
 /** Side navigation (landscape tablet and desktop). */
 @Component({
     selector: 'app-sidebar',
-    imports: [NgTemplateOutlet, RouterLink, ReplaceUrlLinks, RouterLinkActive, NgIcon, HlmButtonImports, Logo],
-    providers: [provideIcons({...NAV_ICONS, lucideLogOut})],
+    imports: [
+        NgTemplateOutlet,
+        RouterLink,
+        ReplaceUrlLinks,
+        RouterLinkActive,
+        NgIcon,
+        HlmButtonImports,
+        Logo,
+        AccountMenu,
+    ],
+    providers: [provideIcons(NAV_ICONS)],
     templateUrl: './sidebar.html',
 })
 export class Sidebar {
     protected readonly groups = NAV_GROUPS;
-    protected readonly settings = SETTINGS;
     protected readonly repoUrl = 'https://github.com/wajrock/invoom';
     protected readonly githubPath = GITHUB_PATH;
     readonly logout = output<void>();

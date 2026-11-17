@@ -5,15 +5,17 @@ import {lucideEye} from '@ng-icons/lucide';
 import {BrnDialogRef, injectBrnDialogContext} from '@spartan-ng/brain/dialog';
 import {toast} from '@spartan-ng/brain/sonner';
 import {HlmButtonImports} from '@spartan-ng/helm/button';
-import {HlmDialogImports, type HlmDialogService} from '@spartan-ng/helm/dialog';
+import {HlmDialogImports, HlmDialogService} from '@spartan-ng/helm/dialog';
 import {HlmInputImports} from '@spartan-ng/helm/input';
 import {HlmLabelImports} from '@spartan-ng/helm/label';
 import {HlmSkeletonImports} from '@spartan-ng/helm/skeleton';
 import {errorMessage} from '../../../core/http/error-message';
 import {DialogFooter} from '../../../shared/ui/dialog-footer/dialog-footer';
+import {openDocumentViewer} from '../../../shared/ui/document-viewer/document-viewer';
 import {drawerOptions} from '../../../shared/ui/drawer/drawer';
 import {WarningBanner} from '../../../shared/ui/warning-banner/warning-banner';
 import {VAT_REGIME_LABELS} from '../../clients/countries';
+import {invoiceNumberLabel} from '../../payments/payment.models';
 import {InvoiceEditor, type InvoiceDialogContext} from '../invoice-editor';
 import {buildRequest} from '../invoice-form';
 import type {GenerateInvoice} from '../invoice.models';
@@ -49,6 +51,7 @@ export function openInvoiceDialog(dialog: HlmDialogService, context: InvoiceDial
 })
 export class InvoiceDialog {
     private readonly api = inject(InvoicesApi);
+    private readonly dialog = inject(HlmDialogService);
     protected readonly editor = inject(InvoiceEditor);
     protected readonly ref = inject<BrnDialogRef<boolean>>(BrnDialogRef);
     private readonly ctx = injectBrnDialogContext<InvoiceDialogContext>();
@@ -78,17 +81,16 @@ export class InvoiceDialog {
     async preview(lang: 'fr' | 'en') {
         const body = this.request();
         if (!body) return;
-        // Open the tab synchronously: after the network call it would be blocked as a pop-up
-        const win = window.open('', '_blank');
         this.busy.set(true);
         try {
             const blob = await this.api.preview(body, lang);
-            const url = URL.createObjectURL(blob);
-            if (win) win.location.href = url;
-            else window.open(url, '_blank');
-            setTimeout(() => URL.revokeObjectURL(url), 60_000);
+            const number = invoiceNumberLabel(body.invoice.number);
+            openDocumentViewer(this.dialog, {
+                title: `${lang === 'en' ? 'Invoice' : 'Facture'} ${number}`,
+                source: {blob},
+                fileName: `${lang === 'en' ? 'Invoice' : 'Facture'}-${body.invoice.number.replace(/^#/, '')}.pdf`,
+            });
         } catch (err) {
-            win?.close();
             toast.error(errorMessage(err));
         } finally {
             this.busy.set(false);

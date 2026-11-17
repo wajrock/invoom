@@ -6,6 +6,7 @@ import {HlmButtonImports} from '@spartan-ng/helm/button';
 import {HlmLabelImports} from '@spartan-ng/helm/label';
 import {errorMessage} from '../../../core/http/error-message';
 import {LANG_LABELS, type FileLang, type InvoiceFile} from '../payment.models';
+import {InvoiceFileViewer} from '../invoice-file-viewer';
 import {PaymentsApi} from '../payments.api';
 
 /** File picked in the form, uploaded once the payment is saved */
@@ -33,6 +34,7 @@ function formatSize(bytes: number): string {
 })
 export class PaymentFiles {
     protected readonly api = inject(PaymentsApi);
+    protected readonly viewer = inject(InvoiceFileViewer);
     readonly files = model.required<InvoiceFile[]>();
     readonly pending = model.required<PendingFile[]>();
     /** A stored file was deleted on the server */

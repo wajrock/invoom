@@ -1,8 +1,23 @@
 <aside
     class="bg-sidebar text-sidebar-foreground border-sidebar-border fixed inset-y-3 left-3 z-40 hidden w-60 flex-col overflow-hidden rounded-2xl border shadow-sm md:flex"
 >
-    <div class="flex h-14 items-center px-5">
+    <div class="flex h-14 items-center justify-between pr-3 pl-5">
         <app-logo class="h-5" />
+        <a
+            hlmBtn
+            variant="ghost"
+            size="icon-sm"
+            class="text-muted-foreground"
+            [href]="repoUrl"
+            target="_blank"
+            rel="noopener"
+            aria-label="Code source sur GitHub"
+            title="Code source sur GitHub"
+        >
+            <svg viewBox="0 0 24 24" class="size-4" fill="currentColor" aria-hidden="true">
+                <path [attr.d]="githubPath" />
+            </svg>
+        </a>
     </div>
     <nav class="flex flex-1 flex-col gap-4 overflow-y-auto px-2 py-2" aria-label="Navigation principale">
         @for (group of groups; track $index) {
@@ -19,34 +34,12 @@
         }
     </nav>
     <div class="border-sidebar-border grid gap-2 border-t p-2">
-        <ng-container *ngTemplateOutlet="link; context: {$implicit: settings}" />
-        <div class="flex items-center gap-1 px-1">
-            <button
-                hlmBtn
-                variant="ghost"
-                size="icon-sm"
-                (click)="logout.emit()"
-                aria-label="Déconnexion"
-                title="Déconnexion"
-            >
-                <ng-icon name="lucideLogOut" />
-            </button>
-            <a
-                hlmBtn
-                variant="ghost"
-                size="icon-sm"
-                class="ml-auto"
-                [href]="repoUrl"
-                target="_blank"
-                rel="noopener"
-                aria-label="Code source sur GitHub"
-                title="Code source sur GitHub"
-            >
-                <svg viewBox="0 0 24 24" class="size-4" fill="currentColor" aria-hidden="true">
-                    <path [attr.d]="githubPath" />
-                </svg>
-            </a>
-        </div>
+        <!-- Loaded after the first paint: its menu library would otherwise weigh on the initial bundle -->
+        @defer (on idle) {
+            <app-account-menu (logout)="logout.emit()" />
+        } @placeholder {
+            <div class="h-12"></div>
+        }
     </div>
 </aside>
 

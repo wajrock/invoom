@@ -1,24 +1,10 @@
-<div class="page-head block!">
-    <h2>Fiscalité</h2>
-    <p class="text-muted-foreground mt-1 text-sm max-md:block!">
-        Utilisés pour estimer les cotisations et générer les échéances. Vérifie les taux chaque année sur
-        <a
-            class="underline underline-offset-2"
-            href="https://www.autoentrepreneur.urssaf.fr"
-            target="_blank"
-            rel="noopener"
-            >autoentrepreneur.urssaf.fr</a
-        >.
-    </p>
-</div>
-
 @if (form(); as f) {
-    <form class="grid gap-6" (ngSubmit)="save()">
-        <section hlmCard>
-            <div hlmCardHeader>
-                <h2 hlmCardTitle>Activité</h2>
-            </div>
-            <div hlmCardContent class="grid gap-4 sm:grid-cols-2">
+    <form (ngSubmit)="save()">
+        <app-settings-section
+            heading="Activité"
+            description="Elle fixe les taux standards, l’abattement fiscal et le calendrier des déclarations."
+        >
+            <div class="settings-card grid gap-4 p-4 sm:grid-cols-2 sm:p-5">
                 <div class="grid gap-2">
                     <label hlmLabel for="s-activity">Type d’activité</label>
                     <select class="select-native" id="s-activity" name="activity" [(ngModel)]="f.activity">
@@ -31,47 +17,62 @@
                     <label hlmLabel for="s-start">Début d’activité</label>
                     <app-date-input inputId="s-start" name="activityStart" required [(ngModel)]="f.activityStart" />
                 </div>
-                <div class="flex items-start gap-3">
+                <div class="flex items-center justify-between gap-3 border-t pt-4 sm:col-span-2">
+                    <label hlmLabel for="s-cfe-ex">
+                        <span class="grid gap-0.5">
+                            CFE exonérée l’année de création
+                            <span class="text-muted-foreground text-xs font-normal">
+                                La première CFE est due l’année suivant le début d’activité.
+                            </span>
+                        </span>
+                    </label>
                     <hlm-switch
                         inputId="s-cfe-ex"
                         [checked]="f.cfeExemptFirstYear"
                         (checkedChange)="f.cfeExemptFirstYear = $event"
                     />
-                    <label hlmLabel for="s-cfe-ex">CFE exonérée l’année de création</label>
                 </div>
             </div>
-        </section>
+        </app-settings-section>
 
-        <section hlmCard>
-            <div hlmCardHeader>
-                <h2 hlmCardTitle class="flex items-center gap-2">
-                    <ng-icon name="lucideHistory" /> Historique des taux
-                </h2>
-                <p hlmCardDescription>
-                    Chaque encaissement est calculé avec la période en vigueur à sa date d’encaissement : un nouveau
-                    taux ne modifie jamais les montants passés. Les paramètres annuels (impôt, CFE, seuils, fréquence)
-                    sont ceux en vigueur au 31 décembre.
-                </p>
-                <div hlmCardAction>
-                    <button hlmBtn type="button" size="sm" (click)="addPeriod()">
-                        <ng-icon name="lucidePlus" /> Changement de taux
-                    </button>
-                </div>
-            </div>
-            <div hlmCardContent class="grid gap-3">
+        <app-settings-section
+            heading="Taux de charges"
+            description="Chaque encaissement est calculé avec les taux en vigueur à sa date : un nouveau taux ne modifie jamais les montants passés."
+        >
+            <p sectionAside class="text-muted-foreground mt-1 text-xs leading-relaxed">
+                Taux à vérifier chaque année sur
+                <a
+                    class="text-foreground underline underline-offset-2"
+                    href="https://www.autoentrepreneur.urssaf.fr"
+                    target="_blank"
+                    rel="noopener"
+                    >autoentrepreneur.urssaf.fr</a
+                >. Impôt, CFE, seuils et fréquence : ceux en vigueur au 31 décembre.
+            </p>
+            <div class="settings-card divide-y">
                 @for (p of sortedPeriods(); track p.key; let last = $last) {
-                    <div class="rounded-lg border">
+                    <div>
                         <button
                             type="button"
-                            class="hover:bg-muted/50 flex w-full items-center gap-3 rounded-lg p-3 text-left"
+                            class="hover:bg-muted/40 flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors"
                             (click)="toggleOpen(p)"
                             [attr.aria-expanded]="openKey() === p.key"
                         >
+                            <span
+                                class="grid size-8 shrink-0 place-items-center rounded-lg"
+                                [class]="
+                                    p.key === currentKey()
+                                        ? 'bg-primary/10 text-primary'
+                                        : 'bg-muted text-muted-foreground'
+                                "
+                            >
+                                <ng-icon name="lucideHistory" />
+                            </span>
                             <div class="min-w-0 flex-1">
-                                <p class="flex flex-wrap items-center gap-2 font-medium">
+                                <p class="flex flex-wrap items-center gap-2 text-sm font-medium">
                                     {{ periodTitle(p, last) }}
                                     @if (p.key === currentKey()) {
-                                        <span hlmBadge variant="secondary">En vigueur</span>
+                                        <span hlmBadge class="bg-success/12 text-success">En vigueur</span>
                                     } @else if (isFuture(p)) {
                                         <span hlmBadge variant="outline">À venir</span>
                                     }
@@ -86,21 +87,30 @@
                         </button>
 
                         @if (openKey() === p.key) {
-                            <app-rate-period-editor
-                                [period]="p"
-                                [oldest]="last"
-                                [removable]="f.periods.length > 1"
-                                (applyDefaults)="applyDefaults(p)"
-                                (remove)="removePeriod(p)"
-                            />
+                            <div class="bg-muted/30 border-t">
+                                <app-rate-period-editor
+                                    [period]="p"
+                                    [oldest]="last"
+                                    [removable]="f.periods.length > 1"
+                                    (applyDefaults)="applyDefaults(p)"
+                                    (remove)="removePeriod(p)"
+                                />
+                            </div>
                         }
                     </div>
                 }
+                <button
+                    type="button"
+                    class="text-primary hover:bg-muted/40 flex w-full items-center gap-2 px-4 py-3 text-sm font-medium transition-colors"
+                    (click)="addPeriod()"
+                >
+                    <ng-icon name="lucidePlus" /> Ajouter un changement de taux
+                </button>
             </div>
-        </section>
+        </app-settings-section>
 
         <div
-            class="bg-background/85 sticky bottom-(--tabbar-h) z-20 -mx-4 flex flex-wrap justify-end gap-2 border-t px-4 py-3 backdrop-blur-xl max-sm:*:flex-1 md:mx-0 md:rounded-xl md:border"
+            class="bg-background/85 sticky bottom-(--tabbar-h) z-20 -mx-4 mt-8 flex flex-wrap justify-end gap-2 border-t px-4 py-3 backdrop-blur-xl max-sm:*:flex-1 md:mx-0 md:rounded-xl md:border"
         >
             <button hlmBtn type="button" variant="outline" (click)="reset()">Annuler les modifications</button>
             <button hlmBtn type="submit" [disabled]="saving()">

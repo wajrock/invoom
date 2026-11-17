@@ -14,7 +14,7 @@ import type {PeriodForm} from '../period-form';
     selector: 'app-rate-period-editor',
     imports: [FormsModule, NgIcon, DateInput, HlmButtonImports, HlmInputImports, HlmLabelImports, HlmSwitchImports],
     providers: [provideIcons({lucideRotateCcw, lucideTrash2})],
-    host: {class: 'grid gap-4 border-t p-3'},
+    host: {class: 'grid gap-5 p-4 sm:p-5'},
     templateUrl: './rate-period-editor.html',
 })
 export class RatePeriodEditor {

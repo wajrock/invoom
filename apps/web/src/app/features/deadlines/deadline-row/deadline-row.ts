@@ -13,7 +13,7 @@ import {KindIcon} from '../kind-icon/kind-icon';
     selector: 'app-deadline-row',
     imports: [EurPipe, FrDatePipe, KindIcon, NgIcon, HlmButtonImports, HlmDropdownMenuImports],
     providers: [provideIcons({lucideEllipsis})],
-    host: {class: 'flex items-center', '[class.opacity-60]': 'deadline().done'},
+    host: {class: 'hover:bg-muted/40 flex items-center transition-colors', '[class.opacity-60]': 'deadline().done'},
     templateUrl: './deadline-row.html',
 })
 export class DeadlineRow {

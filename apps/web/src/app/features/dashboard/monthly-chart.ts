@@ -1,13 +1,17 @@
 import type {EChartsCoreOption} from 'echarts/core';
+import {themeColors} from '../../shared/utils/theme-color';
 import {formatCents} from '../../shared/utils/money';
 import {MONTHS} from './dashboard-summary';
 import type {Dashboard} from './dashboard.models';
 
-/** Monthly revenue bars for the year, with last year as a dashed line. */
+/**
+ * Monthly revenue bars for the year, with last year as a dashed line. Colours come from the theme tokens at call
+ * time: call it again when the theme changes.
+ */
 export function monthlyChart(d: Dashboard | null): EChartsCoreOption {
-    // Same values as the theme tokens in styles.css (canvas charts cannot read CSS variables)
-    const text = '#6f665d';
-    const grid = '#e6e0d8';
+    const themeColor = themeColors();
+    const text = themeColor('muted-foreground');
+    const grid = themeColor('border');
     const toEur = (v: number) => Math.round(v) / 100;
     return {
         animationDuration: 400,
@@ -16,9 +20,9 @@ export function monthlyChart(d: Dashboard | null): EChartsCoreOption {
         tooltip: {
             trigger: 'axis',
             valueFormatter: (v: number) => formatCents(Math.round(v * 100)),
-            backgroundColor: '#fcfbfa',
+            backgroundColor: themeColor('popover'),
             borderColor: grid,
-            textStyle: {color: '#24201c'},
+            textStyle: {color: themeColor('popover-foreground')},
         },
         xAxis: {
             type: 'category',
@@ -40,14 +44,14 @@ export function monthlyChart(d: Dashboard | null): EChartsCoreOption {
                 name: String(d ? d.year : ''),
                 type: 'bar',
                 data: (d?.monthly ?? []).map(toEur),
-                itemStyle: {color: '#005461', borderRadius: [4, 4, 0, 0]},
+                itemStyle: {color: themeColor('chart-1'), borderRadius: [4, 4, 0, 0]},
                 barMaxWidth: 28,
             },
             {
                 name: String(d ? d.year - 1 : ''),
                 type: 'line',
                 data: (d?.previousMonthly ?? []).map(toEur),
-                itemStyle: {color: '#d0703c'},
+                itemStyle: {color: themeColor('chart-2')},
                 lineStyle: {type: 'dashed', width: 2},
                 symbol: 'circle',
                 symbolSize: 5,

@@ -4,13 +4,12 @@ import {NgIcon, provideIcons} from '@ng-icons/core';
 import {lucideCopy, lucidePencil, lucidePlus, lucideTrash2} from '@ng-icons/lucide';
 import {toast} from '@spartan-ng/brain/sonner';
 import {HlmButtonImports} from '@spartan-ng/helm/button';
-import {HlmCardImports} from '@spartan-ng/helm/card';
 import {HlmInputImports} from '@spartan-ng/helm/input';
-import {HlmLabelImports} from '@spartan-ng/helm/label';
 import {HlmSkeletonImports} from '@spartan-ng/helm/skeleton';
 import {HlmTextareaImports} from '@spartan-ng/helm/textarea';
+import {Auth} from '../../core/auth/auth.service';
 import {errorMessage} from '../../core/http/error-message';
-import {PageHeader} from '../../shared/ui/page-header/page-header';
+import {SettingsSection} from '../../shared/ui/settings-section/settings-section';
 import {Spinner} from '../../shared/ui/spinner/spinner';
 import {copyToClipboard} from '../../shared/utils/clipboard';
 import {CompanyApi} from './company.api';
@@ -18,18 +17,23 @@ import type {CompanyField} from './company.models';
 
 const MULTILINE = new Set(['address']);
 
+/** What each default group is for; groups the user creates have no description */
+const GROUP_DESCRIPTIONS: Record<string, string> = {
+    Identité: 'Mentions légales imprimées en tête de chaque facture.',
+    Coordonnées: 'Où tes clients peuvent te joindre.',
+    Banque: 'Pour être payé par virement : l’IBAN figure sous le total.',
+};
+
 @Component({
     selector: 'app-company',
     imports: [
         FormsModule,
         NgIcon,
         HlmButtonImports,
-        HlmCardImports,
         HlmInputImports,
-        HlmLabelImports,
         HlmSkeletonImports,
         HlmTextareaImports,
-        PageHeader,
+        SettingsSection,
         Spinner,
     ],
     providers: [provideIcons({lucideCopy, lucidePencil, lucidePlus, lucideTrash2})],
@@ -37,17 +41,22 @@ const MULTILINE = new Set(['address']);
 })
 export class CompanyPage {
     private readonly api = inject(CompanyApi);
+    private readonly auth = inject(Auth);
 
     protected readonly fields = signal<CompanyField[] | null>(null);
-    protected readonly editing = signal(false);
+    /** Section being edited, by group name */
+    protected readonly editing = signal<string | null>(null);
     protected readonly saving = signal(false);
     protected readonly error = signal('');
-    protected newField = {group: '', label: ''};
+    protected newLabel = '';
     private snapshot: CompanyField[] = [];
 
     protected readonly groups = computed(() => {
         const map = new Map<string, CompanyField[]>();
         for (const f of this.fields() ?? []) map.set(f.group, [...(map.get(f.group) ?? []), f]);
+        // A section emptied while edited stays on screen, with its add field and save buttons
+        const editing = this.editing();
+        if (editing && !map.has(editing)) map.set(editing, []);
         return [...map.entries()].map(([name, fields]) => ({name, fields}));
     });
 
@@ -63,6 +72,10 @@ export class CompanyPage {
         }
     }
 
+    describe(group: string): string {
+        return GROUP_DESCRIPTIONS[group] ?? '';
+    }
+
     multiline(f: CompanyField) {
         return MULTILINE.has(f.id) || f.value.includes('\n');
     }
@@ -71,42 +84,30 @@ export class CompanyPage {
         void copyToClipboard(f.value, `${f.label} copié`);
     }
 
-    copyAll() {
-        const text = this.groups()
-            .map((g) =>
-                g.fields
-                    .filter((f) => f.value)
-                    .map((f) => `${f.label} : ${f.value}`)
-                    .join('\n'),
-            )
-            .filter(Boolean)
-            .join('\n\n');
-        void copyToClipboard(text, 'Informations copiées');
-    }
-
-    edit() {
+    /** Only this section becomes editable; the others keep showing their values */
+    edit(group: string) {
         this.snapshot = structuredClone(this.fields() ?? []);
         // Working copy: fields are edited in place through ngModel
         this.fields.set(structuredClone(this.snapshot));
-        this.editing.set(true);
+        this.newLabel = '';
+        this.editing.set(group);
     }
 
     cancel() {
         this.fields.set(this.snapshot);
-        this.editing.set(false);
+        this.editing.set(null);
     }
 
-    addField() {
-        const label = this.newField.label.trim();
+    addField(group: string) {
+        const label = this.newLabel.trim();
         if (!label) return void toast.error('Libellé requis');
-        const group = this.newField.group.trim() || 'Général';
         const id = `${label
             .toLowerCase()
             .normalize('NFD')
             .replace(/[^a-z0-9]+/g, '-')
             .slice(0, 40)}-${Date.now().toString(36)}`;
         this.fields.update((list) => [...(list ?? []), {id, group, label, value: ''}]);
-        this.newField = {group, label: ''};
+        this.newLabel = '';
     }
 
     removeField(f: CompanyField) {
@@ -119,8 +120,10 @@ export class CompanyPage {
         try {
             const res = await this.api.save({fields});
             this.fields.set(res.fields);
-            this.editing.set(false);
+            this.editing.set(null);
             toast.success('Informations enregistrées');
+            // The account menu shows the business name
+            void this.auth.loadAccount(true);
         } catch (err) {
             toast.error(errorMessage(err));
         } finally {

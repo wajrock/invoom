@@ -5,14 +5,14 @@ import {NgIcon, provideIcons} from '@ng-icons/core';
 import {lucidePlus, lucideRotateCcw, lucideScanFace, lucideTrash2} from '@ng-icons/lucide';
 import {toast} from '@spartan-ng/brain/sonner';
 import {HlmButtonImports} from '@spartan-ng/helm/button';
-import {HlmCardImports} from '@spartan-ng/helm/card';
+import {HlmBadgeImports} from '@spartan-ng/helm/badge';
 import {HlmInputImports} from '@spartan-ng/helm/input';
 import {HlmLabelImports} from '@spartan-ng/helm/label';
 import {HlmSkeletonImports} from '@spartan-ng/helm/skeleton';
 import {Auth} from '../../../core/auth/auth.service';
 import {errorMessage} from '../../../core/http/error-message';
 import {FrDatePipe} from '../../../shared/pipes/fr-date.pipe';
-import {PageHeader} from '../../../shared/ui/page-header/page-header';
+import {SettingsSection} from '../../../shared/ui/settings-section/settings-section';
 import {Spinner} from '../../../shared/ui/spinner/spinner';
 import {WarningBanner} from '../../../shared/ui/warning-banner/warning-banner';
 import {AgentConnections} from '../../agents/agent-connections';
@@ -29,11 +29,11 @@ import {guessDeviceName, webauthnError} from '../webauthn';
         NgIcon,
         FrDatePipe,
         HlmButtonImports,
-        HlmCardImports,
+        HlmBadgeImports,
         HlmInputImports,
         HlmLabelImports,
         HlmSkeletonImports,
-        PageHeader,
+        SettingsSection,
         RecoveryCodes,
         Spinner,
         WarningBanner,
