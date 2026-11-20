@@ -1,7 +1,7 @@
 import type {Client} from '../clients/client.schema.ts';
 import {invoiceTotals} from '../invoices/invoice.ts';
 import type {InvoiceLine, InvoiceSettings, StoredInvoice} from '../invoices/invoice.schema.ts';
-import {VAT_MENTIONS, vatRegime, withVatMention} from '../invoices/vat-mention.ts';
+import {vatMentions, vatRegime, withVatMention} from '../invoices/vat-mention.ts';
 import type {ApiCall} from './mcp.shared.ts';
 
 /** A payment as GET /api/payments returns it */
@@ -85,8 +85,8 @@ export async function invoicePlan(api: ApiCall, input: InvoiceInput) {
         number = (await api<{number: string}>('GET', `/api/invoices/next-number?year=${issuedOn.slice(0, 4)}`)).number;
     }
 
-    const mention = VAT_MENTIONS[vatRegime(client)];
     const english = input.english ?? client.english;
+    const mention = vatMentions(issuedOn)[vatRegime(client)];
     const invoice = {
         clientId: client.id,
         number,

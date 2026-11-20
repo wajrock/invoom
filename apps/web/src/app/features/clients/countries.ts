@@ -148,9 +148,9 @@ const EU_VAT_PREFIXES = new Set(
 
 /**
  * VAT regime of an invoice, which drives the mandatory VAT mention:
- * - franchise: French client, or EU private individual → VAT exemption (art. 293 B CGI)
+ * - franchise: French client, or EU private individual → VAT exemption (art. 293 B CGI, L. 233-3 CIBS from 2027)
  * - reverse: business from another EU country (VAT number) → reverse charge by the client
- * - outside: client outside the EU → services not subject to French VAT (art. 259-1 CGI)
+ * - outside: client outside the EU → services not subject to French VAT (art. 259-1 CGI, L. 211-92 CIBS from 2027)
  */
 export type VatRegime = 'franchise' | 'reverse' | 'outside';
 
@@ -162,27 +162,56 @@ export function vatRegime(client: {countryCode?: CountryCode; vatNumber: string}
     return euBusiness ? 'reverse' : 'outside';
 }
 
-export const VAT_MENTIONS: Record<VatRegime, {fr: string; en: string}> = {
+type Mentions = Record<VatRegime, {fr: string; en: string}>;
+
+/** Business client in another EU country: the customer accounts for the VAT in its own country */
+const REVERSE_CHARGE = {
+    fr: 'Autoliquidation – TVA due par le preneur (art. 196 de la directive 2006/112/CE).',
+    en: 'Reverse charge – VAT to be accounted for by the customer (Article 196 of Council Directive 2006/112/EC). Autoliquidation.',
+};
+
+/** Until 31 December 2026: VAT rules in the Code général des impôts (same texts as the API's vat-mention.ts) */
+const CGI_MENTIONS: Mentions = {
     franchise: {
         fr: 'TVA non applicable, art. 293 B du CGI.',
         en: 'VAT not applicable, article 293 B of the French General Tax Code (CGI).',
     },
-    reverse: {
-        fr: 'Autoliquidation – TVA due par le preneur (art. 283-2 du CGI ; art. 196 de la directive 2006/112/CE).',
-        en: 'Reverse charge – VAT to be accounted for by the customer (Article 196 of Council Directive 2006/112/EC). Autoliquidation – art. 283-2 du CGI.',
-    },
+    // Same wording before and after 2027: the CGI's art. 283-2 covers the opposite case (a foreign supplier billing
+    // a French customer); what the law asks is the word "Autoliquidation", and the EU directive is the reference
+    reverse: REVERSE_CHARGE,
     outside: {
         fr: 'TVA non applicable – art. 259-1 du CGI (prestation de services hors de France).',
         en: 'VAT not applicable – Article 259-1 of the French General Tax Code (services supplied outside France).',
     },
 };
 
-/** Terms lines about VAT, whatever the variant */
-const VAT_LINE = /293\s*B|autoliquidation|reverse charge|259-1|2006\/112/i;
+/** From 1 January 2027 the VAT rules are in the Code des impositions sur les biens et services */
+const CIBS_MENTIONS: Mentions = {
+    franchise: {
+        fr: 'TVA non applicable, art. L. 233-3 du CIBS.',
+        en: 'VAT not applicable, article L. 233-3 of the French Tax Code on Goods and Services (CIBS).',
+    },
+    reverse: REVERSE_CHARGE,
+    outside: {
+        fr: 'TVA non applicable – art. L. 211-92 du CIBS (prestation de services hors de France).',
+        en: 'VAT not applicable – Article L. 211-92 of the French Tax Code on Goods and Services (CIBS) (services supplied outside France).',
+    },
+};
+
+const CIBS_FROM = '2027-01-01';
+
+/** Mentions in force on the invoice's issue date (YYYY-MM-DD): citing the CIBS earlier would be wrong */
+export function vatMentions(issuedOn: string): Mentions {
+    return issuedOn >= CIBS_FROM ? CIBS_MENTIONS : CGI_MENTIONS;
+}
+
+/** Terms lines about VAT, whatever the variant or the code they cite */
+const VAT_LINE = /293\s*B|L\.?\s*233-3|autoliquidation|reverse charge|259-1|L\.?\s*211-92|2006\/112/i;
 
 /** Replaces the existing VAT mention with the expected one (or inserts it as the 2nd line). */
 export function withVatMention(terms: string, mention: string): string {
-    const lines = terms.split('\n');
+    // Pasted text may carry Windows line ends: a stray \r would stay at the end of each line
+    const lines = terms.replace(/\r\n?/g, '\n').split('\n');
     const first = lines.findIndex((l) => VAT_LINE.test(l));
     if (first === -1) {
         lines.splice(Math.min(1, lines.length), 0, mention);
@@ -194,8 +223,10 @@ export function withVatMention(terms: string, mention: string): string {
         .join('\n');
 }
 
-export const VAT_REGIME_LABELS: Record<VatRegime, string> = {
-    franchise: 'franchise, art. 293 B',
-    reverse: 'autoliquidation UE',
-    outside: 'hors UE, art. 259-1',
-};
+/** Short name of the expected mention, for the warning in the invoice form */
+export function vatRegimeLabel(regime: VatRegime, issuedOn: string): string {
+    const cibs = issuedOn >= CIBS_FROM;
+    if (regime === 'reverse') return 'autoliquidation UE';
+    if (regime === 'franchise') return cibs ? 'franchise, art. L. 233-3 du CIBS' : 'franchise, art. 293 B';
+    return cibs ? 'hors UE, art. L. 211-92 du CIBS' : 'hors UE, art. 259-1';
+}

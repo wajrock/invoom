@@ -14,10 +14,18 @@
             <app-warning-banner>
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="flex-1"
-                        >La mention TVA ne correspond pas à ce client : attendu « {{ regimeLabels[regime] }} ».</span
+                        >La mention TVA ne correspond pas à ce client : attendu «
+                        {{ regimeLabel(regime, form.issuedOn) }} ».</span
                     >
                     <button hlmBtn type="button" variant="outline" size="sm" (click)="editor.fixVat()">Corriger</button>
                 </div>
+            </app-warning-banner>
+        }
+        @if (editor.missingOwnVatNumber()) {
+            <app-warning-banner>
+                Pour facturer un client professionnel de l’UE en autoliquidation, ton numéro de TVA intracommunautaire
+                doit figurer sur la facture. Demande-le gratuitement à ton service des impôts, puis ajoute-le dans
+                Paramètres › Entreprise.
             </app-warning-banner>
         }
         @if (editor.missingCompany().length) {

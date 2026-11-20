@@ -23,5 +23,8 @@ export const DEFAULT_COMPANY: Company = {
 };
 DEFAULT_COMPANY.fields.find((x) => x.id === 'vat-mention')!.value = 'TVA non applicable, art. 293 B du CGI';
 
+/** The VAT franchise moves from the CGI to the CIBS on 1 January 2027 (see invoices/vat-mention.ts) */
+export const VAT_MENTION_CIBS = 'TVA non applicable, art. L. 233-3 du CIBS';
+
 /** Fields added after release, inserted into existing records before the given field. */
 export const ADDED_FIELDS: {id: string; before: string}[] = [{id: 'account-holder', before: 'iban'}];

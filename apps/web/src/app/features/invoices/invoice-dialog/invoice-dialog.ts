@@ -14,7 +14,7 @@ import {DialogFooter} from '../../../shared/ui/dialog-footer/dialog-footer';
 import {openDocumentViewer} from '../../../shared/ui/document-viewer/document-viewer';
 import {drawerOptions} from '../../../shared/ui/drawer/drawer';
 import {WarningBanner} from '../../../shared/ui/warning-banner/warning-banner';
-import {VAT_REGIME_LABELS} from '../../clients/countries';
+import {vatRegimeLabel} from '../../clients/countries';
 import {invoiceNumberLabel} from '../../payments/payment.models';
 import {InvoiceEditor, type InvoiceDialogContext} from '../invoice-editor';
 import {buildRequest} from '../invoice-form';
@@ -62,7 +62,7 @@ export class InvoiceDialog {
     protected readonly form = this.editor.form;
     protected readonly stored = this.ctx.payment?.invoice ?? null;
     protected readonly busy = signal(false);
-    protected readonly regimeLabels = VAT_REGIME_LABELS;
+    protected readonly regimeLabel = vatRegimeLabel;
     private readonly guard = guardUnsavedChanges<boolean>(() => ({
         form: this.form,
         lines: this.editor.lines(),

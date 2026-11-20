@@ -2,7 +2,7 @@ import {inject, Injectable, signal} from '@angular/core';
 import {addDays, daysBetween, todayIso} from '../../shared/utils/dates';
 import {reactiveForm} from '../../shared/utils/reactive-form';
 import type {Client} from '../clients/client.models';
-import {VAT_MENTIONS, vatRegime, type VatRegime} from '../clients/countries';
+import {vatMentions, vatRegime, type VatRegime} from '../clients/countries';
 import {CompanyApi} from '../company/company.api';
 import type {Payment} from '../payments/payment.models';
 import type {Service} from '../services/service.models';
@@ -52,6 +52,8 @@ export class InvoiceEditor {
     /** Starts empty: lines are added by hand or from the catalog */
     readonly lines = signal<LineForm[]>([]);
     readonly missingCompany = signal<string[]>([]);
+    /** The business's own intra-EU VAT number, printed on the invoice when it has one */
+    private readonly companyVat = signal('');
     /** Save the terms and payment delay as defaults for the next invoices */
     readonly saveDefaults = signal(false);
     /** Off: the default terms from the settings, with the client's VAT mention, are used as is */
@@ -90,6 +92,7 @@ export class InvoiceEditor {
         this.services.set(services);
         this.settings = settings;
         this.missingCompany.set(missingCompanyFields(company));
+        this.companyVat.set(company.fields.find((f) => f.id === 'vat')?.value.trim() ?? '');
 
         const s = this.stored;
         const p = ctx.payment;
@@ -142,9 +145,18 @@ export class InvoiceEditor {
         const client = this.currentClient();
         if (!client) return null;
         const regime = vatRegime(client);
-        const m = VAT_MENTIONS[regime];
+        const m = vatMentions(this.form.issuedOn)[regime];
         const ok = this.form.termsFr.includes(m.fr) && (!this.form.english || this.form.termsEn.includes(m.en));
         return ok ? null : regime;
+    }
+
+    /**
+     * A reverse-charge invoice must carry both VAT numbers, the seller's included, even under the VAT franchise
+     * (the number is asked for, free, at the tax office)
+     */
+    missingOwnVatNumber(): boolean {
+        const client = this.currentClient();
+        return !!client && vatRegime(client) === 'reverse' && !this.companyVat();
     }
 
     fixVat() {
@@ -156,7 +168,7 @@ export class InvoiceEditor {
     private defaultTerms(): Terms {
         const terms = {fr: this.settings.termsFr, en: this.settings.termsEn};
         const client = this.currentClient();
-        return client ? withClientVat(terms, client) : terms;
+        return client ? withClientVat(terms, client, this.form.issuedOn) : terms;
     }
 
     setCustomTerms(custom: boolean) {
@@ -169,7 +181,7 @@ export class InvoiceEditor {
 
     /** French invoices must carry the VAT mention matching the client (exemption, reverse charge, export). */
     private applyVatMention(client: Client) {
-        const terms = withClientVat({fr: this.form.termsFr, en: this.form.termsEn}, client);
+        const terms = withClientVat({fr: this.form.termsFr, en: this.form.termsEn}, client, this.form.issuedOn);
         this.form.termsFr = terms.fr;
         this.form.termsEn = terms.en;
     }
@@ -226,9 +238,13 @@ export class InvoiceEditor {
 
     async setIssuedOn(iso: string) {
         const yearChanged = iso.slice(0, 4) !== this.form.issuedOn.slice(0, 4);
+        const codeChanged = iso >= '2027-01-01' !== this.form.issuedOn >= '2027-01-01';
         this.form.issuedOn = iso;
         if (!iso) return;
         this.form.dueOn = addDays(iso, this.paymentDays);
+        // Across 1 January 2027 the VAT mention cites another code (CGI, then CIBS)
+        const client = this.currentClient();
+        if (codeChanged && client) this.applyVatMention(client);
         if (yearChanged && !this.numberTouched && !this.stored) {
             try {
                 await this.suggestNumber();

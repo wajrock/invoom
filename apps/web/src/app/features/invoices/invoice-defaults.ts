@@ -1,6 +1,6 @@
 import type {Client} from '../clients/client.models';
 import type {Company} from '../company/company.models';
-import {VAT_MENTIONS, vatRegime, withVatMention} from '../clients/countries';
+import {vatMentions, vatRegime, withVatMention} from '../clients/countries';
 import type {Payment} from '../payments/payment.models';
 import type {Service} from '../services/service.models';
 import {centsToInput} from '../../shared/utils/money';
@@ -12,9 +12,9 @@ export interface Terms {
     en: string;
 }
 
-/** Terms with the VAT mention the client needs (exemption, reverse charge, export) */
-export function withClientVat(terms: Terms, client: Client): Terms {
-    const m = VAT_MENTIONS[vatRegime(client)];
+/** Terms with the VAT mention the client needs (exemption, reverse charge, export), as worded on that date */
+export function withClientVat(terms: Terms, client: Client, issuedOn: string): Terms {
+    const m = vatMentions(issuedOn)[vatRegime(client)];
     return {fr: withVatMention(terms.fr, m.fr), en: withVatMention(terms.en, m.en)};
 }
 

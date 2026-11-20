@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {VAT_MENTIONS, vatRegime, withVatMention} from '../invoices/vat-mention.ts';
+import {vatMentions, vatRegime, withVatMention} from '../invoices/vat-mention.ts';
 import {isAllowedRedirectUri, pkceChallenge} from './oauth.store.ts';
 
 test('agent redirect addresses: HTTPS, or HTTP on the local machine only', () => {
@@ -25,7 +25,8 @@ test('invoices created by an agent carry the VAT mention of the client', () => {
     assert.equal(vatRegime({countryCode: 'IT', vatNumber: 'IT01234567890'}), 'reverse');
     assert.equal(vatRegime({countryCode: 'OTHER', vatNumber: ''}), 'outside');
     const terms = 'Prestation de services.\nTVA non applicable, art. 293 B du CGI.\nPaiement par virement.';
-    const reverse = withVatMention(terms, VAT_MENTIONS.reverse.fr);
-    assert.equal(reverse.split('\n')[1], VAT_MENTIONS.reverse.fr);
+    const mention = vatMentions('2026-11-18').reverse.fr;
+    const reverse = withVatMention(terms, mention);
+    assert.equal(reverse.split('\n')[1], mention);
     assert.ok(!reverse.includes('293 B'));
 });
